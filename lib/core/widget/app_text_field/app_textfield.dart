@@ -10,7 +10,7 @@ class AppTextfield extends StatelessWidget {
   final TextInputAction? textInputAction;
   final List<TextInputFormatter>? inputFormatters;
   final bool isReadOnly;
-  final validator;
+  String? Function(String?)? validator;
   final ValueChanged<String>? onChanged;
   final TextCapitalization textCapitalization;
   Widget? suffixWidget;
@@ -45,6 +45,7 @@ class AppTextfield extends StatelessWidget {
       obscureText: isObscureText,
       // cursorHeight: 20,
       inputFormatters: inputFormatters,
+      textCapitalization: textCapitalization,
       textInputAction: textInputAction,
       keyboardType: textInputType,
       style:const TextStyle(
@@ -58,11 +59,11 @@ class AppTextfield extends StatelessWidget {
           // isDense: true,
           // contentPadding: EdgeInsets.symmetric(vertical: 14,horizontal: 10),
           // isCollapsed: true,
-          isDense: true,
+          // isDense: true,
           fillColor:fillColor? AppColors.edColor:AppColors.whiteColor,
           suffixIconConstraints: const BoxConstraints(
-            minWidth: 40,
-            minHeight: 43,
+            minWidth: 45,
+            minHeight: 50,
           ),
           prefixIconConstraints: const BoxConstraints(
             minWidth: 35,

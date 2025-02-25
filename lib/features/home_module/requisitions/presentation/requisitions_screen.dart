@@ -4,7 +4,7 @@ import 'package:mohan_impex/core/widget/app_text.dart';
 import 'package:mohan_impex/core/widget/custom_app_bar.dart';
 import 'package:mohan_impex/features/home_module/requisitions/journey_plan/presentation/journey_plan_screen.dart';
 import 'package:mohan_impex/features/home_module/requisitions/marketing_collaterals/presentation/marketing_collaterals_screen.dart';
-import 'package:mohan_impex/features/home_module/requisitions/sample_requisitions/sample_requisitions_screen.dart';
+import 'package:mohan_impex/features/home_module/requisitions/sample_requisitions/presentation/sample_requisitions_screen.dart';
 import 'package:mohan_impex/features/home_module/requisitions/trial_plan/presentation/trial_plan_screen.dart';
 import 'package:mohan_impex/res/app_asset_paths.dart';
 import 'package:mohan_impex/res/app_fontfamily.dart';

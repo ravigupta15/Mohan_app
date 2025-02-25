@@ -4,12 +4,12 @@ import 'package:mohan_impex/res/app_colors.dart';
 import 'package:mohan_impex/res/app_fontfamily.dart';
 import 'package:mohan_impex/res/app_router.dart';
 
-AppBar customAppBar({required String title, List<Widget>? actions, bool isBack=true}){
+AppBar customAppBar({required String title, List<Widget>? actions, bool isBack=true, Function()?isBackTap}){
   return AppBar(
     scrolledUnderElevation: 0.0,
     backgroundColor: AppColors.whiteColor,
     leading:isBack? InkWell(
-      onTap: (){
+      onTap:isBackTap ?? (){
         Navigator.pop(navigatorKey.currentContext!);
       },
       child: Icon(Icons.arrow_back_ios),

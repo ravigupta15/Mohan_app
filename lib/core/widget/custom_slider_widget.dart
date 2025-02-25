@@ -21,10 +21,25 @@ class _CustomSliderWidgetState extends State<CustomSliderWidget> {
       return "High";
     }
   }
+
+  int getSnappedValue(double value){
+    if (value <= 0.1) {
+      return 1;
+    } else if (value <= 0.3) {
+      return 2;
+    } else if (value <= 0.5) {
+      return 3;
+    } else if (value <= 0.7) {
+      return 4;
+    } else {
+      return 5;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
      double screenWidth = MediaQuery.of(context).size.width;
-      double sliderWidth = screenWidth * 0.8;
+      double sliderWidth = screenWidth * 0.85;
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -38,6 +53,7 @@ class _CustomSliderWidgetState extends State<CustomSliderWidget> {
                   newPosition = sliderWidth - thumbRadius * 2;
                 }
                 _sliderValue = newPosition / sliderWidth;
+                print(getSnappedValue(_sliderValue));
               });
             },
             child: Container(

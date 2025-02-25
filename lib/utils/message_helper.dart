@@ -34,7 +34,7 @@ class MessageHelper{
     ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(snackBar);
   } 
 
- static showToast(String title,{ToastGravity gravity = ToastGravity.BOTTOM}){
+ static showToast(String title,{ToastGravity gravity = ToastGravity.SNACKBAR}){
    Fluttertoast.showToast(
        msg: title,
        toastLength: Toast.LENGTH_SHORT,

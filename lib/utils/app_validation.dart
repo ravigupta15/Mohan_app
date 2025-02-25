@@ -8,10 +8,17 @@ mixin class AppValidation {
     );
   }
 
+removeWhiteSpace(){
+return FilteringTextInputFormatter.deny(
+  RegExp(r'\s')
+);
+}
+
   emojiRestrict() {
     return FilteringTextInputFormatter.deny(
         RegExp(ValidationHelper.regexToRemoveEmoji));
   }
+
 
   String? emailValidator(val) {
     if (val.isEmpty) {
@@ -46,6 +53,26 @@ mixin class AppValidation {
     } else if (val != password) {
       return 'Password does not match';
     }
+    return null;
+  }
+
+  String? numberValidation(val){
+            if(val!.isEmpty){
+              return "Please etner your number";
+            }
+            else if(val.length < 10){
+              return "Please enter valid number";
+            }
+    return null;
+  }
+
+   String? pincodeValidation(val){
+            if(val!.isEmpty){
+              return "Please etner pincode";
+            }
+            else if(val.length < 6){
+              return "Please enter valid pincode";
+            }
     return null;
   }
 }

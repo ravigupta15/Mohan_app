@@ -7,7 +7,7 @@ import 'package:mohan_impex/core/widget/app_text_button.dart';
 import 'package:mohan_impex/core/widget/app_text_field/app_textfield.dart';
 import 'package:mohan_impex/core/widget/custom_app_bar.dart';
 import 'package:mohan_impex/core/widget/custom_radio_button.dart';
-import 'package:mohan_impex/features/home_module/custom_visit/customer_visit_history/widget/visit_item.dart';
+import 'package:mohan_impex/features/home_module/custom_visit/presentation/widgets/visit_item.dart';
 import 'package:mohan_impex/features/home_module/my_customers/presentation/view_customer_screen.dart';
 import 'package:mohan_impex/res/app_asset_paths.dart';
 import 'package:mohan_impex/res/app_colors.dart';

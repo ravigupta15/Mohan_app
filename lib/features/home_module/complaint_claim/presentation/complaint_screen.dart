@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:mohan_impex/core/widget/app_date_widget.dart';
 import 'package:mohan_impex/core/widget/app_search_bar.dart';
@@ -9,6 +10,7 @@ import 'package:mohan_impex/core/widget/custom_radio_button.dart';
 import 'package:mohan_impex/core/widget/custom_tabbar.dart';
 import 'package:mohan_impex/core/widget/floating_action_button_widget.dart';
 import 'package:mohan_impex/features/home_module/complaint_claim/presentation/add_complaint_screen.dart';
+import 'package:mohan_impex/features/home_module/complaint_claim/riverpod/add_complaint_state.dart';
 import 'package:mohan_impex/features/home_module/complaint_claim/widgets/active_complaint_widget.dart';
 import 'package:mohan_impex/features/home_module/complaint_claim/widgets/resolved_complaint_widget.dart';
 import 'package:mohan_impex/res/app_asset_paths.dart';
@@ -16,18 +18,32 @@ import 'package:mohan_impex/res/app_colors.dart';
 import 'package:mohan_impex/res/app_fontfamily.dart';
 import 'package:mohan_impex/res/app_router.dart';
 
-class ComplaintScreen extends StatefulWidget {
+class ComplaintScreen extends ConsumerStatefulWidget {
   const ComplaintScreen({super.key});
 
   @override
-  State<ComplaintScreen> createState() => _ComplaintScreenState();
+  ConsumerState<ComplaintScreen> createState() => _ComplaintScreenState();
 }
 
-class _ComplaintScreenState extends State<ComplaintScreen> {
-  int tabBarIndex=0;
-  int selectedRadio = 0;
+class _ComplaintScreenState extends ConsumerState<ComplaintScreen> {
+
+ @override
+  void initState() {
+    Future.microtask((){
+      callInitFunction();
+    });
+    super.initState();
+  }
+
+  callInitFunction(){
+    final refNotifier = ref.read(addComplaintsProvider.notifier);
+    refNotifier.complaintListApiFunction();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final refNotifier = ref.read(addComplaintsProvider.notifier);
+    final refstate = ref.watch(addComplaintsProvider);
     return Scaffold(
       appBar: customAppBar(title: "Complaints & Claim"),
       body: Padding(
@@ -51,7 +67,7 @@ class _ComplaintScreenState extends State<ComplaintScreen> {
                       ),
                        InkWell(
                         onTap: (){
-                          filterBottomSheet(context);
+                          filterBottomSheet(context,refstate);
                         },
                         child: SvgPicture.asset(AppAssetPaths.filterIcon)),
                      
@@ -64,24 +80,20 @@ class _ComplaintScreenState extends State<ComplaintScreen> {
              Padding(
                padding: const EdgeInsets.symmetric(horizontal: 25),
                child: CustomTabbar(
-                currentIndex: tabBarIndex,
+                currentIndex:refstate.tabBarIndex,
                 title1: "Active",
                 title2: "Resolved",
                 onClicked1: (){
-                  tabBarIndex=0;
-                  setState(() {
-                  });
+                  refNotifier.updateTabBarIndex(0);
                 },
                 onClicked2: (){
-                  tabBarIndex=1;
-                  setState(() {
-                  });
+                  refNotifier.updateTabBarIndex(1);
                 },
-                           ),
+              ),
              ),
             const SizedBox(height: 10,),
-            Expanded(child: tabBarIndex==0?
-            ActiveComplaintWidget():ResolvedComplaintWidget()
+            Expanded(child:refstate.tabBarIndex==0?
+            ActiveComplaintWidget(refNotifer: refNotifier,refState: refstate,):ResolvedComplaintWidget(refNotifer: refNotifier,refState: refstate,)
             )
           ],
         ),
@@ -92,7 +104,7 @@ class _ComplaintScreenState extends State<ComplaintScreen> {
     );
   }
 
-  filterBottomSheet(BuildContext context){
+  filterBottomSheet(BuildContext context, AddComplaintState refstate){
   showModalBottomSheet(
     backgroundColor: AppColors.whiteColor,
     context: context, builder: (context){
@@ -141,25 +153,25 @@ class _ComplaintScreenState extends State<ComplaintScreen> {
                       const SizedBox(height: 10,),
                       Row(
                         children: [
-                          customRadioButton(isSelected:selectedRadio==0? true:false, title: 'All',
+                          customRadioButton(isSelected:refstate.selectedRadio==0? true:false, title: 'All',
                           onTap: (){
                             state(() {
-                              selectedRadio=0;
+                             refstate. selectedRadio=0;
                             });
                           }
                           ),
                           const SizedBox(width: 15,),
-                          customRadioButton(isSelected:selectedRadio==1? true:false, title: 'Quality',
+                          customRadioButton(isSelected:refstate.selectedRadio==1? true:false, title: 'Quality',
                           onTap: (){
                             state(() {
-                              selectedRadio=1;
+                              refstate.selectedRadio=1;
                             });
                           }),
                           const SizedBox(width: 15,),
-                          customRadioButton(isSelected:selectedRadio==2? true:false, title: 'Transit',
+                          customRadioButton(isSelected:refstate.selectedRadio==2? true:false, title: 'Transit',
                           onTap: (){
                             state(() {
-                              selectedRadio=2;
+                              refstate.selectedRadio=2;
                             });
                           }),
                         ],

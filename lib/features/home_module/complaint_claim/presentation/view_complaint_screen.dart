@@ -1,35 +1,56 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:mohan_impex/core/widget/app_text.dart';
 import 'package:mohan_impex/core/widget/custom_app_bar.dart';
 import 'package:mohan_impex/core/widget/dotted_divider.dart';
 import 'package:mohan_impex/core/widget/expandable_widget.dart';
+import 'package:mohan_impex/core/widget/view_img.dart';
+import 'package:mohan_impex/features/home_module/complaint_claim/model/view_complaint_model.dart';
+import 'package:mohan_impex/features/home_module/complaint_claim/riverpod/add_complaint_state.dart';
 import 'package:mohan_impex/res/app_asset_paths.dart';
 import 'package:mohan_impex/res/app_colors.dart';
 import 'package:mohan_impex/res/app_fontfamily.dart';
+import 'package:mohan_impex/res/app_router.dart';
+import 'package:mohan_impex/res/no_data_found_widget.dart';
 
-class ViewComplaintScreen extends StatefulWidget {
-  const ViewComplaintScreen({super.key});
+class ViewComplaintScreen extends ConsumerStatefulWidget {
+  final String ticketId;
+  const ViewComplaintScreen({super.key, required this.ticketId});
 
   @override
-  State<ViewComplaintScreen> createState() => _ViewComplaintScreenState();
+  ConsumerState<ViewComplaintScreen> createState() => _ViewComplaintScreenState();
 }
 
-class _ViewComplaintScreenState extends State<ViewComplaintScreen> {
+class _ViewComplaintScreenState extends ConsumerState<ViewComplaintScreen> {
+
+ @override
+  void initState() {
+    Future.microtask((){
+      callInitFunction();
+    });
+    super.initState();
+  }
+
+callInitFunction(){
+  ref.read(addComplaintsProvider.notifier).viewComplaintApiFunction(context, widget.ticketId);
+}
+
   @override
   Widget build(BuildContext context) {
+    final refState = ref.watch(addComplaintsProvider);
     return Scaffold(
         appBar: customAppBar(title: "Complaints & Claim"),
-        body: SingleChildScrollView(
+        body: (refState.viewComplaintModel?.data??[]).isNotEmpty? SingleChildScrollView(
           padding: EdgeInsets.only(left: 17,right: 17,top: 7,bottom: 30),
           child: Column(
             children: [
               _StatusWidget(),
               const SizedBox(height: 15,),
-              _ComplaintDetailsWidget()
+              _ComplaintDetailsWidget(model: refState.viewComplaintModel?.data?[0],)
             ],
           ),
-        ),
+        ): NoDataFound(title: "No data found"),
     );
   }
 }
@@ -183,8 +204,10 @@ class _StatusWidget extends StatelessWidget {
 }
 
 
+// ignore: must_be_immutable
 class _ComplaintDetailsWidget extends StatelessWidget {
-  const _ComplaintDetailsWidget();
+  ComplaintData? model;
+   _ComplaintDetailsWidget({required this.model});
 
   @override
   Widget build(BuildContext context) {
@@ -231,66 +254,80 @@ return Container(
             const SizedBox(height: 10,),
           dotteDivierWidget(dividerColor: AppColors.edColor,),
             const SizedBox(height: 9,),
-            itemsWidget("Customer Type", "Secondary"),
+            itemsWidget("Customer Type", model?.customerType??''),
             const SizedBox(height: 18,),
-            itemsWidget("Date", "11-02-2024"),
+            itemsWidget("Date", model?.openingDate??''),
             const SizedBox(height: 18,),
-            itemsWidget("Trial Time", "14:30"),
+            itemsWidget("Trial Time", model?.openingTime??""),
             const SizedBox(height: 18,),
-            itemsWidget("Claim Type", "Quality"),
+            itemsWidget("Claim Type", model?.claimType??''),
             const SizedBox(height: 18,),
-            itemsWidget("Company Name", "XYZ"),
+            itemsWidget("Company Name", model?.company??''),
             const SizedBox(height: 18,),
-            itemsWidget("Contact Person Name", "abc"),
+            itemsWidget("Contact Person Name", model?.name??''),
             const SizedBox(height: 18,),
-            itemsWidget("Contact No", "34654565645"),
+            itemsWidget("Contact No", model?.contact??''),
             const SizedBox(height: 18,),
-            itemsWidget("State", "Rajasthan"),
+            itemsWidget("State", model?.state??''),
             const SizedBox(height: 18,),
-            itemsWidget("Town", "Jaipur"),
+            itemsWidget("Town", model?.town??''),
             const SizedBox(height: 18,),
-            itemsWidget("Pincode", "343534"),
+            itemsWidget("Pincode", model?.pincode??''),
             const SizedBox(height: 18,),
-            itemsWidget("Item Name", "abc"),
+            itemsWidget("Item Name", model?.itemName??''),
             const SizedBox(height: 18,),
-            itemsWidget("Invoice no & Date", "1212423,11-12-2024"),
+            itemsWidget("Invoice no & Date", "${model?.invoiceNo??""}, ${model?.invoiceDate??''}"),
             const SizedBox(height: 18,),
-            itemsWidget("Complaint Item Quantity", "50"),
+            itemsWidget("Complaint Item Quantity", (model?.complaintItmQty??'').toString()),
             const SizedBox(height: 18,),
-            itemsWidget("Value of Goods", "50,000"),
+            itemsWidget("Value of Goods", (model?.valueOfGoods??'').toString()),
             const SizedBox(height: 18,),
-            itemsWidget("Batch No.", "1234"),
+            itemsWidget("Batch No.", (model?.batchNo??"").toString()),
             const SizedBox(height: 18,),
-            itemsWidget("MFD", "11-12-2024"),
+            itemsWidget("MFD", model?.mfd??''),
             const SizedBox(height: 18,),
-            itemsWidget("Expiry", "1-06-2025"),
+            itemsWidget("Expiry", model?.expiry??''),
             const SizedBox(height: 18,),
-            itemsWidget("Reason for Complaint", "Quality of product is not good"),
+            itemsWidget("Reason for Complaint",model?.description??''),
             const SizedBox(height: 18,),
-            itemsWidget("Attach images/Video", ""),
+            itemsWidget("Attach images", ""),
             const SizedBox(height: 18,),
-            imageVideoWidget(),
-            const SizedBox(height: 15,),
-            imageVideoWidget(),
+            ListView.separated(
+              separatorBuilder: (sb,index){
+                return const SizedBox(height: 15,);
+              },
+              itemCount: (model?.imageUrl?.length??0),
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemBuilder: (ctx,index){
+                var imgModel = model?.imageUrl?[index];
+                return imageVideoWidget(imgModel?.fileUrl??'', imgModel?.fileName??'');
+            })
         ],
       ),
 );
   }
 
-Widget imageVideoWidget(){
-  return Container(
-    decoration: BoxDecoration(
-      color: AppColors.whiteColor,
-      border: Border.all(color: AppColors.edColor),
-      borderRadius: BorderRadius.circular(8)
-    ),
-    padding: EdgeInsets.symmetric(horizontal: 8,vertical: 10),
-    child: Row(
-      children: [
-        SvgPicture.asset(AppAssetPaths.visitIcon,color: AppColors.greenColor,height: 20,),
-        const SizedBox(width: 6,),
-        AppText(title: "Customer complaint.jpg",color: AppColors.lightTextColor,fontsize: 12,)
-      ],
+Widget imageVideoWidget(String img, String fileName){
+  return InkWell(
+    onTap: (){
+      AppRouter.pushCupertinoNavigation(ViewImage(image: img));
+    },
+    child: Container(
+      decoration: BoxDecoration(
+        color: AppColors.whiteColor,
+        border: Border.all(color: AppColors.edColor),
+        borderRadius: BorderRadius.circular(8)
+      ),
+      padding: EdgeInsets.symmetric(horizontal: 8,vertical: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SvgPicture.asset(AppAssetPaths.visitIcon,color: AppColors.greenColor,height: 20,),
+          const SizedBox(width: 6,),
+          Expanded(child: AppText(title: fileName,color: AppColors.lightTextColor,fontsize: 12))
+        ],
+      ),
     ),
   );
  }

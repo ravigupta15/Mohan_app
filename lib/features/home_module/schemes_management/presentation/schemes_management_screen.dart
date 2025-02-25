@@ -1,26 +1,46 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:mohan_impex/core/widget/app_search_bar.dart';
 import 'package:mohan_impex/core/widget/app_text.dart';
 import 'package:mohan_impex/core/widget/app_text_button.dart';
 import 'package:mohan_impex/core/widget/custom_app_bar.dart';
 import 'package:mohan_impex/core/widget/custom_radio_button.dart';
+import 'package:mohan_impex/features/home_module/schemes_management/riverpod/schemes_state.dart';
 import 'package:mohan_impex/res/app_asset_paths.dart';
 import 'package:mohan_impex/res/app_colors.dart';
 import 'package:mohan_impex/res/app_fontfamily.dart';
+import 'package:mohan_impex/res/no_data_found_widget.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
-class SchemesManagementScreen extends StatefulWidget {
+class SchemesManagementScreen extends ConsumerStatefulWidget {
   const SchemesManagementScreen({super.key});
 
   @override
-  State<SchemesManagementScreen> createState() => _SchemesManagementScreenState();
+  ConsumerState<SchemesManagementScreen> createState() => _SchemesManagementScreenState();
 }
 
-class _SchemesManagementScreenState extends State<SchemesManagementScreen> {
+class _SchemesManagementScreenState extends ConsumerState<SchemesManagementScreen> {
 
   int selectedRadio=0;
+
+ @override
+  void initState() {
+    Future.microtask((){
+      callInitFunction();
+    });
+    super.initState();
+  }
+
+  callInitFunction(){
+    final refNotifier = ref.read(schemesProvider.notifier);
+    refNotifier.callApiFunction(context);
+  }
+
   @override
   Widget build(BuildContext context) {
+    final refState = ref.watch(schemesProvider);
+    final refNotifier = ref.read(schemesProvider.notifier);
     return Scaffold(
        appBar: customAppBar(title: "Scheme Management"),
        body: Column(
@@ -52,11 +72,15 @@ class _SchemesManagementScreenState extends State<SchemesManagementScreen> {
             ),
          const SizedBox(height: 10,),
          Expanded(
-           child: ListView.separated(
+           child: refState.isLoading?
+           SchemsShimmer():
+           (refState.schemeModel?.data??[]).isEmpty? 
+           NoDataFound(title: "No schemes data found"):
+           ListView.separated(
             separatorBuilder: (ctx,sb){
               return const SizedBox(height: 15,);
             },
-            itemCount: 4,
+            itemCount: (refState.schemeModel?.data?.length??0),
             padding: EdgeInsets.only(top: 5,left: 17,right:  17,bottom: 30),
             shrinkWrap: true,
             itemBuilder: (ctx,index){
@@ -166,6 +190,28 @@ class _SchemesManagementScreenState extends State<SchemesManagementScreen> {
     );
   });
 }
+
+}
+
+class SchemsShimmer extends StatelessWidget {
+  const SchemsShimmer({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Skeletonizer(
+      enabled: true,
+      child: ListView.separated(
+        separatorBuilder: (ctx,sb){
+                return const SizedBox(height: 15,);
+              },
+              itemCount: 4,
+              padding: EdgeInsets.only(top: 5,left: 17,right:  17,bottom: 30),
+              shrinkWrap: true,
+        itemBuilder: (ctx,index){
+          return _SchemeWidget();
+      }),
+    );
+  }
 }
 
 class _SchemeWidget extends StatelessWidget {

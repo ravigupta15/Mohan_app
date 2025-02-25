@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mohan_impex/features/home_module/custom_visit/customer_visit_history/widget/visit_item.dart';
+import 'package:mohan_impex/features/home_module/custom_visit/presentation/widgets/visit_item.dart';
 import 'package:mohan_impex/features/home_module/seles_order/presentation/view_order_screen.dart';
 import 'package:mohan_impex/res/app_colors.dart';
 import 'package:mohan_impex/res/app_router.dart';

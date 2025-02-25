@@ -6,7 +6,6 @@ import 'package:mohan_impex/data/datasources/local_share_preference.dart';
 
 // ignore: must_be_immutable
 class AppGoogleMap extends StatefulWidget {
-
    AppGoogleMap({
     Key? key,
   }) : super(key: key);

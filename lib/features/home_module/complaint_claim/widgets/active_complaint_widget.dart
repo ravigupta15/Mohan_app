@@ -1,27 +1,37 @@
 import 'package:flutter/material.dart';
-import 'package:mohan_impex/core/widget/app_text.dart';
 import 'package:mohan_impex/features/home_module/complaint_claim/presentation/view_complaint_screen.dart';
+import 'package:mohan_impex/features/home_module/complaint_claim/riverpod/add_complaint_notifier.dart';
+import 'package:mohan_impex/features/home_module/complaint_claim/riverpod/add_complaint_state.dart';
 import 'package:mohan_impex/features/home_module/complaint_claim/widgets/complaint_items_widget.dart';
 import 'package:mohan_impex/res/app_colors.dart';
-import 'package:mohan_impex/res/app_fontfamily.dart';
 import 'package:mohan_impex/res/app_router.dart';
+import 'package:mohan_impex/res/no_data_found_widget.dart';
+import 'package:mohan_impex/res/shimmer/list_shimmer.dart';
 
 class ActiveComplaintWidget extends StatelessWidget {
-  const ActiveComplaintWidget({super.key});
+  final AddComplaintNotifier refNotifer;
+  final AddComplaintState refState;
+  const ActiveComplaintWidget({super.key, required this.refNotifer,required this.refState});
 
   @override
   Widget build(BuildContext context) {
-    return ListView.separated(
+    return  refState.isLoading?
+    CustomerVisitShimmer(isShimmer: refState.isLoading, isKyc: true):
+    (refState.complaintModel?.data?[0].active?.length??0)>0?
+    ListView.separated(
       separatorBuilder: (ctx,sb){
         return const SizedBox(height: 15,);
       },
-      itemCount: 4,
+      itemCount: (refState.complaintModel?.data?[0].active?.length??0),
       padding: EdgeInsets.only(top: 10,bottom: 20,left: 17,right: 17),
       shrinkWrap: true,
       itemBuilder: (ctx,index){
+        var model = refState.complaintModel?.data?[0].active?[index];
         return InkWell(
           onTap: (){
-            AppRouter.pushCupertinoNavigation(const ViewComplaintScreen());
+            AppRouter.pushCupertinoNavigation( ViewComplaintScreen(ticketId: (model?.name??''),)).then((val){
+              refNotifer.complaintListApiFunction();
+            });
           },
           child: Container(
             padding: EdgeInsets.symmetric(vertical: 10),
@@ -40,32 +50,15 @@ class ActiveComplaintWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 ComplaintItemsWidget(
-                  title:"Ticket #12345",
-                  name: "Jane Smith",
-                  date: "2025-01-01",reasonTitle: "Quality",),
+                  title:"Ticket #${model?.name??''}",
+                  name: model?.username??'',
+                  date: model?.date??'',reasonTitle: model?.claimType??'',
+                  status: "Pending",
+                  ),
               ],
             ),
           ),
         );
-    });
+    }) : NoDataFound(title: "No active tickets found");
   }
-
-kycWidget(){
-  return Padding(
-    padding: const EdgeInsets.only(left: 10),
-    child: Row(
-      children: [
-        Container(
-          height: 5,width: 5,
-          decoration: BoxDecoration(
-            color: AppColors.greenColor,shape: BoxShape.circle
-          ),
-        ),
-        const SizedBox(width: 4,),
-        AppText(title: "Pending : ",fontsize: 10,fontFamily: AppFontfamily.poppinsSemibold,color: AppColors.visitItem,),
-        AppText(title: "ASM Review",fontsize: 10,fontFamily: AppFontfamily.poppinsRegular,color: AppColors.visitItem,),
-      ],
-    ),
-  );
-}
 }

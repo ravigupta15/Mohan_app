@@ -6,23 +6,32 @@ import 'package:mohan_impex/core/widget/app_text_button.dart';
 import 'package:mohan_impex/core/widget/custom_checkbox.dart';
 import 'package:mohan_impex/core/widget/dotted_divider.dart';
 import 'package:mohan_impex/core/widget/expandable_widget.dart';
-import 'package:mohan_impex/core/widget/product_items_widget.dart';
+import 'package:mohan_impex/data/datasources/local_share_preference.dart';
 import 'package:mohan_impex/features/common_widgets/remarks_widgets.dart';
+import 'package:mohan_impex/features/home_module/search/presentation/search_screen.dart';
+import 'package:mohan_impex/features/home_module/custom_visit/model/item_model.dart';
+import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit/riverpod/new_customer_visit_notifier.dart';
+import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit/riverpod/new_customer_visit_state.dart';
+import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit/widgets/add_remove_container_widget.dart';
+import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit/widgets/customer_information_widget.dart';
 import 'package:mohan_impex/res/app_asset_paths.dart';
 import 'package:mohan_impex/res/app_colors.dart';
 import 'package:mohan_impex/res/app_fontfamily.dart';
+import 'package:mohan_impex/res/app_router.dart';
+import 'package:mohan_impex/res/empty_widget.dart';
 
+// ignore: must_be_immutable
 class SalesPatchWidget extends StatefulWidget {
-  const SalesPatchWidget({super.key});
+  final NewCustomerVisitNotifier refNotifer;
+  final NewCustomerVisitState refState;
+   SalesPatchWidget({super.key, required this.refNotifer,required this.refState});
 
   @override
   State<SalesPatchWidget> createState() => _SalesPatchWidgetState();
 }
 
 class _SalesPatchWidgetState extends State<SalesPatchWidget> {
-  int index =0;
-  final selectedTabBarIndex= 0;
-
+  // int index =0;
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -36,132 +45,159 @@ class _SalesPatchWidgetState extends State<SalesPatchWidget> {
             child: SvgPicture.asset(AppAssetPaths.searchIcon),
           ),
           onTap: (){
-            productBottomSheet();
+            AppRouter.pushCupertinoNavigation(const SearchScreen(route: 'product')).then((value){
+            widget.refNotifer.productItemApiFunction(context, productItem: value).then((val){
+              if(val!=null){
+                productBottomSheet(context,value);
+              }
+            });
+            });
+
           },
         ),
         const SizedBox(height: 20,),
-        _CustomInfoWidget(),
+        CustomerInfoWidget(
+          name: widget.refNotifer.customerNameController.text,
+          location: LocalSharePreference.currentAddress,
+          shopName: widget.refNotifer.shopNameController.text,
+          number: widget.refNotifer.numberController.text,
+          contactList: widget.refState.contactNumberList,
+        ),
         const SizedBox(height: 20,),
-        RemarksWidget(),
+        RemarksWidget(controller: widget.refNotifer.remarksController,),
         const SizedBox(height: 20,),
-        _AddedProductWidget(),
+        addedProductWidget(),
         ],
     );
   }
 
+Widget addedProductWidget(){
+  return ListView.builder(
+    itemCount: widget.refState.selectedProductList.length,
+    shrinkWrap: true,
+    physics: const NeverScrollableScrollPhysics(),
+    itemBuilder: (ctx,index){
+      return Container(
+        padding: EdgeInsets.symmetric(horizontal: 12,vertical: 15),
+      decoration: BoxDecoration(
+        color:AppColors.itemsBG,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Color(0xffE2E2E2)),
+        boxShadow: [
+          BoxShadow(
+            offset: Offset(0, 0),
+            color: AppColors.black.withValues(alpha: .1),
+            blurRadius: 10
+          ),
+        ]
+      ),
+      child: ExpandableWidget(
+        initExpanded: true,
+        collapsedWidget: collapsedWidget(isExpanded: true,index:index), expandedWidget: expandWidget(isExpanded: false,index: index))
+    );
+  });
+}
 
-  tabbarWidget(){
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+  collapsedWidget({required bool isExpanded,required int index}){
+    return Container(
+         decoration: BoxDecoration(
+        color: AppColors.whiteColor,
+        borderRadius: BorderRadius.circular(10),
+        // border: Border.all(color: AppColors.oliveGray.withValues(alpha: .3)),
+      ),
+      alignment: Alignment.center,
+      padding:isExpanded? EdgeInsets.symmetric(horizontal: 15,vertical: 12):EdgeInsets.zero,
+      child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              AppText(title: widget.refState.selectedProductList[index].productType,fontFamily:AppFontfamily.poppinsSemibold,),
+            Icon(!isExpanded? Icons.expand_less:Icons.expand_more,color: AppColors.light92Color,),
+            ],
+          ),
+      );
+  }
+
+  expandWidget({required bool isExpanded, required int index}){
+    return Container(
+         decoration: BoxDecoration(
+        color: AppColors.whiteColor,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: AppColors.oliveGray.withValues(alpha: .3)),
+      ),
+      padding: EdgeInsets.only(left: 15,right: 15,top: 8,bottom: 20),
+      child: Column(
+            children: [
+              collapsedWidget(isExpanded: isExpanded,index: index),
+              Padding(padding: EdgeInsets.only(top: 9,bottom: 6),
+          child: dotteDivierWidget(dividerColor:  AppColors.edColor,thickness: 1.6),),
+          ListView.separated(
+            separatorBuilder: (ctx,sb){
+              return const SizedBox(height: 15,);
+            },
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: widget.refState.selectedProductList[index].list.length,
+            shrinkWrap: true,
+            itemBuilder: (ctx,sbIndex){
+              var model = widget.refState.selectedProductList[index].list[sbIndex];
+              return Row(
       children: [
-        _roundedContainer(bgColor: AppColors.greenColor,borderColor: AppColors.greenColor),
-        Padding(padding: EdgeInsets.symmetric(horizontal: 6),
-        child: _divider(AppColors.greenColor),),
-        _roundedContainer(bgColor: AppColors.black,borderColor:  AppColors.black),
-        Padding(padding: EdgeInsets.symmetric(horizontal: 6),
-        child: _divider(AppColors.lightTextColor),),
-        _roundedContainer(bgColor: AppColors.whiteColor,borderColor: AppColors.lightTextColor),
+        Expanded(child: AppText(title: (model.name??''),)),
+        customContainerForAddRemove(isAdd: false,onTap: (){
+           if((model.quantity)>0){
+                model.quantity = model.quantity-1;
+              setState(() {
+              });
+              }
+        }),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: AppText(title: (model.quantity).toString(),),
+        ),
+        customContainerForAddRemove(isAdd: true,onTap: (){
+                model.quantity = model.quantity+1;
+              setState(() {
+              });
+        }),
+        const SizedBox(width: 30,),
+        InkWell(
+          onTap: (){
+            widget.refState.selectedProductList.removeAt(index);
+            if(sbIndex>0){
+              widget.refState.selectedProductList.clear();
+            }
+            else{
+
+            }
+            setState(() {
+              
+            });
+          },
+          child: SvgPicture.asset(AppAssetPaths.deleteIcon))
       ],
     );
+          }),
+            ],
+          ),
+      );
   }
 
-  _divider(Color color){
-  return Container(
-width: 50,color: color,height: 1,
-  );
-}
- _roundedContainer({required Color bgColor, required Color borderColor}){
-    return Container(
-      height: 16,width: 16,
-      decoration: BoxDecoration(
-        border: Border.all(color: borderColor),
-        color: bgColor,
-        shape: BoxShape.circle
-      ),
-    );
-  }
 
-productBottomSheet(){
+productBottomSheet(BuildContext context, String title){
   showModalBottomSheet(
     backgroundColor: AppColors.whiteColor,
     isScrollControlled: true,
     context: context, builder: (context){
-      return _ProductBottomSheetWidget();
+      return _ProductBottomSheetWidget(refNotifer: widget.refNotifer,refState: widget.refState, title: title);
   });
 }
-
 }
 
-
-class _CustomInfoWidget extends StatelessWidget {
-  const _CustomInfoWidget();
-
-  @override
-  Widget build(BuildContext context) {
-    return ExpandableWidget(
-      initExpanded: false,
-      collapsedWidget: collapsedWidget(isExpanded: true), expandedWidget: expandedWidget(isExpanded: false));
-  }
-
-Widget collapsedWidget({required bool isExpanded}){
-  return Container(
-      padding:isExpanded? EdgeInsets.symmetric(horizontal: 10,vertical: 12):EdgeInsets.zero,
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        AppText(title: "Customer Information",fontFamily:AppFontfamily.poppinsSemibold,),
-          Icon(!isExpanded? Icons.expand_less:Icons.expand_more,color: AppColors.light92Color,),
-      ],
-    ),
-  );
-}
-
-Widget expandedWidget({required bool isExpanded}){
-  return  Container(
-       padding: EdgeInsets.symmetric(horizontal: 10,vertical: 14),
-      decoration: BoxDecoration(
-        color: AppColors.whiteColor,
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          BoxShadow(
-            offset: Offset(0, 0),
-            color: AppColors.black.withValues(alpha: .2),
-            blurRadius: 10
-          )
-        ]
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-       collapsedWidget(isExpanded: isExpanded),
-            const SizedBox(height: 10,),
-            itemsWidget("Vendor Name", "Ramesh"),
-            const SizedBox(height: 10,),
-            itemsWidget("Shop Name", "Ammas"),
-            const SizedBox(height: 10,),
-            itemsWidget("Contact", "7049234489"),
-            const SizedBox(height: 10,),
-            itemsWidget("Location", "123, Market Street"),
-        ],
-      ),
-    );
-}
-
-
-  Widget itemsWidget(String title, String subTitle){
-    return Row(
-      children: [
-        AppText(title: "$title : ",fontFamily: AppFontfamily.poppinsRegular,),
-        AppText(title: subTitle,
-        fontsize: 13,
-        fontFamily: AppFontfamily.poppinsRegular,color: AppColors.lightTextColor,),
-      ],
-    );
-  }
-}
 
 class _ProductBottomSheetWidget extends StatefulWidget {
-  const _ProductBottomSheetWidget();
+   final NewCustomerVisitNotifier refNotifer;
+  final NewCustomerVisitState refState;
+  final String title;
+  const _ProductBottomSheetWidget({required this.refNotifer, required this.refState, required this.title});
 
   @override
   State<_ProductBottomSheetWidget> createState() => __ProductBottomSheetWidgetState();
@@ -169,7 +205,7 @@ class _ProductBottomSheetWidget extends StatefulWidget {
 
 class __ProductBottomSheetWidgetState extends State<_ProductBottomSheetWidget> {
 
-int selectedIndex = 0;
+int selectedProductCategoryIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -184,7 +220,7 @@ int selectedIndex = 0;
               child: Row(
                 children: [
                   const Spacer(),
-                  AppText(title: "Bread",fontsize: 16,fontFamily: AppFontfamily.poppinsSemibold,),
+                  AppText(title: widget.title,fontsize: 16,fontFamily: AppFontfamily.poppinsSemibold,),
                   const Spacer(),
                   InkWell(
                     onTap: (){
@@ -207,8 +243,10 @@ int selectedIndex = 0;
             tabBar(),
             const SizedBox(height: 15,),
             headersForTabBarItems(),
+            const SizedBox(height: 5,),
             productItemsWidget(),
             const SizedBox(height: 20,),
+            (widget.refState.itemModel?.selectedList??[]).isEmpty?EmptyWidget():
             Container(
               margin: EdgeInsets.symmetric(horizontal: 20),
               decoration: BoxDecoration(
@@ -219,8 +257,17 @@ int selectedIndex = 0;
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  AppText(title: "3 Items Selected",fontFamily: AppFontfamily.poppinsSemibold,),
-                  AppTextButton(title: "Add items",color: AppColors.arcticBreeze,height: 30,width: 100,)
+                  AppText(title: "${widget.refState.itemModel?.selectedList.length} Items Selected",fontFamily: AppFontfamily.poppinsSemibold,),
+                  AppTextButton(title: "Add items",color: AppColors.arcticBreeze,height: 30,width: 100,
+                  onTap: (){
+                    widget.refState.selectedProductList.add(
+                      ProductSendModel(list: widget.refState.itemModel!.selectedList, productType: widget.title)
+                    );
+                    Navigator.pop(context);
+                    setState(() {
+                    });
+                  },
+                  )
                 ],
               ),
             )
@@ -262,7 +309,7 @@ int selectedIndex = 0;
     return Expanded(
       child: InkWell(
         onTap: (){
-          selectedIndex=index;
+          selectedProductCategoryIndex=index;
           setState(() {
           });
         },
@@ -271,9 +318,9 @@ int selectedIndex = 0;
           width: double.infinity,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: selectedIndex==index? AppColors.whiteColor:null,
+            color: selectedProductCategoryIndex==index? AppColors.whiteColor:null,
             borderRadius: BorderRadius.circular(5),
-            boxShadow:selectedIndex==index? [
+            boxShadow:selectedProductCategoryIndex==index? [
               BoxShadow(
                 offset: Offset(0, -2),
                 blurRadius: 12,
@@ -287,6 +334,20 @@ int selectedIndex = 0;
     );
   }
 
+String productCategoryTitle(int index){
+  switch (index) {
+    case 0:
+      return "MP";
+      case 1:
+      return "BP";
+      case 2:
+      return "FP";
+      case 3:
+      return "TP";
+    default:
+    return '';
+  }
+}
 
 headersForTabBarItems(){
   return Container(
@@ -302,7 +363,7 @@ headersForTabBarItems(){
         SizedBox(
           width: 60,
           child: AppText(title: "Item",fontsize: 11,color: AppColors.lightTextColor,)),
-        selectedIndex==2 ? SizedBox( width: 80,):
+        selectedProductCategoryIndex==2 ? SizedBox( width: 80,):
         Container(
           padding: EdgeInsets.symmetric(horizontal: 8),
           decoration: BoxDecoration(
@@ -330,54 +391,68 @@ headersForTabBarItems(){
 productItemsWidget(){
 return ListView.separated(
   separatorBuilder: (ctx,sb){
-    return const SizedBox(height: 13,);
+    return const SizedBox(height: 20,);
   },
-  itemCount: 10,
+  itemCount: (widget.refState.itemModel?.data?.length??0),
   shrinkWrap: true,
   padding: EdgeInsets.only(left: 25,right: 25,top: 12),
   itemBuilder: (ctx,index){
+    var model = widget.refState.itemModel?.data?[index];
   return Row(
     children: [
      SizedBox(
       width: 60,
-      child:  AppText(title: "Item ${index+1}",fontFamily: AppFontfamily.poppinsMedium,),),
-     selectedIndex==2 ? SizedBox(width: 80,):
+      child:  AppText(title: (model?.name??''),fontFamily: AppFontfamily.poppinsMedium,),),
+     selectedProductCategoryIndex==2 ? SizedBox(width: 80,):
       GestureDetector(
         onTap: (){
-          selectedIndex==0 ? _variationModelBottomSheet():
-          _competetorModelBottomSheet();
+          // selectedIndex==0 ? _variationModelBottomSheet():
+          _competetorModelBottomSheet(index);
         },
         child: Container(
+          width: 64,
           margin: EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
             border: Border.all(color: AppColors.edColor),
             borderRadius: BorderRadius.circular(5)
           ),
           padding: EdgeInsets.symmetric(horizontal: 5,vertical: 2),
-          child: Row(
+          child:(model?.seletedCompetitor ?? "").isEmpty? Row(
             children: [
               AppText(title: "Select",fontsize: 10,color: AppColors.lightTextColor,),
               const SizedBox(width: 4,),
               Icon(Icons.arrow_forward_ios,size: 10,)
             ],
-          ),
+          ):  AppText(title: (model?.seletedCompetitor??''),fontsize: 10,color: AppColors.lightTextColor,maxLines: 1,),
         ),
       ),
       Expanded(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            customContainerForAddRemove(isAdd: false),
+            customContainerForAddRemove(isAdd: false,onTap: (){
+              if((model?.quantity??0)>0){
+                model!.quantity = model.quantity-1;
+              setState(() {
+              });
+              }
+            }),
             Container(
               margin: EdgeInsets.symmetric(horizontal: 4),
-              height: 15,width: 40,
+              height: 20,width: 40,
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(5),
                 border: Border.all(color: AppColors.greenColor)
               ),
+              child: AppText(title: (model?.quantity??0)==0? '':(model?.quantity).toString(),fontsize: 13,),
             ),
-            customContainerForAddRemove(isAdd: true),
+            customContainerForAddRemove(isAdd: true,onTap: (){
+              model!.quantity = model.quantity+1;
+              setState(() {
+                
+              });
+            }),
             const SizedBox(width: 3,),
             AppText(title: "kg",fontsize: 10,)
           ],
@@ -386,114 +461,129 @@ return ListView.separated(
       Container(
         width: 45,
         padding: EdgeInsets.only(),
-      child: customCheckbox(),)
+      child: customCheckbox(
+        isCheckbox: (model?.isSelected??false),
+        onChanged: (val){
+          model?.isSelected=val!;
+          model?.productCategory= productCategoryTitle(selectedProductCategoryIndex);
+          model?.productType = widget.title;
+          if((model?.isSelected??false)==false){
+             for(int i=0;i<(widget.refState.itemModel?.selectedList.length??0);i++){
+            if((widget.refState.itemModel?.selectedList[i].isSelected==false)){
+            widget.refState.itemModel?.selectedList.removeAt(i);
+          }
+          }
+          }
+          else{
+            widget.refState.itemModel?.selectedList.add(model!);
+          }
+          setState(() {
+            
+          });
+        }
+      ),)
     ],
   );
 });
 }
 
 
-  Widget customContainerForAddRemove({required bool isAdd}){
-    return InkWell(
-      onTap: (){},
-      child: Container(
-        height: 18,width: 18,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: AppColors.edColor,
-          borderRadius: BorderRadius.circular(4)
-        ),
-        child: Icon(isAdd? Icons.add:Icons.remove,
-        size: 16,
-        color: isAdd?AppColors.greenColor:AppColors.redColor,
-        ),
-      ),
-    );
-  }
-
-  _competetorModelBottomSheet(){
+  _competetorModelBottomSheet(int itemIndex){
     showModalBottomSheet(
       isScrollControlled: true,
        backgroundColor: AppColors.whiteColor,
       context: context, builder: (context){
-      return Container(
-        padding: EdgeInsets.only(top: 14),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-             headingForCompetetorAndVariation("Competetor"),
-            const SizedBox(height: 15,),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 25),
-              child: AppSearchBar(
-                hintText: "Search by name",
-                suffixWidget: Padding(
-                  padding: const EdgeInsets.only(right: 10),
-                  child: SvgPicture.asset(AppAssetPaths.searchIcon),
-                ),
-              ),
-            ),
-            ListView.builder(
-              itemCount: 8,
-              shrinkWrap: true,
-              padding: EdgeInsets.only(left: 25,right: 25,top: 10,bottom: 20),
-              itemBuilder: (ctx,index){
-                return Container(
-                  height: 40,
-                  alignment: Alignment.centerLeft,
-                  decoration: BoxDecoration(
-                    border: Border(bottom: BorderSide(color: AppColors.edColor))
+      return StatefulBuilder(
+        builder: (context, state) {
+          return Container(
+            padding: EdgeInsets.only(top: 14),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                 headingForCompetetorAndVariation("Competetor"),
+                const SizedBox(height: 15,),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 25),
+                  child: AppSearchBar(
+                    hintText: "Search by name",
+                    suffixWidget: Padding(
+                      padding: const EdgeInsets.only(right: 10),
+                      child: SvgPicture.asset(AppAssetPaths.searchIcon),
+                    ),
                   ),
-                  child: AppText(title: "Competetor ${index+1}",fontsize: 14,fontFamily: AppFontfamily.poppinsSemibold,),
-                );
-            })
-          ],
-        ),
+                ),
+                ListView.builder(
+                  itemCount: (widget.refState.competitorModel?.data?.length ??0),
+                  shrinkWrap: true,
+                  padding: EdgeInsets.only(left: 25,right: 25,top: 10,bottom: 20),
+                  itemBuilder: (ctx,index){
+                    var model = widget.refState.competitorModel?.data?[index];
+                    return GestureDetector(
+                      onTap: (){
+                        Navigator.pop(context,);
+                        widget.refState.itemModel?.data?[itemIndex].seletedCompetitor = (model?.name??'');
+                        setState(() {
+                        });
+                      },
+                      child: Container(
+                        height: 40,
+                        alignment: Alignment.centerLeft,
+                        decoration: BoxDecoration(
+                          border: Border(bottom: BorderSide(color: AppColors.edColor))
+                        ),
+                        child: AppText(title: (model?.name ?? ''),fontsize: 14,fontFamily: AppFontfamily.poppinsSemibold,),
+                      ),
+                    );
+                })
+              ],
+            ),
+          );
+        }
       );
     });
   }
 
-   _variationModelBottomSheet(){
-    showModalBottomSheet(
-      isScrollControlled: true,
-       backgroundColor: AppColors.whiteColor,
-      context: context, builder: (context){
-      return Container(
-        padding: EdgeInsets.only(top: 14),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            headingForCompetetorAndVariation("Variation"),
-            const SizedBox(height: 15,),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 25),
-              child: AppSearchBar(
-                hintText: "Search by name",
-                suffixWidget: Padding(
-                  padding: const EdgeInsets.only(right: 10),
-                  child: SvgPicture.asset(AppAssetPaths.searchIcon),
-                ),
-              ),
-            ),
-            ListView.builder(
-              itemCount: 8,
-              shrinkWrap: true,
-              padding: EdgeInsets.only(left: 25,right: 25,top: 10,bottom: 20),
-              itemBuilder: (ctx,index){
-                return Container(
-                  height: 40,
-                  alignment: Alignment.centerLeft,
-                  decoration: BoxDecoration(
-                    border: Border(bottom: BorderSide(color: AppColors.edColor))
-                  ),
-                  child: AppText(title: "Variation ${index+1}",fontsize: 14,fontFamily: AppFontfamily.poppinsSemibold,),
-                );
-            })
-          ],
-        ),
-      );
-    });
-  }
+  //  _variationModelBottomSheet(){
+  //   showModalBottomSheet(
+  //     isScrollControlled: true,
+  //      backgroundColor: AppColors.whiteColor,
+  //     context: context, builder: (context){
+  //     return Container(
+  //       padding: EdgeInsets.only(top: 14),
+  //       child: Column(
+  //         mainAxisSize: MainAxisSize.min,
+  //         children: [
+  //           headingForCompetetorAndVariation("Variation"),
+  //           const SizedBox(height: 15,),
+  //           Padding(
+  //             padding: const EdgeInsets.symmetric(horizontal: 25),
+  //             child: AppSearchBar(
+  //               hintText: "Search by name",
+  //               suffixWidget: Padding(
+  //                 padding: const EdgeInsets.only(right: 10),
+  //                 child: SvgPicture.asset(AppAssetPaths.searchIcon),
+  //               ),
+  //             ),
+  //           ),
+  //           ListView.builder(
+  //             itemCount: 8,
+  //             shrinkWrap: true,
+  //             padding: EdgeInsets.only(left: 25,right: 25,top: 10,bottom: 20),
+  //             itemBuilder: (ctx,index){
+  //               return Container(
+  //                 height: 40,
+  //                 alignment: Alignment.centerLeft,
+  //                 decoration: BoxDecoration(
+  //                   border: Border(bottom: BorderSide(color: AppColors.edColor))
+  //                 ),
+  //                 child: AppText(title: "Variation ${index+1}",fontsize: 14,fontFamily: AppFontfamily.poppinsSemibold,),
+  //               );
+  //           })
+  //         ],
+  //       ),
+  //     );
+  //   });
+  // }
 
 headingForCompetetorAndVariation(String title){
   return Padding(
@@ -529,70 +619,3 @@ headingForCompetetorAndVariation(String title){
 }
 
 
-class _AddedProductWidget extends StatelessWidget {
-  const _AddedProductWidget();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-        padding: EdgeInsets.symmetric(horizontal: 12,vertical: 15),
-      decoration: BoxDecoration(
-        color:AppColors.itemsBG,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Color(0xffE2E2E2)),
-        boxShadow: [
-          BoxShadow(
-            offset: Offset(0, 0),
-            color: AppColors.black.withValues(alpha: .1),
-            blurRadius: 10
-          ),
-        ]
-      ),
-      child: ExpandableWidget(
-        initExpanded: true,
-        collapsedWidget: collapsedWidget(isExpanded: true), expandedWidget: expandWidget(isExpanded: false))
-    );
-  }
-
-  collapsedWidget({required bool isExpanded}){
-    return Container(
-         decoration: BoxDecoration(
-        color: AppColors.whiteColor,
-        borderRadius: BorderRadius.circular(10),
-        // border: Border.all(color: AppColors.oliveGray.withValues(alpha: .3)),
-      ),
-      alignment: Alignment.center,
-      padding:isExpanded? EdgeInsets.symmetric(horizontal: 15,vertical: 12):EdgeInsets.zero,
-      child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              AppText(title: "Bread",fontFamily:AppFontfamily.poppinsSemibold,),
-            Icon(!isExpanded? Icons.expand_less:Icons.expand_more,color: AppColors.light92Color,),
-            ],
-          ),
-      );
-  }
-
-  expandWidget({required bool isExpanded}){
-    return Container(
-         decoration: BoxDecoration(
-        color: AppColors.whiteColor,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.oliveGray.withValues(alpha: .3)),
-      ),
-      padding: EdgeInsets.only(left: 15,right: 15,top: 8,bottom: 20),
-      child: Column(
-            children: [
-              collapsedWidget(isExpanded: isExpanded),
-              Padding(padding: EdgeInsets.only(top: 9,bottom: 6),
-          child: dotteDivierWidget(dividerColor:  AppColors.edColor,thickness: 1.6),),
-          ProductItemsWidget(title: 'Item 1',),
-          const SizedBox(height: 15,),
-          ProductItemsWidget(title: 'Item 2',),
-          const SizedBox(height: 15,),
-          ProductItemsWidget(title: 'Item 3',),
-            ],
-          ),
-      );
-  }
-}

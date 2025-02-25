@@ -20,42 +20,47 @@ class SuccessScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 22),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: EdgeInsets.only(left: 10,right: 10,top: 40,bottom: 20),
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: AppColors.whiteColor,
-                boxShadow: [
-                  BoxShadow(
-                    offset: Offset(0, 0),
-                    color: AppColors.black.withValues(alpha: .2),
-                    blurRadius: 6
-                  )
-                ]
+    return WillPopScope(
+      onWillPop: ()async{
+        return false;
+      },
+      child: Scaffold(
+        body: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 22),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: EdgeInsets.only(left: 10,right: 10,top: 40,bottom: 20),
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: AppColors.whiteColor,
+                  boxShadow: [
+                    BoxShadow(
+                      offset: Offset(0, 0),
+                      color: AppColors.black.withValues(alpha: .2),
+                      blurRadius: 6
+                    )
+                  ]
+                ),
+                child: Column(
+                  children: [
+                    SvgPicture.asset(AppAssetPaths.successIcon),
+                    const SizedBox(height: 21,),
+                     AppText(title: title,fontsize: 25,fontFamily: AppFontfamily.poppinsBold,),
+                    SizedBox(height: 5),
+                    AppText(title: des,
+                    textAlign: TextAlign.center,fontsize: 15,
+                    ),
+                    const SizedBox(height: 26,),
+                    AppTextButton(title: btnTitle,width: 122,height: 40,color: AppColors.arcticBreeze,
+                    onTap: onTap
+                    )
+                  ],
+                ),
               ),
-              child: Column(
-                children: [
-                  SvgPicture.asset(AppAssetPaths.successIcon),
-                  const SizedBox(height: 21,),
-                   AppText(title: title,fontsize: 25,fontFamily: AppFontfamily.poppinsBold,),
-                  SizedBox(height: 5),
-                  AppText(title: des,
-                  textAlign: TextAlign.center,fontsize: 15,
-                  ),
-                  const SizedBox(height: 26,),
-                  AppTextButton(title: btnTitle,width: 122,height: 40,color: AppColors.arcticBreeze,
-                  onTap: onTap
-                  )
-                ],
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

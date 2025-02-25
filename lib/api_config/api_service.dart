@@ -29,14 +29,15 @@ Future<Response?> makeRequest({
       MessageHelper.showInternetSnackBar();
       return null;
     }
-    print(data);
+    // print(data);
+    print(apiUrl);
      response = await dio.request(
-      // cancelToken: cancelToken,
         apiUrl,
         data: data,
         queryParameters: queryParameters,
         options: options,
       );
+      print(response.statusCode);
       log(json.encode(response.data));
     return _handleResponse(response, isErrorMessageShow);
   } on DioException catch (e) {

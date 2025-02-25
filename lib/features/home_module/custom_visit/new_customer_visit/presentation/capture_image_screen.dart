@@ -1,35 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:mohan_impex/core/services/image_picker_service.dart';
 import 'package:mohan_impex/core/widget/app_text.dart';
 import 'package:mohan_impex/core/widget/app_text_button.dart';
 import 'package:mohan_impex/core/widget/custom_app_bar.dart';
+import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit/riverpod/new_customer_visit_notifier.dart';
+import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit/widgets/timer_widget.dart';
 import 'package:mohan_impex/res/app_asset_paths.dart';
 import 'package:mohan_impex/res/app_colors.dart';
 import 'package:mohan_impex/res/app_fontfamily.dart';
 
-class CaptureImageScreen extends StatefulWidget {
-  const CaptureImageScreen({super.key});
+import '../riverpod/new_customer_visit_state.dart';
 
-  @override
-  State<CaptureImageScreen> createState() => _CaptureImageScreenState();
-}
+class CaptureImageScreen extends StatelessWidget {
+     final NewCustomerVisitNotifier refNotifer;
+  final NewCustomerVisitState refState;
+  const CaptureImageScreen({super.key, required this.refNotifer,required this.refState});
 
-class _CaptureImageScreenState extends State<CaptureImageScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
        appBar:customAppBar(title:
        "Submit",
       actions: [
-        Container(
-          margin: EdgeInsets.only(right: 10),
-          padding: EdgeInsets.symmetric(horizontal: 7,vertical: 2),
-          decoration: ShapeDecoration(
-            color: AppColors.edColor,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20)
-            )),
-            child: AppText(title: "1:30:22",fontFamily: AppFontfamily.poppinsMedium,),
-        )
+        timerWidget(refState.currentTimer)
       ]
       ),
       body: Column(
@@ -46,7 +40,13 @@ class _CaptureImageScreenState extends State<CaptureImageScreen> {
           Align(
             alignment: Alignment.center,
             child: AppTextButton(title: "Capture",color: AppColors.arcticBreeze,
-            height: 40,width: 120,
+            height: 40,width: 120,onTap: (){
+              ImagePickerService.imagePicker(ImageSource.camera).then((val){
+                if(val!=null){
+                  Navigator.pop(context, val);
+                }
+              });
+            },
             ),
           )
         ],

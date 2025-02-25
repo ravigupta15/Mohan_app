@@ -69,4 +69,11 @@ static String get fcmToken =>
     sharedPrefs.setString(AppConstants.LONG, value);
   }
 
+
+static String get currentAddress =>
+      sharedPrefs.getString(AppConstants.ADDRESS) ?? "";
+  static set setCurrentAddres(String value) {
+    sharedPrefs.setString(AppConstants.ADDRESS, value);
+  }
+
 }

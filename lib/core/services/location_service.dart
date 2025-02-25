@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:geolocator/geolocator.dart';
 import 'package:mohan_impex/data/datasources/local_share_preference.dart';
+import 'package:geocoding/geocoding.dart';
 
 class LocationService {
   static final LocationService _instance = LocationService._internal();
@@ -40,13 +41,22 @@ class LocationService {
       }
 
       // Listen to position stream every 5 seconds
-      _positionStreamSubscription = Geolocator.getPositionStream(
-        locationSettings: LocationSettings(
-        distanceFilter: 10,accuracy: LocationAccuracy.high    
-        ),
-      ).listen((Position position) async {
-        await saveLocation(position.latitude, position.longitude);
+      Geolocator.getCurrentPosition(
+      locationSettings: LocationSettings(
+        distanceFilter: 10,accuracy: LocationAccuracy.high
+      )
+      ).then((Position position)async{
+          await saveLocation(position.latitude, position.longitude);
+       await _getAddressFromLatLng(position.latitude, position.longitude);
       });
+      // _positionStreamSubscription = Geolocator.getPositionStream(
+      //   locationSettings: LocationSettings(
+      //   distanceFilter: 10,accuracy: LocationAccuracy.high    
+      //   ),
+      // ).listen((Position position) async {
+      //   await saveLocation(position.latitude, position.longitude);
+      //   _getAddressFromLatLng(position.latitude, position.longitude);
+      // });
     } catch (e) {
       print("Error while starting location updates: $e");
       throw Exception("Failed to start location updates: $e");
@@ -67,6 +77,19 @@ class LocationService {
       print("Location saved: Latitude: $latitude, Longitude: $longitude");
     } catch (e) {
       print("Error saving location: $e");
+    }
+  }
+
+   Future<void> _getAddressFromLatLng(double latitude, double longitude) async {
+    try {
+      List<Placemark> placemarks = await placemarkFromCoordinates(latitude, longitude);
+      if (placemarks.isNotEmpty) {
+        Placemark place = placemarks[0];
+        LocalSharePreference.setCurrentAddres = "${place.street}, ${place.name}, ${place.locality}, ${place.administrativeArea}, ${place.country}, ${place.postalCode}";
+      } else {
+        
+      }
+    } catch (e) {
     }
   }
 }

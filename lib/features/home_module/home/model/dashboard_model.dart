@@ -31,6 +31,7 @@ class Data {
   List<ScoreDashboard>? scoreDashboard;
   List<Dashboard>? dashboard;
   List<DashboardLastLog>? lastLog;
+    List<BannerInfo>? bannerInfo;
 
   Data({this.scoreDashboard, this.dashboard, this.lastLog});
 
@@ -53,6 +54,12 @@ class Data {
         lastLog!.add( DashboardLastLog.fromJson(v));
       });
     }
+    if (json['banner_info'] != null) {
+      bannerInfo = <BannerInfo>[];
+      json['banner_info'].forEach((v) {
+        bannerInfo!.add(new BannerInfo.fromJson(v));
+      });
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -66,6 +73,9 @@ class Data {
     }
     if (lastLog != null) {
       data['last_log'] = lastLog!.map((v) => v.toJson()).toList();
+    }
+    if (this.bannerInfo != null) {
+      data['banner_info'] = this.bannerInfo!.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -127,3 +137,22 @@ class DashboardLastLog {
     return data;
   }
 }
+class BannerInfo {
+  dynamic bannerName;
+  dynamic bannerImage;
+
+  BannerInfo({this.bannerName, this.bannerImage});
+
+  BannerInfo.fromJson(Map<String, dynamic> json) {
+    bannerName = json['banner_name'];
+    bannerImage = json['banner_image'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data =  Map<String, dynamic>();
+    data['banner_name'] = bannerName;
+    data['banner_image'] = bannerImage;
+    return data;
+  }
+}
+

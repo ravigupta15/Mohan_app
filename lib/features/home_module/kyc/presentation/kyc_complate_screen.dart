@@ -4,10 +4,8 @@ import 'package:mohan_impex/core/widget/app_text_button.dart';
 import 'package:mohan_impex/core/widget/custom_app_bar.dart';
 import 'package:mohan_impex/res/app_asset_paths.dart';
 import 'package:mohan_impex/res/app_colors.dart';
-import 'package:mohan_impex/res/app_router.dart';
 import '../../../../core/widget/app_text.dart';
 import '../../../../res/app_fontfamily.dart';
-import 'kyc_screen.dart';
 
 class kycComplate extends StatefulWidget {
   const kycComplate({super.key});

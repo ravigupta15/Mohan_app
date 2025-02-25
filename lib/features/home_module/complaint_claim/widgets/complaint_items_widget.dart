@@ -7,13 +7,14 @@ import 'package:mohan_impex/res/app_fontfamily.dart';
 
 
 class ComplaintItemsWidget extends StatelessWidget {
-
   final String title;
   final String name;
   final String date;
   final String reasonTitle;
-
-  const ComplaintItemsWidget({required this.title,required this.name,required this.date,required this.reasonTitle});
+  final String status;
+  const ComplaintItemsWidget({required this.title,required this.name,required this.date,required this.reasonTitle,
+  required this.status
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +26,7 @@ class ComplaintItemsWidget extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              AppText(title:title,fontsize: 20,fontFamily: AppFontfamily.poppinsSemibold,color: AppColors.visitItem,),
+              Expanded(child: AppText(title:title,fontsize: 18,fontFamily: AppFontfamily.poppinsSemibold,color: AppColors.visitItem,maxLines: 1,)),
               reasonWidget(reasonTitle)
             ],
           ),
@@ -80,8 +81,14 @@ class ComplaintItemsWidget extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 4,),
-          AppText(title: "Pending : ",fontsize: 10,fontFamily: AppFontfamily.poppinsSemibold,color: AppColors.visitItem,),
+          status == "Resolved"?
+            AppText(title: status,fontsize: 10,fontFamily: AppFontfamily.poppinsSemibold,color: AppColors.visitItem,):
+          Row(
+            children: [
+              AppText(title: "Pending : ",fontsize: 10,fontFamily: AppFontfamily.poppinsSemibold,color: AppColors.visitItem,),
           AppText(title: "Department",fontsize: 10,fontFamily: AppFontfamily.poppinsRegular,color: AppColors.visitItem,),
+            ],
+          )
         ],
       ),
     );

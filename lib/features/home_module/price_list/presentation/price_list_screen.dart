@@ -1,25 +1,48 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:mohan_impex/core/widget/app_search_bar.dart';
 import 'package:mohan_impex/core/widget/app_text.dart';
 import 'package:mohan_impex/core/widget/app_text_button.dart';
 import 'package:mohan_impex/core/widget/custom_app_bar.dart';
 import 'package:mohan_impex/core/widget/custom_radio_button.dart';
+import 'package:mohan_impex/features/home_module/price_list/riverpod/price_list_notifier.dart';
+import 'package:mohan_impex/features/home_module/price_list/riverpod/price_list_state.dart';
 import 'package:mohan_impex/res/app_asset_paths.dart';
 import 'package:mohan_impex/res/app_colors.dart';
 import 'package:mohan_impex/res/app_fontfamily.dart';
+import 'package:mohan_impex/res/empty_widget.dart';
 
-class PriceListScreen extends StatefulWidget {
+class PriceListScreen extends ConsumerStatefulWidget {
   const PriceListScreen({super.key});
 
   @override
-  State<PriceListScreen> createState() => _PriceListScreenState();
+  ConsumerState<PriceListScreen> createState() => _PriceListScreenState();
 }
 
-class _PriceListScreenState extends State<PriceListScreen> {
+class _PriceListScreenState extends ConsumerState<PriceListScreen> {
   int selectedRadio = 0;
+  String filterValue = '';
+
+ @override
+  void initState() {
+    Future.microtask((){
+      callInitFunction();
+    });
+    super.initState();
+  }
+
+  callInitFunction(){
+    final refNotifier = ref.read(priceListProvider.notifier);
+    refNotifier.resetFilter();
+    refNotifier.priceApiFunction(context);
+  }
+
+
   @override
   Widget build(BuildContext context) {
+    final refNotifier = ref.read(priceListProvider.notifier);
+    final refState = ref.watch(priceListProvider);
     return Scaffold(
        appBar: customAppBar(title: "Price List"),
        body: Padding(
@@ -31,6 +54,9 @@ class _PriceListScreenState extends State<PriceListScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: AppSearchBar(
                   hintText: "Search by SKU or product",
+                  onChanged: (val){
+                    refNotifier.onChangedSearch(context, val: val);
+                  },
                   suffixWidget: Container(
                     alignment: Alignment.center,
                     width:  60,
@@ -43,7 +69,7 @@ class _PriceListScreenState extends State<PriceListScreen> {
                         ),
                          InkWell(
                           onTap: (){
-                            filterBottomSheet(context);
+                            filterBottomSheet(context, refNotifier);
                           },
                           child: SvgPicture.asset(AppAssetPaths.filterIcon)),
                        
@@ -52,8 +78,12 @@ class _PriceListScreenState extends State<PriceListScreen> {
                   ),
                 ),
               ),
+              Padding(
+                padding: const EdgeInsets.only(top: 10),
+                child: selectedFiltersWidget(refNotifier: refNotifier, refState: refState),
+              ),
               const SizedBox(height: 16,),
-              Expanded(child: _PriceListItems())
+              Expanded(child: priceListItems())
           ],
          ),
        ),
@@ -62,7 +92,7 @@ class _PriceListScreenState extends State<PriceListScreen> {
   
 
 
-  filterBottomSheet(BuildContext context){
+  filterBottomSheet(BuildContext context, PriceListNotifier refNotifier){
   showModalBottomSheet(
     backgroundColor: AppColors.whiteColor,
     context: context, builder: (context){
@@ -112,6 +142,7 @@ class _PriceListScreenState extends State<PriceListScreen> {
                           onTap: (){
                             state(() {
                               selectedRadio=0;
+                               filterValue =   'All';
                             });
                           }
                           ),
@@ -120,6 +151,7 @@ class _PriceListScreenState extends State<PriceListScreen> {
                           onTap: (){
                             state(() {
                               selectedRadio=1;
+                              filterValue =   'MP';
                             });
                           }),
                           const SizedBox(width: 15,),
@@ -127,20 +159,23 @@ class _PriceListScreenState extends State<PriceListScreen> {
                           onTap: (){
                             state(() {
                               selectedRadio=2;
+                              filterValue =   'BP';
                             });
                           }),
                           const SizedBox(width: 15,),
-                          customRadioButton(isSelected:selectedRadio==2? true:false, title: 'FP',
+                          customRadioButton(isSelected:selectedRadio==3? true:false, title: 'FP',
                           onTap: (){
                             state(() {
-                              selectedRadio=2;
+                              selectedRadio=3;
+                              filterValue =   'FP';
                             });
                           }),
                           const SizedBox(width: 15,),
-                          customRadioButton(isSelected:selectedRadio==2? true:false, title: 'TP',
+                          customRadioButton(isSelected:selectedRadio==4? true:false, title: 'TP',
                           onTap: (){
                             state(() {
-                              selectedRadio=2;
+                              selectedRadio=4;
+                              filterValue =   'TP';
                             });
                           }),
                         ],
@@ -148,7 +183,15 @@ class _PriceListScreenState extends State<PriceListScreen> {
                       const SizedBox(height: 70,),
                        Align(
                   alignment: Alignment.center,
-                  child: AppTextButton(title: "Apply",height: 35,width: 150,color: AppColors.arcticBreeze,),
+                  child: AppTextButton(title: "Apply",height: 35,width: 150,color: AppColors.arcticBreeze,
+                  onTap: (){
+                        Navigator.pop(context);
+                    refNotifier.updateFilterValues( type: filterValue);
+                    setState(() {
+                    });
+                    refNotifier.priceApiFunction(context);
+                  },
+                  ),
                  )
                     ],
                   ),
@@ -162,18 +205,8 @@ class _PriceListScreenState extends State<PriceListScreen> {
   });
 }
 
-}
-
-class _PriceListItems extends StatelessWidget {
-  const _PriceListItems();
-
-  @override
-  Widget build(BuildContext context) {
-    return tableWidget();
-  }
-
-
-  tableWidget(){
+  priceListItems(){
+     final refState = ref.watch(priceListProvider);
     return SingleChildScrollView(
       padding: EdgeInsets.only(left: 8,right:8,bottom: 20),
       child: Table(
@@ -187,13 +220,14 @@ class _PriceListItems extends StatelessWidget {
                     _buildTableCell('Type'),
                   ],
                 ),
-                ...List.generate(15, (val){
-                  return  TableRow(
+                ...List.generate((refState.priceListModel?.data?.length ?? 0), (val){
+                  var model = refState.priceListModel?.data![val];
+                  return   TableRow(
                   children: [
-                    _buildTableCell('MP001',fontSize: 10,isBGColor: false),
-                    _buildTableCell('Product A',fontSize: 10,isBGColor: false),
-                    _buildTableCell('1200.00',fontSize: 10,isBGColor: false),
-                    _buildTableCell('TP',fontSize: 10,isBGColor: false),
+                    _buildTableCell(model?.itemCode??'',fontSize: 10,isBGColor: false),
+                    _buildTableCell(model?.itemName ?? "",fontSize: 10,isBGColor: false),
+                    _buildTableCell(double.parse(model!.priceListRate.toString()).toStringAsFixed(2) ,fontSize: 10,isBGColor: false),
+                    _buildTableCell(model.itemCategory ?? '',fontSize: 10,isBGColor: false),
                   ],
                 );
                 }).toList(),
@@ -214,5 +248,48 @@ Widget _buildTableCell(String text,{bool isBGColor = true,double fontSize =11}) 
       ),
     );
   }
+
+
+ Widget selectedFiltersWidget({required PriceListNotifier refNotifier,required PriceListState refState}){
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 25),
+      child: Row(
+        children: [
+          refNotifier.filerValue.isNotEmpty? customFiltersUI(refNotifier.filerValue,
+          (){
+            refNotifier.filerValue='';
+            filterValue = '';
+            selectedRadio = 0;
+            refNotifier.priceApiFunction(context);
+          setState(() {
+          });
+          }
+          ): EmptyWidget(),
+        ],
+      ),
+    );
+  }
+  
+  customFiltersUI(String title, Function()?onTap){
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(color: AppColors.greenColor),
+          borderRadius: BorderRadius.circular(15)
+        ),
+        padding: EdgeInsets.symmetric(horizontal: 9,vertical: 2),
+        child: Row(
+          children: [
+            AppText(title: title,fontFamily: AppFontfamily.poppinsSemibold,fontsize: 13,),
+            const SizedBox(width: 5,),
+            Icon(Icons.close,size: 15,)
+          ],
+        ),
+      ),
+    );
+  }
+
+
 
 }

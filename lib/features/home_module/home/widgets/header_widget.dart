@@ -151,10 +151,10 @@ showMapBottomSheet(BuildContext context){
               child: AppGoogleMap(),
             ),
             const SizedBox(height:17),
-            AppTextButton(title: "Confirm Check ${(lastLog?.lastLogType=="OUT" ? "In" : "Out")}",height: 35,width: 190,color: AppColors.arcticBreeze,
+            AppTextButton(title: "Confirm Check ${(lastLog?.lastLogType=="OUT"||(lastLog?.lastLogType??'').isEmpty ? "In" : "Out")}",height: 35,width: 190,color: AppColors.arcticBreeze,
             onTap: (){
               Navigator.pop(context);
-              homeNotifier.checkInApiFunction((lastLog?.lastLogType=="OUT" ? "IN" : "OUT"));
+              homeNotifier.checkInApiFunction(context, type: (lastLog?.lastLogType=="OUT" ||(lastLog?.lastLogType??'').isEmpty ? "IN" : "OUT"));
             },
             )
           ],

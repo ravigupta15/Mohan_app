@@ -1,3 +1,5 @@
+import 'package:carousel_slider/carousel_options.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
@@ -5,8 +7,10 @@ import 'package:mohan_impex/core/constant/app_constants.dart';
 import 'package:mohan_impex/core/services/location_service.dart';
 import 'package:mohan_impex/core/widget/app_text.dart';
 import 'package:mohan_impex/core/widget/dotted_divider.dart';
+import 'package:mohan_impex/core/widget/indicator_widget.dart';
 import 'package:mohan_impex/features/home_module/complaint_claim/presentation/complaint_screen.dart';
-import 'package:mohan_impex/features/home_module/custom_visit/customer_visit_history/presentation/customer_visit_history_screen.dart';
+import 'package:mohan_impex/features/home_module/custom_visit/presentation/pages/customer_visit_history_screen.dart';
+import 'package:mohan_impex/features/home_module/digital_marking_collaterals/presentation/digital_marking_collaterals_screen.dart';
 import 'package:mohan_impex/features/home_module/home/model/dashboard_model.dart';
 import 'package:mohan_impex/features/home_module/home/riverpod/home_state.dart';
 import 'package:mohan_impex/features/home_module/home/widgets/header_widget.dart';
@@ -33,6 +37,7 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
+  int selectedSliderIndex = 0;
   List list = [
     {
       'title1': AppConstants.salesOrder,
@@ -78,7 +83,7 @@ LocationService locationService = LocationService();
 
   callInitFunction(){
     final notifier = ref.read(homeProvider.notifier);
-    notifier.dashboardApiFunction();
+    notifier.dashboardApiFunction(context);
     locationService.startLocationUpdates();
   }
 
@@ -88,7 +93,10 @@ LocationService locationService = LocationService();
     final refState = ref.watch(homeProvider);
     return Column(
       children: [
-        HeaderWidget(homeNotifier: refNotifier,homeState: refState,lastLog: refState.dashboardModel?.data?[0].lastLog?[0],),
+        HeaderWidget(homeNotifier: refNotifier,homeState: refState,lastLog:
+        (refState.dashboardModel?.data?[0].lastLog ?? []).isEmpty?
+        null :refState.dashboardModel?.data?[0].lastLog?[0]
+        ,),
         Expanded(
             child: ListView(
           padding: EdgeInsets.only(bottom: 30),
@@ -96,7 +104,7 @@ LocationService locationService = LocationService();
             const SizedBox(
               height: 30,
             ),
-            sliderWidget(),
+            sliderWidget(refState),
             const SizedBox(
               height: 14,
             ),
@@ -238,6 +246,59 @@ dashboardWidget(List<Dashboard>? scoreDashboard){
   });
 }
 
+
+sliderWidget(HomeState refState){
+  return (refState.dashboardModel?.data?[0].bannerInfo??[]).isEmpty?
+  Container():
+   Column(
+    children: [
+      SizedBox(height: 168,
+                      child: CarouselSlider.builder(
+                        itemCount: (refState.dashboardModel?.data?[0].bannerInfo?.length??0),
+                        itemBuilder: (BuildContext context, int itemIndex,
+                            int pageViewIndex) {
+                              var model = refState.dashboardModel?.data?[0].bannerInfo?[itemIndex];
+                          return Container(
+                            margin: const EdgeInsets.only(
+                              right: 15,
+                            ),
+                            child: ClipRRect(
+                                borderRadius: BorderRadius.circular(15),
+                                child:AppNetworkImage(imgUrl: model?.bannerImage??'')),
+                          );
+                        },
+                        options: CarouselOptions(
+                            autoPlay:(refState.dashboardModel?.data?[0].bannerInfo?.length??0)>1? true:false,
+                            scrollDirection: Axis.horizontal,
+                            viewportFraction: 1,
+                            aspectRatio: 2.0,
+                            initialPage: 0,
+                            autoPlayCurve: Curves.ease,
+                            enableInfiniteScroll: true,
+                            autoPlayAnimationDuration:
+                                const Duration(milliseconds: 400),
+                            autoPlayInterval: const Duration(seconds: 2),
+                            onPageChanged: (val, _) {
+                              selectedSliderIndex = val;
+                              setState(() {
+                                
+                              });
+                            }),
+                      ),
+                    ),
+                    const SizedBox(height: 10,),
+                    Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: List.generate((refState.dashboardModel?.data?[0].bannerInfo?.length??0), (index) {
+          return selectedSliderIndex == index
+              ? indicatorWidget(isActive:  true,activeWidth: 26,inactiveWidth: 26)
+              : indicatorWidget(isActive: false,activeWidth: 26,inactiveWidth: 26);
+        }))
+    ],
+  );
+}
+
+
   // otherUserWidget(List<Dashboard>? scoreDashboard) {
   //   return ListView.builder(
   //       itemCount: scoreDashboard?.length??0,
@@ -343,7 +404,7 @@ dashboardWidget(List<Dashboard>? scoreDashboard){
         case AppConstants.priceList:
         AppRouter.pushCupertinoNavigation(const PriceListScreen());
         break;
-        case AppConstants.requisitions:
+        case AppConstants.requisitions||AppConstants.requisition:
         AppRouter.pushCupertinoNavigation(const RequisitionsScreen());
         break;
         case AppConstants.complaint:
@@ -353,7 +414,7 @@ dashboardWidget(List<Dashboard>? scoreDashboard){
         AppRouter.pushCupertinoNavigation(const SchemesManagementScreen());
         break;
         case AppConstants.digital:
-        AppRouter.pushCupertinoNavigation(const MarketingCollateralsScreen());
+        AppRouter.pushCupertinoNavigation(const DigitalMarkingCollateralsScreen());
         break;
         case AppConstants.specialReport:
         AppRouter.pushCupertinoNavigation(const SpecialReportScreen());

@@ -1,41 +1,63 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mohan_impex/core/widget/app_text.dart';
 import 'package:mohan_impex/core/widget/custom_app_bar.dart';
 import 'package:mohan_impex/core/widget/dotted_divider.dart';
 import 'package:mohan_impex/core/widget/expandable_widget.dart';
+import 'package:mohan_impex/features/home_module/requisitions/journey_plan/model/view_journey_plan_model.dart';
+import 'package:mohan_impex/features/home_module/requisitions/journey_plan/riverpod/journey_state.dart';
 import 'package:mohan_impex/res/app_asset_paths.dart';
 import 'package:mohan_impex/res/app_colors.dart';
 import 'package:mohan_impex/res/app_fontfamily.dart';
+import 'package:mohan_impex/res/empty_widget.dart';
+import 'package:mohan_impex/utils/app_date_format.dart';
 
-class ViewJourneyPlanScreen extends StatefulWidget {
-  const ViewJourneyPlanScreen({super.key});
+// ignore: must_be_immutable
+class ViewJourneyPlanScreen extends ConsumerStatefulWidget {
+  String id;
+   ViewJourneyPlanScreen({super.key, required this.id});
 
   @override
-  State<ViewJourneyPlanScreen> createState() => _ViewJourneyPlanScreenState();
+  ConsumerState<ViewJourneyPlanScreen> createState() => _ViewJourneyPlanScreenState();
 }
 
-class _ViewJourneyPlanScreenState extends State<ViewJourneyPlanScreen> {
+class _ViewJourneyPlanScreenState extends ConsumerState<ViewJourneyPlanScreen> {
+
+@override
+  void initState() {
+    Future.microtask((){
+      callInitFunction();
+    });
+    super.initState();
+  }
+
+  callInitFunction(){
+    ref.read(journeyProvider.notifier).viewJourneyPlanApiFunction(context, id: widget.id);
+  }
+
   @override
   Widget build(BuildContext context) {
+    final refState =ref.watch(journeyProvider);
     return Scaffold(
-      appBar: customAppBar(title: "Journey Plan #123"),
-      body: Padding(
+      appBar: customAppBar(title: "Journey Plan #${widget.id}"),
+      body: (refState.viewJounreyPlanModel?.message)!=null? SingleChildScrollView(
         padding: const EdgeInsets.only(top: 14,left: 15,right: 15,bottom: 20),
         child: Column(
           children: [
-            _StatusWidget(),
+            _StatusWidget(activities: refState.viewJounreyPlanModel?.data?[0].activities,),
             const SizedBox(height: 15,),
-            _VisitInformationWidget()
+            _VisitInformationWidget(model: refState.viewJounreyPlanModel?.data?[0],)
           ],
         ),
-      ),
+      ): EmptyWidget(),
     );
   }
 }
 
 class _StatusWidget extends StatelessWidget {
-  const _StatusWidget();
+  List<Activities>? activities;
+   _StatusWidget({required this.activities});
 
   @override
   Widget build(BuildContext context) {
@@ -71,48 +93,59 @@ class _StatusWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.itemsBG,
         borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          BoxShadow(
-            offset: Offset(0, 0),
-            color: AppColors.black.withValues(alpha: .2),
-            blurRadius: 10
-          )
-        ]
+        
       ),
       child: Column(
         children: [
            collpasedWidget(isExpanded: isExpanded),
             const SizedBox(height: 10,),
-          dotteDivierWidget(dividerColor: AppColors.edColor,),
+             dotteDivierWidget(dividerColor: AppColors.edColor,),
             const SizedBox(height: 9,),
-            headerWidget(img: AppAssetPaths.selectedTimeIcon, title: "ASM Review", date: "03 Jan 2025 10:30 AM"),
-            commentWidget(),
-            const SizedBox(height: 11,),
-            headerWidget(img: AppAssetPaths.unselectedTimeIcon, title: "HOD Review", date: '')
-        ],
+            ListView.separated(
+              separatorBuilder: (ctx,index){
+                return const SizedBox(height: 15,);
+              },
+              shrinkWrap: true,
+              itemCount: (activities?.length??0),
+              itemBuilder: (ctx,index){
+                var model = activities?[index];
+              return contentWidget(model);
+            }),
+           ],
       ),
   );
  }
 
- Widget headerWidget({required String img,required String title, required String date}){
-  return Row(
+ Widget contentWidget(Activities? model){
+  return Column(
     children: [
-    SvgPicture.asset(img),
-    const SizedBox(width: 7,),
-    Expanded(child: AppText(title: title,fontFamily: AppFontfamily.poppinsMedium,)),
-    date.isEmpty ? SizedBox.shrink() :
-    Row(
-      children: [
-        SvgPicture.asset(AppAssetPaths.dateIcon),
-        const SizedBox(width: 2,),
-        AppText(title: date,fontsize: 10,fontWeight: FontWeight.w300,)
-      ],
-    )
+      Row(
+        children: [
+        SvgPicture.asset(AppAssetPaths.selectedTimeIcon,
+        colorFilter: ColorFilter.mode(
+         (model?.status??'').isEmpty|| (model?.status??'').toLowerCase() =='pending'?
+         AppColors.light92Color:
+          AppColors.greenColor, BlendMode.srcIn),
+        ),
+        const SizedBox(width: 7,),
+        Expanded(child: AppText(title: model?.role??'',fontFamily: AppFontfamily.poppinsMedium,)),
+        Row(
+          children: [
+            SvgPicture.asset(AppAssetPaths.dateIcon),
+            const SizedBox(width: 2,),
+            AppText(title: AppDateFormat.formatDate(model?.date??''),fontsize: 10,fontWeight: FontWeight.w300,)
+          ],
+        )
+        ],
+      ),
+      (model?.status??'').isEmpty || (model?.status??'').toLowerCase() =='pending'?
+      EmptyWidget():
+      commentWidget(model),
     ],
   );
  }
 
- Widget commentWidget(){
+ Widget commentWidget(Activities? model){
   return Container(
     margin: EdgeInsets.only(left: 30,top: 14),
     decoration: BoxDecoration(
@@ -128,21 +161,24 @@ class _StatusWidget extends StatelessWidget {
           children: [
             SvgPicture.asset(AppAssetPaths.userIcon),
             const SizedBox(width: 3,),
-            AppText(title: "John Doe",fontsize: 10,fontFamily:AppFontfamily.poppinsMedium,),
+            AppText(title: model?.name??'',fontsize: 10,fontFamily:AppFontfamily.poppinsMedium,),
             const SizedBox(width: 6,),
-            AppText(title: "10:35 AM",fontsize: 10,fontWeight: FontWeight.w300,),
+            AppText(title: AppDateFormat.convertTo12HourFormat(model?.time??''),fontsize: 10,fontWeight: FontWeight.w300,),
           ],
         ),
          const SizedBox(height: 12,),
-         AppText(title: "Approved",fontsize: 10,fontWeight: FontWeight.w300,)
+         AppText(title:model?.status??'',fontsize: 10,fontWeight: FontWeight.w300,)
       ],
     ),
   );
  }
+
 }
 
+// ignore: must_be_immutable
 class _VisitInformationWidget extends StatelessWidget {
-  const _VisitInformationWidget();
+  JourneyDetailsModel? model;
+   _VisitInformationWidget({required this.model});
 
   @override
   Widget build(BuildContext context) {
@@ -177,33 +213,26 @@ class _VisitInformationWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.itemsBG,
         borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          BoxShadow(
-            offset: Offset(0, 0),
-            color: AppColors.black.withValues(alpha: .2),
-            blurRadius: 10
-          )
-        ]
-      ),
+       ),
       child: Column(
         children: [
           collapsedWidget(isExpanded: isExpanded),
             const SizedBox(height: 10,),
           dotteDivierWidget(dividerColor: AppColors.edColor,),
             const SizedBox(height: 9,),
-            itemsWidget("Visit Date", "11-02-2024 - 19-02-2024"),
+            itemsWidget("Visit Date", "${model?.visitFromDate??''} - ${model?.visitToDate??''}"),
             const SizedBox(height: 16,),
-            itemsWidget("Nature of Travel", "Ammas Bakery"),
+            itemsWidget("Nature of Travel", model?.natureOfTravel??""),
             const SizedBox(height: 16,),
-            itemsWidget("Night Out Location", "Bangalore"),
+            itemsWidget("Night Out Location",model?.nightOutLocation??""),
             const SizedBox(height: 16,),
-            itemsWidget("Travel To State", "Bangalore"),
+            itemsWidget("Travel To State", model?.travelToState??""),
             const SizedBox(height: 16,),
-            itemsWidget("Travel To District", "Bangalore"),
+            itemsWidget("Travel To District", model?.travelToDistrict??""),
             const SizedBox(height: 16,),
-            itemsWidget("Mode of Travel", "Air"),
+            itemsWidget("Mode of Travel", model?.modeOfTravel??""),
             const SizedBox(height: 16,),
-            itemsWidget("Remarks", "Travelling for marketing event"),
+            itemsWidget("Remarks", ''),
             
         ],
       )

@@ -1,43 +1,70 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:mohan_impex/core/widget/app_text.dart';
 import 'package:mohan_impex/core/widget/custom_app_bar.dart';
 import 'package:mohan_impex/core/widget/dotted_divider.dart';
 import 'package:mohan_impex/core/widget/expandable_widget.dart';
+import 'package:mohan_impex/features/home_module/requisitions/marketing_collaterals/model/view_collaterals_request_model.dart';
+import 'package:mohan_impex/features/home_module/requisitions/marketing_collaterals/riverpod/collaterals_request_state.dart';
 import 'package:mohan_impex/res/app_asset_paths.dart';
 import 'package:mohan_impex/res/app_colors.dart';
 import 'package:mohan_impex/res/app_fontfamily.dart';
+import 'package:mohan_impex/res/empty_widget.dart';
+import 'package:mohan_impex/utils/app_date_format.dart';
 
-class ViewMarkingCollateralsScreen extends StatefulWidget {
-  const ViewMarkingCollateralsScreen({super.key});
+class ViewMarkingCollateralsScreen extends ConsumerStatefulWidget {
+  final String id;
+  const ViewMarkingCollateralsScreen({super.key, required this.id});
 
   @override
-  State<ViewMarkingCollateralsScreen> createState() => _ViewMarkingCollateralsScreenState();
+  ConsumerState<ViewMarkingCollateralsScreen> createState() => _ViewMarkingCollateralsScreenState();
 }
 
-class _ViewMarkingCollateralsScreenState extends State<ViewMarkingCollateralsScreen> {
+class _ViewMarkingCollateralsScreenState extends ConsumerState<ViewMarkingCollateralsScreen> {
+
+
+@override
+  void initState() {
+    Future.microtask((){
+      callInitFunction();
+    });
+    super.initState();
+  }
+
+  callInitFunction(){
+    final refNotifier = ref.read(collateralRequestProvider.notifier);
+    refNotifier.viewCollateralsApiFunction(context, id: widget.id);
+    setState(() {
+      
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final refState= ref.watch(collateralRequestProvider);
     return Scaffold(
       appBar: customAppBar(title: "Marketing Collaterals- #124"),
-      body: Padding(
+      body:(refState.viewCollateralsReqestModel?.data)!=null? SingleChildScrollView(
          padding: const EdgeInsets.only(top: 14,left: 17,right: 17,bottom: 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _StatusWidget(),
+            _StatusWidget(activities: refState.viewCollateralsReqestModel?.data?[0].activities,),
             const SizedBox(height: 15,),
-            _ItemRequestedWidget()
+            _ItemRequestedWidget(refState: refState,)
           ],
         ),
-      ),
+      ):EmptyWidget(),
     );
   }
 }
 
 
+// ignore: must_be_immutable
 class _StatusWidget extends StatelessWidget {
-  const _StatusWidget();
+  List<MarkingActivities>? activities;
+   _StatusWidget({required this.activities});
 
   @override
   Widget build(BuildContext context) {
@@ -73,41 +100,59 @@ class _StatusWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.itemsBG,
         borderRadius: BorderRadius.circular(10),
+        
       ),
       child: Column(
         children: [
            collpasedWidget(isExpanded: isExpanded),
             const SizedBox(height: 10,),
-          dotteDivierWidget(dividerColor: AppColors.edColor,),
+             dotteDivierWidget(dividerColor: AppColors.edColor,),
             const SizedBox(height: 9,),
-            headerWidget(img: AppAssetPaths.selectedTimeIcon, title: "ASM Review", date: "03 Jan 2025 10:30 AM"),
-            commentWidget(),
-            const SizedBox(height: 11,),
-            headerWidget(img: AppAssetPaths.unselectedTimeIcon, title: "HOD Review", date: '')
-        ],
+            ListView.separated(
+              separatorBuilder: (ctx,index){
+                return const SizedBox(height: 15,);
+              },
+              shrinkWrap: true,
+              itemCount: (activities?.length??0),
+              itemBuilder: (ctx,index){
+                var model = activities?[index];
+              return contentWidget(model);
+            }),
+           ],
       ),
   );
  }
 
- Widget headerWidget({required String img,required String title, required String date}){
-  return Row(
+ Widget contentWidget(MarkingActivities? model){
+  return Column(
     children: [
-    SvgPicture.asset(img),
-    const SizedBox(width: 7,),
-    Expanded(child: AppText(title: title,fontFamily: AppFontfamily.poppinsMedium,)),
-    date.isEmpty ? SizedBox.shrink() :
-    Row(
-      children: [
-        SvgPicture.asset(AppAssetPaths.dateIcon),
-        const SizedBox(width: 2,),
-        AppText(title: date,fontsize: 10,fontWeight: FontWeight.w300,)
-      ],
-    )
+      Row(
+        children: [
+        SvgPicture.asset(AppAssetPaths.selectedTimeIcon,
+        colorFilter: ColorFilter.mode(
+         (model?.status??'').isEmpty|| (model?.status??'').toLowerCase() =='pending'?
+         AppColors.light92Color:
+          AppColors.greenColor, BlendMode.srcIn),
+        ),
+        const SizedBox(width: 7,),
+        Expanded(child: AppText(title: model?.role??'',fontFamily: AppFontfamily.poppinsMedium,)),
+        Row(
+          children: [
+            SvgPicture.asset(AppAssetPaths.dateIcon),
+            const SizedBox(width: 2,),
+            AppText(title: AppDateFormat.formatDate(model?.date??''),fontsize: 10,fontWeight: FontWeight.w300,)
+          ],
+        )
+        ],
+      ),
+      (model?.status??'').isEmpty || (model?.status??'').toLowerCase() =='pending'?
+      EmptyWidget():
+      commentWidget(model),
     ],
   );
  }
 
- Widget commentWidget(){
+ Widget commentWidget(MarkingActivities? model){
   return Container(
     margin: EdgeInsets.only(left: 30,top: 14),
     decoration: BoxDecoration(
@@ -123,21 +168,23 @@ class _StatusWidget extends StatelessWidget {
           children: [
             SvgPicture.asset(AppAssetPaths.userIcon),
             const SizedBox(width: 3,),
-            AppText(title: "John Doe",fontsize: 10,fontFamily:AppFontfamily.poppinsMedium,),
+            AppText(title: model?.name??'',fontsize: 10,fontFamily:AppFontfamily.poppinsMedium,),
             const SizedBox(width: 6,),
-            AppText(title: "10:35 AM",fontsize: 10,fontWeight: FontWeight.w300,),
+            AppText(title: AppDateFormat.convertTo12HourFormat(model?.time??''),fontsize: 10,fontWeight: FontWeight.w300,),
           ],
         ),
          const SizedBox(height: 12,),
-         AppText(title: "Approved",fontsize: 10,fontWeight: FontWeight.w300,)
+         AppText(title:model?.status??'',fontsize: 10,fontWeight: FontWeight.w300,)
       ],
     ),
   );
  }
-}
 
+}
+// ignore: must_be_immutable
 class _ItemRequestedWidget extends StatelessWidget {
-  const _ItemRequestedWidget();
+  CollateralsRequestState refState;
+   _ItemRequestedWidget({required this.refState});
 
   @override
   Widget build(BuildContext context) {
@@ -160,7 +207,7 @@ class _ItemRequestedWidget extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-              AppText(title: 'Items Requested',fontFamily: AppFontfamily.poppinsSemibold,),
+              AppText(title: 'Visit Details',fontFamily: AppFontfamily.poppinsSemibold,),
               Icon(Icons.expand_less,color: AppColors.light92Color,),
         ],
       ),
@@ -181,36 +228,35 @@ class _ItemRequestedWidget extends StatelessWidget {
             const SizedBox(height: 9,),
             headingWidget(),
             const SizedBox(height: 7,),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 19),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  AppText(title: "T-shirts",fontWeight: FontWeight.w400,),
-                  Container(
-                    width: 60,
-                    alignment: Alignment.center,
-                    child: AppText(title: "2"),)
-                ],
-              ),
-            ),
-            const SizedBox(height: 15,),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 19),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  AppText(title: "Total bags",fontWeight: FontWeight.w400,),
-                  Container(
-                    width: 60,
-                    alignment: Alignment.center,
-                    child: AppText(title: "1"),)
-                ],
-              ),
-            ),
+            ListView.separated(
+              separatorBuilder: (ctx,sb){
+                return const SizedBox(height: 15,);
+              },
+              shrinkWrap: true,
+              itemCount: (refState.viewCollateralsReqestModel?.data?[0].mktgCollItem?.length??0),
+              itemBuilder: (ctx,index){
+                var model = refState.viewCollateralsReqestModel?.data?[0].mktgCollItem![index];
+              return itemsWidget(model?.item??'', (model?.idx??'').toString());
+            })
         ],
       ),
    );
+  }
+
+  itemsWidget(String title, String qty){
+    return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 19),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  AppText(title: title,fontWeight: FontWeight.w400,),
+                  Container(
+                    width: 60,
+                    alignment: Alignment.center,
+                    child: AppText(title: qty),)
+                ],
+              ),
+            );
   }
 
   headingWidget(){

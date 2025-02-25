@@ -4,10 +4,13 @@ import 'package:mohan_impex/res/app_colors.dart';
 import 'package:mohan_impex/res/app_fontfamily.dart';
 
 
+// ignore: must_be_immutable
 class JourneyPlanItemsWidget extends StatelessWidget {
   final String title;
+  String status;
+  String statusDes;
 
-  const JourneyPlanItemsWidget({required this.title,});
+   JourneyPlanItemsWidget({required this.title,this.status = '',this.statusDes = ''});
 
   @override
   Widget build(BuildContext context) {
@@ -51,8 +54,8 @@ class JourneyPlanItemsWidget extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 4,),
-          AppText(title: "Approved : ",fontsize: 10,fontFamily: AppFontfamily.poppinsSemibold,color: AppColors.visitItem,),
-          AppText(title: "2025-01-01",fontsize: 10,fontFamily: AppFontfamily.poppinsRegular,color: AppColors.visitItem,),
+          AppText(title: "$status : ",fontsize: 10,fontFamily: AppFontfamily.poppinsSemibold,color: AppColors.visitItem,),
+          AppText(title: statusDes,fontsize: 10,fontFamily: AppFontfamily.poppinsRegular,color: AppColors.visitItem,),
         ],
       ),
     );
