@@ -31,6 +31,7 @@ class Items {
   String productType = '';
   String productCategory = '';
   String? itemCode;
+  String productName = '';
 
   Items({this.name, this.itemCode, this.itemName});
 
@@ -47,15 +48,4 @@ class Items {
     data['item_name']=itemName;
     return data;
   }
-}
-
-
-class ProductSendModel{
-  String productType = '';
-  List<Items> list = [];
-
-  ProductSendModel({
-    required this.list,
-    required this.productType
-  });
 }

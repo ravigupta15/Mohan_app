@@ -4,8 +4,10 @@ import 'package:mohan_impex/core/widget/expandable_widget.dart';
 import 'package:mohan_impex/res/app_colors.dart';
 import 'package:mohan_impex/res/app_fontfamily.dart';
 
+// ignore: must_be_immutable
 class DealTypeWidget extends StatelessWidget {
-  const DealTypeWidget();
+  double? value;
+   DealTypeWidget({this.value});
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +71,7 @@ class DealTypeWidget extends StatelessWidget {
         children: [
         collapsedWidget(isExpanded: isExpanded),
           const SizedBox(height: 15,),
-          CustomSliderWidget()
+          CustomSliderWidget(value: value,)
         ],
       ),
     );

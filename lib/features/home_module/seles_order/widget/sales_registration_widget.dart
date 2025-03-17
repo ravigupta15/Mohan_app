@@ -1,168 +1,524 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:mohan_impex/core/widget/app_search_bar.dart';
+import 'package:mohan_impex/core/constant/app_constants.dart';
+import 'package:mohan_impex/core/helper/dropdown_item_helper.dart';
 import 'package:mohan_impex/core/widget/app_text.dart';
 import 'package:mohan_impex/core/widget/app_text_field/app_textfield.dart';
 import 'package:mohan_impex/core/widget/custom_radio_button.dart';
 import 'package:mohan_impex/core/widget/app_text_field/label_text_textfield.dart';
-import 'package:mohan_impex/res/app_asset_paths.dart';
+import 'package:mohan_impex/core/widget/date_picker_bottom_sheet.dart';
+import 'package:mohan_impex/features/home_module/search/presentation/search_screen.dart';
+import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit/model/customer_info_model.dart';
+import 'package:mohan_impex/features/home_module/seles_order/riverpod/add_sales_order_notifier.dart';
+import 'package:mohan_impex/features/home_module/seles_order/riverpod/add_sales_order_state.dart';
 import 'package:mohan_impex/res/app_colors.dart';
+import 'package:mohan_impex/res/app_router.dart';
+import 'package:mohan_impex/res/empty_widget.dart';
+import 'package:mohan_impex/utils/app_date_format.dart';
+import 'package:mohan_impex/utils/app_validation.dart';
+import 'package:mohan_impex/utils/message_helper.dart';
+
+import '../../../../../core/widget/app_text_field/custom_drop_down.dart';
+import '../../../../../res/app_asset_paths.dart';
 
 class SalesRegistrationWidget extends StatefulWidget {
-  const SalesRegistrationWidget({super.key});
+  final AddSalesOrderNotifier refNotifer;
+  final AddSalesOrderState refState;
+  const SalesRegistrationWidget(
+      {super.key, required this.refNotifer, required this.refState});
 
   @override
   State<SalesRegistrationWidget> createState() => _SalesRegistrationWidgetState();
 }
 
-class _SalesRegistrationWidgetState extends State<SalesRegistrationWidget> {
+class _SalesRegistrationWidgetState extends State<SalesRegistrationWidget>
+    with AppValidation {
+  final unvCustomerSearchController = TextEditingController();
+   DateTime selectedDay = DateTime.now().add(Duration(days: 1)); // Track the selected day
+  DateTime focusedDay = DateTime.now().add(Duration(days: 1));
 
-  int selectedCustomerType = 0;
-int selectedVisitType = 0;
+  DateTime currentDay = DateTime.now().add(Duration(days: 1)); // Track the selected day
+  DateTime currentfocusedDay = DateTime.now().add(Duration(days: 1));
+  
+ 
+  
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-         customerTypeWidget(),
-              selectedCustomerType==1?
-              Padding(
-                padding: const EdgeInsets.only(top: 20),
-                child: AppSearchBar(
-                  hintText: 'Search by name, phone, etc.',
-                  suffixWidget: Container(
-                    padding: EdgeInsets.only(right: 10),
-                    child: SvgPicture.asset(AppAssetPaths.searchIcon),
-                  ),
-                ),
-              ):SizedBox.shrink(),
-              const SizedBox(height: 20,),
-              visitTypeWidget(),
-              const SizedBox(height: 20,),
-              registrationFieldsWidget()
+        // widget.refState.selectedCustomerType == 1
+        //     ? Column(
+        //         children: [
+        //           customerNameSearchDropdown()
+        //         ],
+        //       )
+        //     : SizedBox.shrink(),
+        // const SizedBox(
+        //   height: 20,
+        // ),
+        visitTypeWidget(),
+        const SizedBox(
+          height: 20,
+        ),
+        registrationWidget()
       ],
     );
   }
 
-  customerTypeWidget(){
-  return Column(
-    children: [
-      Row(
-        children: [
-          AppText(title: "Vendor Type",color: AppColors.lightTextColor,),
-          AppText(title: " *",color: AppColors.redColor,),
-        ],
-      ),
-      const SizedBox(height: 15,),
-      Row(
-        children: [
-          customRadioButton(isSelected:selectedCustomerType==0? true:false, title: "New",onTap: (){
-            selectedCustomerType=0;
-            setState(() {
-              
-            });
-          }),
-          const Spacer(),
-          customRadioButton(isSelected: selectedCustomerType==1? true:false, title: "Existing",onTap: (){
-            selectedCustomerType=1;
-            setState(() {
-              
-            });
-          }),
-          const Spacer(),
-        ],
-      ),
-    ],
-  );
-}
+  customerTypeWidget() {
+    return Column(
+      children: [
+        Row(
+          children: [
+            AppText(
+              title: "Vendor Type",
+              color: AppColors.lightTextColor,
+            ),
+            AppText(
+              title: " *",
+              color: AppColors.redColor,
+            ),
+          ],
+        ),
+        const SizedBox(
+          height: 15,
+        ),
+        Row(
+          children: [
+            customRadioButton(
+                isSelected:
+                    widget.refState.selectedCustomerType == 0 ? true : false,
+                title: "New",
+                onTap: () {
+                  widget.refNotifer.isReadOnlyFields=false;
+                  // widget.refNotifer.selectedVerificationType =
+                  setState(() {
+                    
+                  });
+                  widget.refNotifer.updateCustomerType(0);
+                }),
 
-visitTypeWidget(){
-  return Column(
-    children: [
-      LabelTextTextfield(title: "Visit Type", isRequiredStar: true),
-      const SizedBox(height: 15,),
-      Row(
-        children: [
-          customRadioButton(isSelected:selectedVisitType==0? true:false, title: "Primary",onTap: (){
-            selectedVisitType=0;
-            setState(() {
-              
-            });
-          }),
-          const Spacer(),
-          customRadioButton(isSelected: selectedVisitType==1? true:false, title: "Secondary",onTap: (){
-            selectedVisitType=1;
-            setState(() {
-              
-            });
-          }),
-          const Spacer(),
-        ],
+            const Spacer(),
+            customRadioButton(
+                isSelected:
+                    widget.refState.selectedCustomerType == 1 ? true : false,
+                title: "Existing",
+                onTap: () {
+                  widget.refNotifer.isReadOnlyFields = true;
+                  widget.refNotifer.updateCustomerType(1);
+                }),
+            const Spacer(),
+          ],
+        ),
+      ],
+    );
+  }
+
+  visitTypeWidget() {
+    return Column(
+      children: [
+        LabelTextTextfield(title: "Visit Type", isRequiredStar: true),
+        const SizedBox(
+          height: 15,
+        ),
+        Row(
+          children: [
+            customRadioButton(
+                isSelected:
+                    widget.refState.selectedVisitType == 0 ? true : false,
+                title: "Primary",
+                onTap: () {
+                  widget.refNotifer.updateVisitType(0);
+                  setState(() {
+                    
+                  });
+                }),
+            const Spacer(),
+            customRadioButton(
+                isSelected:
+                    widget.refState.selectedVisitType == 1 ? true : false,
+                title: "Secondary",
+                onTap: () {
+                  widget.refNotifer.updateVisitType(1);
+                  setState(() {
+                    
+                  });
+                }),
+            const Spacer(),
+          ],
+        ),
+      ],
+    );
+  }
+
+
+  registrationWidget() {
+    return Column(
+      children: [
+        widget.refState.selectedVisitType == 0? EmptyWidget():
+         Padding(padding: EdgeInsets.only(bottom: 18),
+         child: channelParnterTextField(),
+         ),
+        customerNameTextField(),
+        const SizedBox(
+          height: 18,
+        ),
+        shopTextField(),
+        const SizedBox(
+          height: 18,
+        ),
+        contactTextField(),
+        const SizedBox(
+          height: 18,
+        ),
+        deliveryDateTextField()
+       ],
+    );
+  }
+
+  verfiyTypeDrodownWidget() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 20),
+      child: CustomDropDown(
+        hintText: "Select verification type",
+        isfillColor: true,
+        items: DropdownItemHelper().dropdownListt(AppConstants.verificationTypeList),
+        selectedValue: widget.refNotifer.selectedVerificationType,
+        onChanged: widget.refNotifer.onChangedVerificationType,
+        validator: (val) {
+          if ((val ?? '').isEmpty) {
+            return "Please select type";
+          }
+          return null;
+        },
       ),
-    ],
-  );
-}
-
-
-registrationFieldsWidget(){
-  return Column(
-    children: [
-         LabelTextTextfield(title: "Channel Partner", isRequiredStar: true),
-        const SizedBox(height: 10,),
+    );
+  }
+  channelParnterTextField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        LabelTextTextfield(title: "Channel Partner", isRequiredStar: true),
+        const SizedBox(
+          height: 10,
+        ),
         AppTextfield(
           hintText: "Search by name, contact, etc.",
+          controller: widget.refNotifer.channelPartnerController,
+          isReadOnly: true,
+          onTap: () {
+            AppRouter.pushCupertinoNavigation(SearchScreen(
+              route: 'channel',
+            )).then((val) {
+              if (val != null) {
+                widget.refNotifer.channelPartnerController.text = val;
+                setState(() {});
+              }
+            });
+          },
           suffixWidget: Container(
-            width: 33,
-            alignment: Alignment.center,
-            child: Icon(Icons.expand_more)
-          ),
+              width: 33,
+              alignment: Alignment.center,
+              child: Icon(Icons.expand_more)),
+              validator: (val){
+                if((val??'').isEmpty){
+                  return "Required";
+                }
+                return null;
+              },
+        )
+      ],
+    );
+  }
+
+  customerNameTextField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        LabelTextTextfield(title: "Vendor Name", isRequiredStar: true),
+        const SizedBox(
+          height: 10,
         ),
-        const SizedBox(height: 20,),
-        LabelTextTextfield(title: "Vendor name", isRequiredStar: true),
-        const SizedBox(height: 10,),
         AppTextfield(
           fillColor: false,
-          hintText: "Vendor name",
+          isReadOnly: true,
+          textInputAction: TextInputAction.next,
+          controller: widget.refNotifer.customerNameController,
+          hintText: "Select name",
+          inputFormatters: [emojiRestrict()],
           prefixWidget: Container(
             width: 33,
             alignment: Alignment.center,
-            child: SvgPicture.asset(AppAssetPaths.personIcon,height: 17,width: 14,),
+            child: SvgPicture.asset(
+              AppAssetPaths.personIcon,
+              height: 17,
+              width: 14,
+            ),
           ),
+          validator: (val) {
+            if (val!.isEmpty) {
+              return "Required";
+            }
+            return null;
+          },
+          onTap: (){
+            if(widget.refState.selectedVisitType == 1 && widget.refNotifer.channelPartnerController.text.isEmpty){
+                 MessageHelper.showToast("Please select the channel partner to search the customer");
+            }
+            else{
+           widget.refState.customerInfoModel = null;
+            AppRouter.pushCupertinoNavigation(SearchScreen(
+              route: 'verified',
+                visitType: AppConstants.visitTypeList[widget.refState.selectedVisitType],
+              channelParter:widget.refState.selectedVisitType ==1 ? widget.refNotifer.channelPartnerController.text : ''
+            )).then((val) {
+              if (val != null) {
+                ///
+                ///
+                  CustomerDetails model = val;
+                      widget.refState.contactNumberList = (model.contact??[]);
+                    widget.refNotifer.shopNameController.text = model.shop;
+                    widget.refNotifer.selectedExistingCustomer = model.customer;
+                    widget.refNotifer.searchController.text = model.customerName;
+                    widget.refNotifer.customerNameController.text =
+                        model.customerName;
+                    if (widget.refState.contactNumberList.isNotEmpty) {
+                      widget.refNotifer.numberController.text =
+                          widget.refState.contactNumberList[0];
+                    }
+                setState(() {});
+              }
+            }); 
+          }
+          }
+        )
+      ],
+    );
+  }
+
+  shopTextField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        LabelTextTextfield(title: "Shop/Bakery name", isRequiredStar: true),
+        const SizedBox(
+          height: 10,
         ),
-        const SizedBox(height: 20,),
-          LabelTextTextfield(title: "Shop/Bakery name", isRequiredStar: true),
-        const SizedBox(height: 10,),
         AppTextfield(
+          isReadOnly: true,
+          controller: widget.refNotifer.shopNameController,
+          textInputAction: TextInputAction.next,
           fillColor: false,
+          inputFormatters: [emojiRestrict()],
           hintText: "Enter shop name",
           prefixWidget: Container(
             width: 33,
             alignment: Alignment.center,
-            child: SvgPicture.asset(AppAssetPaths.shopIcon,height: 14,width: 14,),
-          ),
-        ),
-         const SizedBox(height: 20,),
-          LabelTextTextfield(title: "Contact", isRequiredStar: true),
-        const SizedBox(height: 10,),
-        AppTextfield(
-          fillColor: false,
-          hintText: "Enter number",
-          prefixWidget: Container(
-            width: 33,
-            alignment: Alignment.center,
-            child: SvgPicture.asset(AppAssetPaths.callIcon,height: 14,width: 14,color: AppColors.light92Color,),
-          ),
-          suffixWidget: Container(
-            decoration: BoxDecoration(
-              color: AppColors.greenColor,
-              borderRadius: BorderRadius.only(
-                topRight: Radius.circular(8),
-                bottomRight: Radius.circular(8)
-              )
+            child: SvgPicture.asset(
+              AppAssetPaths.shopIcon,
+              height: 14,
+              width: 14,
             ),
-            child: Icon(Icons.add,color: AppColors.whiteColor,size: 30,),
           ),
+          validator: (val) {
+            if (val!.isEmpty) {
+              return "Required";
+            }
+            return null;
+          },
         )
-    ],
-  );
-}
+      ],
+    );
+  }
+
+
+
+  deliveryDateTextField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        LabelTextTextfield(title: "Delivery Date", isRequiredStar: true),
+        const SizedBox(
+          height: 10,
+        ),
+        AppTextfield(
+          isReadOnly: true,
+          controller: widget.refNotifer.deliveryDateController,
+          textInputAction: TextInputAction.next,
+          fillColor: false,
+          inputFormatters: [emojiRestrict()],
+          hintText: "Select delivery date",
+          onTap: (){
+            currentDay = selectedDay;
+            currentfocusedDay = focusedDay;
+            setState(() {
+            });
+            datePickerBottomsheet(context);
+          },
+           suffixWidget: Container(
+              height: 33,
+              width: 33,
+              margin: EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                  color: AppColors.greenColor,
+                  borderRadius: BorderRadius.circular(5)),
+              child: Icon(
+                Icons.add,
+                color: AppColors.whiteColor,
+                size: 25,
+              ),
+            ),
+          validator: (val) {
+            if (val!.isEmpty) {
+              return "Required";
+            }
+            return null;
+          },
+        )
+      ],
+    );
+  }
+
+
+  contactTextField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        LabelTextTextfield(title: "Contact", isRequiredStar: true),
+        const SizedBox(
+          height: 10,
+        ),
+        AppTextfield(
+            isReadOnly: true,
+            controller: widget.refNotifer.numberController,
+            fillColor: false,
+            textInputAction: TextInputAction.next,
+            hintText: "Enter number",
+            textInputType: TextInputType.number,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+              LengthLimitingTextInputFormatter(10)
+            ],
+            prefixWidget: Container(
+              width: 33,
+              alignment: Alignment.center,
+              child: SvgPicture.asset(
+                AppAssetPaths.callIcon,
+                height: 14,
+                width: 14,
+                color: AppColors.light92Color,
+              ),
+            ),
+            suffixWidget: InkWell(
+              onTap: () {
+                  if (widget.refState.contactNumberList.length >= 3) {
+                    MessageHelper.showToast(
+                        "Only 3 contact numbers are allowed.");
+                  } else if (widget
+                      .refNotifer.numberController.text.isNotEmpty) {
+                    widget.refState.contactNumberList
+                        .add(widget.refNotifer.numberController.text);
+                    setState(() {});
+                  }
+              
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                    color: AppColors.greenColor,
+                    borderRadius: BorderRadius.only(
+                        topRight: Radius.circular(8),
+                        bottomRight: Radius.circular(8))),
+                child: Icon(
+                  Icons.add,
+                  color: AppColors.whiteColor,
+                  size: 30,
+                ),
+              ),
+            ),
+            validator: numberValidation),
+        (widget.refState.contactNumberList).isNotEmpty
+            ? SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                padding: EdgeInsets.only(top: 10),
+                child: Row(
+                  children: widget.refState.contactNumberList.map((e) {
+                    return Stack(
+                      children: [
+                        Container(
+                            margin: EdgeInsets.symmetric(horizontal: 6),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 2),
+                            decoration: BoxDecoration(
+                                color: AppColors.lightEBColor,
+                                borderRadius: BorderRadius.circular(25)),
+                            alignment: Alignment.center,
+                            child: AppText(title: e)),
+                        Positioned(
+                          right: 0,
+                          top: 0,
+                          child: InkWell(
+                            onTap: () {
+                              //  widget.refState.contactNumberList.remove(e);
+                                setState(() {});
+                            },
+                            child: Container(
+                              height: 12,
+                              width: 12,
+                              decoration: BoxDecoration(
+                                  color: AppColors.cardBorder,
+                                  shape: BoxShape.circle),
+                              child: Icon(
+                                Icons.close,
+                                size: 10,
+                              ),
+                            ),
+                          ),
+                        )
+                      ],
+                    );
+                  }).toList(),
+                ),
+              )
+            : Container()
+      ],
+    );
+  }
+
+
+  datePickerBottomsheet(
+    BuildContext context,
+  ) {
+    showModalBottomSheet(
+        isScrollControlled: true,
+        backgroundColor: AppColors.whiteColor,
+        context: context,
+        builder: (context) {
+          return Builder(builder: (context) {
+            return Padding(
+              padding: const EdgeInsets.only(
+                  top: 20, left: 10, right: 10, bottom: 10),
+              child: StatefulBuilder(builder: (context, state) {
+                return ViewDatePickerWidget(
+                    selectedDay: currentDay,
+                    focusedDay: currentfocusedDay,
+                    firstDay: DateTime.now().add(Duration(days: 1)),
+                    onDaySelected: (selectedDay, focusedDay) {
+                      state(() {});
+                      currentDay = selectedDay;
+                      currentfocusedDay = focusedDay;
+                    },
+                    applyTap: () {
+                      state(() {});
+                      selectedDay = currentDay;
+                      focusedDay = currentfocusedDay;
+                      widget.refNotifer.deliveryDateController.text = AppDateFormat.datePickerView(selectedDay);
+                      Navigator.pop(context);
+                    });
+              }),
+            );
+          });
+        });
+  }
+
 }

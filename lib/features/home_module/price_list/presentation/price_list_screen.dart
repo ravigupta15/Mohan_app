@@ -12,6 +12,7 @@ import 'package:mohan_impex/res/app_asset_paths.dart';
 import 'package:mohan_impex/res/app_colors.dart';
 import 'package:mohan_impex/res/app_fontfamily.dart';
 import 'package:mohan_impex/res/empty_widget.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 class PriceListScreen extends ConsumerStatefulWidget {
   const PriceListScreen({super.key});
@@ -23,7 +24,7 @@ class PriceListScreen extends ConsumerStatefulWidget {
 class _PriceListScreenState extends ConsumerState<PriceListScreen> {
   int selectedRadio = 0;
   String filterValue = '';
-
+ScrollController _scrollController = ScrollController();
  @override
   void initState() {
     Future.microtask((){
@@ -35,7 +36,32 @@ class _PriceListScreenState extends ConsumerState<PriceListScreen> {
   callInitFunction(){
     final refNotifier = ref.read(priceListProvider.notifier);
     refNotifier.resetFilter();
-    refNotifier.priceApiFunction(context);
+    refNotifier.resetValues();
+      _scrollController.addListener(_scrollListener); 
+   refNotifier.priceApiFunction();
+    setState(() {      
+    });
+   
+  }
+
+
+   @override
+  void dispose() {
+    _scrollController.removeListener(_scrollListener);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _scrollListener() {
+    final state = ref.watch(priceListProvider);
+    final notifier = ref.read(priceListProvider.notifier);
+    if (_scrollController.position.pixels ==
+        _scrollController.position.maxScrollExtent) {
+      if ((state.priceListModel?.data?[0].records?.length??0) <
+              int.parse((state.priceListModel?.data?[0].totalCount??0).toString())) {
+        notifier.priceApiFunction(isLoadMore: true);
+      }
+    }
   }
 
 
@@ -51,7 +77,7 @@ class _PriceListScreenState extends ConsumerState<PriceListScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
                 Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: AppSearchBar(
                   hintText: "Search by SKU or product",
                   onChanged: (val){
@@ -83,7 +109,9 @@ class _PriceListScreenState extends ConsumerState<PriceListScreen> {
                 child: selectedFiltersWidget(refNotifier: refNotifier, refState: refState),
               ),
               const SizedBox(height: 16,),
-              Expanded(child: priceListItems())
+              Expanded(child:refState.isLoading?
+              priceListShimmer():
+               priceListItems())
           ],
          ),
        ),
@@ -189,7 +217,7 @@ class _PriceListScreenState extends ConsumerState<PriceListScreen> {
                     refNotifier.updateFilterValues( type: filterValue);
                     setState(() {
                     });
-                    refNotifier.priceApiFunction(context);
+                    refNotifier.priceApiFunction();
                   },
                   ),
                  )
@@ -208,7 +236,8 @@ class _PriceListScreenState extends ConsumerState<PriceListScreen> {
   priceListItems(){
      final refState = ref.watch(priceListProvider);
     return SingleChildScrollView(
-      padding: EdgeInsets.only(left: 8,right:8,bottom: 20),
+      padding: EdgeInsets.only(left: 15,right:15,bottom: 20),
+       controller: _scrollController,
       child: Table(
               border: TableBorder.all(color: AppColors.e2Color),  // Adds borders to the table
               children: [
@@ -220,8 +249,8 @@ class _PriceListScreenState extends ConsumerState<PriceListScreen> {
                     _buildTableCell('Type'),
                   ],
                 ),
-                ...List.generate((refState.priceListModel?.data?.length ?? 0), (val){
-                  var model = refState.priceListModel?.data![val];
+                ...List.generate((refState.priceListModel?.data?[0].records?.length ?? 0), (val){
+                  var model = refState.priceListModel?.data?[0].records?[val];
                   return   TableRow(
                   children: [
                     _buildTableCell(model?.itemCode??'',fontSize: 10,isBGColor: false),
@@ -260,7 +289,8 @@ Widget _buildTableCell(String text,{bool isBGColor = true,double fontSize =11}) 
             refNotifier.filerValue='';
             filterValue = '';
             selectedRadio = 0;
-            refNotifier.priceApiFunction(context);
+            refState.currentPage = 1;
+            refNotifier.priceApiFunction();
           setState(() {
           });
           }
@@ -290,6 +320,41 @@ Widget _buildTableCell(String text,{bool isBGColor = true,double fontSize =11}) 
     );
   }
 
+
+ priceListShimmer(){
+  return Skeletonizer(
+    enabled: true,
+    child: SingleChildScrollView(
+        padding: EdgeInsets.only(left: 8,right:8,bottom: 20),
+        child: Table(
+                border: TableBorder.all(color: AppColors.e2Color),  // Adds borders to the table
+                children: [
+                  TableRow(
+                    children: [
+                      _buildTableCell('SKU'),
+                      _buildTableCell('Product Name'),
+                      _buildTableCell('Unit Price'),
+                      _buildTableCell('Type'),
+                    ],
+                  ),
+                  ...List.generate(10, (val){
+                    // var model = refState.priceListModel?.data?[0].records?[val];
+                    return   TableRow(
+                    children: [
+                      _buildTableCell('SKU',fontSize: 10,isBGColor: false),
+                      _buildTableCell( "Item",fontSize: 10,isBGColor: false),
+                      _buildTableCell('19' ,fontSize: 10,isBGColor: false),
+                      _buildTableCell('BP',fontSize: 10,isBGColor: false),
+                    ],
+                  );
+                  }).toList(),
+                 
+                               ],
+              ),
+      ),
+  );
+ 
+ }
 
 
 }

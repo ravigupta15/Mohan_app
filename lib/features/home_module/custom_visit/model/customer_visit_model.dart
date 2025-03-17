@@ -28,44 +28,38 @@ class CustomerVisitModel {
 }
 
 class Data {
-  List<MyVisit>? myVisit;
-  List<MyVisit>? visitDraft;
-  Perms? perms;
+  List<CustomerVisitRecords>? records;
+  dynamic totalCount;
+  dynamic pageCount;
+  dynamic currentPage;
 
-  Data({this.myVisit, this.visitDraft, this.perms});
+  Data({this.records, this.totalCount, this.pageCount, this.currentPage});
 
   Data.fromJson(Map<String, dynamic> json) {
-    if (json['my_visit'] != null) {
-      myVisit = <MyVisit>[];
-      json['my_visit'].forEach((v) {
-        myVisit!.add( MyVisit.fromJson(v));
+    if (json['records'] != null) {
+      records = <CustomerVisitRecords>[];
+      json['records'].forEach((v) {
+        records!.add( CustomerVisitRecords.fromJson(v));
       });
     }
-     if (json['visit_draft'] != null) {
-      myVisit = <MyVisit>[];
-      json['visit_draft'].forEach((v) {
-        myVisit!.add( MyVisit.fromJson(v));
-      });
-    }
-    perms = json['perms'] != null ?  Perms.fromJson(json['perms']) : null;
+    totalCount = json['total_count'];
+    pageCount = json['page_count'];
+    currentPage = json['current_page'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data =  Map<String, dynamic>();
-    if (myVisit != null) {
-      data['my_visit'] = myVisit!.map((v) => v.toJson()).toList();
+    if (records != null) {
+      data['records'] = records!.map((v) => v.toJson()).toList();
     }
-    if (visitDraft != null) {
-      data['visit_draft'] = visitDraft!.map((v) => v.toJson()).toList();
-    }
-    if (perms != null) {
-      data['perms'] = perms!.toJson();
-    }
+    data['total_count'] = totalCount;
+    data['page_count'] = pageCount;
+    data['current_page'] = currentPage;
     return data;
   }
 }
 
-class MyVisit {
+class CustomerVisitRecords {
   dynamic name;
   dynamic shopName;
   dynamic contact;
@@ -73,9 +67,11 @@ class MyVisit {
   dynamic createdByEmp;
   dynamic kycStatus;
   dynamic workflowState;
+  dynamic totalCount;
   dynamic formUrl;
+  dynamic imageUrl;
 
-  MyVisit(
+  CustomerVisitRecords(
       {this.name,
       this.shopName,
       this.contact,
@@ -83,9 +79,11 @@ class MyVisit {
       this.createdByEmp,
       this.kycStatus,
       this.workflowState,
-      this.formUrl});
+      this.totalCount,
+      this.formUrl,
+      this.imageUrl});
 
-  MyVisit.fromJson(Map<String, dynamic> json) {
+  CustomerVisitRecords.fromJson(Map<String, dynamic> json) {
     name = json['name'];
     shopName = json['shop_name'];
     contact = json['contact'];
@@ -93,7 +91,9 @@ class MyVisit {
     createdByEmp = json['created_by_emp'];
     kycStatus = json['kyc_status'];
     workflowState = json['workflow_state'];
+    totalCount = json['total_count'];
     formUrl = json['form_url'];
+    imageUrl = json['image_url'];
   }
 
   Map<String, dynamic> toJson() {
@@ -105,23 +105,9 @@ class MyVisit {
     data['created_by_emp'] = createdByEmp;
     data['kyc_status'] = kycStatus;
     data['workflow_state'] = workflowState;
+    data['total_count'] = totalCount;
     data['form_url'] = formUrl;
-    return data;
-  }
-}
-
-class Perms {
-  dynamic createPerm;
-
-  Perms({this.createPerm});
-
-  Perms.fromJson(Map<String, dynamic> json) {
-    createPerm = json['create_perm'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data =  Map<String, dynamic>();
-    data['create_perm'] = createPerm;
+    data['image_url'] = imageUrl;
     return data;
   }
 }

@@ -153,6 +153,7 @@ showMapBottomSheet(BuildContext context){
             const SizedBox(height:17),
             AppTextButton(title: "Confirm Check ${(lastLog?.lastLogType=="OUT"||(lastLog?.lastLogType??'').isEmpty ? "In" : "Out")}",height: 35,width: 190,color: AppColors.arcticBreeze,
             onTap: (){
+              print((lastLog?.lastLogType=="OUT" ||(lastLog?.lastLogType??'').isEmpty ? "IN" : "OUT"));
               Navigator.pop(context);
               homeNotifier.checkInApiFunction(context, type: (lastLog?.lastLogType=="OUT" ||(lastLog?.lastLogType??'').isEmpty ? "IN" : "OUT"));
             },

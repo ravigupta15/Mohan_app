@@ -1,22 +1,24 @@
 // ignore_for_file: unused_element
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mohan_impex/core/widget/app_text.dart';
 import 'package:mohan_impex/core/widget/app_text_button.dart';
 import 'package:mohan_impex/core/widget/custom_app_bar.dart';
+import 'package:mohan_impex/features/app_navigation/riverpod/app_navigation_state.dart';
 import 'package:mohan_impex/res/app_asset_paths.dart';
 import 'package:mohan_impex/res/app_colors.dart';
 import 'package:mohan_impex/res/app_fontfamily.dart';
 
-class ProfileScreen extends StatefulWidget {
+class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,7 +38,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 20,),
             Align(
               alignment: Alignment.center,
-              child: AppTextButton(title: "Logout",color: AppColors.arcticBreeze,width: 120,height: 40,),
+              child: AppTextButton(title: "Logout",color: AppColors.arcticBreeze,width: 120,height: 40,
+              onTap: (){
+                dialogBox();
+              },
+              ),
             )
           ],
         ),
@@ -95,6 +101,92 @@ Widget moreProfileTypesWidget(){
   ),
 );
 }
+
+dialogBox() {
+    showGeneralDialog(
+      context: context,
+      barrierLabel: "Barrier",
+      barrierDismissible: true,
+      barrierColor: Colors.black.withOpacity(0.5),
+      transitionDuration: const Duration(milliseconds: 400),
+      pageBuilder: (_, __, ___) {
+        return Center(
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 40),
+            decoration: BoxDecoration(
+                color: Colors.white, borderRadius: BorderRadius.circular(12)),
+            child: Padding(
+              padding: const EdgeInsets.only(
+                  top: 15, left: 20, right: 20, bottom: 33),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AppText(
+                    title: "Logout",
+                    color: AppColors.black,
+                    fontsize: 18,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  const SizedBox(height: 25,),
+                  Align(
+                    alignment: Alignment.center,
+                    child: AppText(
+                      title:"Are you sure you want to logout?",
+                      fontsize: 14,
+                      fontFamily: AppFontfamily.poppinsMedium,
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  const SizedBox(height: 30,),
+                  Row(
+                    children: [
+                      Flexible(
+                        child: AppTextButton(
+                            title: "No",
+                            height: 50,
+                            width: double.infinity,
+                            onTap: () {
+                              Navigator.pop(context);
+                            }),
+                      ),
+                      const SizedBox(width: 20,),
+                      Flexible(
+                        child: AppTextButton(
+                            title: "Yes",
+                            height: 50,
+                            width: double.infinity,
+                            onTap: (){
+                              Navigator.pop(context);
+                              ref.read(appNavigationProvider.notifier).logoutApiFunction(context);
+                            }),
+                      ),
+                    ],
+                  )
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+      transitionBuilder: (_, anim, __, child) {
+        Tween<Offset> tween;
+        if (anim.status == AnimationStatus.reverse) {
+          tween = Tween(begin: const Offset(0, 1), end: Offset.zero);
+        } else {
+          tween = Tween(begin: const Offset(0, 1), end: Offset.zero);
+        }
+
+        return SlideTransition(
+          position: tween.animate(anim),
+          child: FadeTransition(
+            opacity: anim,
+            child: child,
+          ),
+        );
+      },
+    );
+  }
 
 }
 

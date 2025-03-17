@@ -91,6 +91,7 @@ ScrollController _scrollController = ScrollController();
                 child: AppSearchBar(
                   hintText: "Search by name or status",
                   onChanged: refNotifier.onChangedSearch,
+                  controller: refNotifier.searchController,
                   suffixWidget: Container(
                     alignment: Alignment.center,
                     width:  60,

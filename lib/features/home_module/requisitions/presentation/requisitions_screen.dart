@@ -45,7 +45,8 @@ class _RequisitionsScreenState extends State<RequisitionsScreen> {
              Row(
               children: [
                 otherUserCustomContainer(title: "Trial Plan", img: AppAssetPaths.trialPlanIcon, onTap: (){
-                  AppRouter.pushCupertinoNavigation(const TrialPlanScreen());
+                  AppRouter.pushCupertinoNavigation(TrialPlanScreen(
+                  ));
                 }),
             const SizedBox(width: 15,),
                 otherUserCustomContainer(title: "Marketing Collaterals", img: AppAssetPaths.digitalIcon, onTap: (){

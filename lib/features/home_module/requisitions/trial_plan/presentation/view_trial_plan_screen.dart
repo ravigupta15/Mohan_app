@@ -1,40 +1,62 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:mohan_impex/core/widget/app_text.dart';
 import 'package:mohan_impex/core/widget/custom_app_bar.dart';
 import 'package:mohan_impex/core/widget/dotted_divider.dart';
 import 'package:mohan_impex/core/widget/expandable_widget.dart';
 import 'package:mohan_impex/features/common_widgets/remarks_widgets.dart';
+import 'package:mohan_impex/features/common_widgets/status_activity.dart';
 import 'package:mohan_impex/features/home_module/requisitions/trial_plan/presentation/trial_product_item_screen.dart';
+import 'package:mohan_impex/features/home_module/requisitions/trial_plan/riverpod/trial_plan_state.dart';
 import 'package:mohan_impex/res/app_colors.dart';
 import 'package:mohan_impex/res/app_fontfamily.dart';
 import 'package:mohan_impex/res/app_router.dart';
 
 import '../../../../../res/app_asset_paths.dart';
 
-class ViewTrialPlanScreen extends StatefulWidget {
-  const ViewTrialPlanScreen({super.key});
+class ViewTrialPlanScreen extends ConsumerStatefulWidget {
+  final String id;
+  const ViewTrialPlanScreen({super.key, required this.id});
 
   @override
-  State<ViewTrialPlanScreen> createState() => _ViewTrialPlanScreenState();
+  ConsumerState<ViewTrialPlanScreen> createState() => _ViewTrialPlanScreenState();
 }
 
-class _ViewTrialPlanScreenState extends State<ViewTrialPlanScreen> {
+class _ViewTrialPlanScreenState extends ConsumerState<ViewTrialPlanScreen> {
+
+@override
+  void initState() {
+    Future.microtask((){
+      callInitFunction();
+    });
+    super.initState();
+  }
+
+  callInitFunction(){
+    final refNotifier = ref.read(trialPlanProvider.notifier);
+    refNotifier.viewTrialPlanApiFunction(context, id: widget.id);
+  }
+
   @override
   Widget build(BuildContext context) {
+     final refState =ref.watch(trialPlanProvider);
     return Scaffold(
-      appBar: customAppBar(title: "Trial #125"),
+      appBar: customAppBar(title: "Trial #${widget.id}"),
       body: SingleChildScrollView(
         padding: const EdgeInsets.only(top: 14,left: 19,right: 19,bottom: 20),
         child: Column(
           children: [
-            _StatusWidget(),
+              StatusWidget(activities: refState.viewTrialPlanModel?.data?[0].activities,),
              const SizedBox(height: 15,),
-             _TrialPlanDetailsWidget(),
+             _TrialPlanDetailsWidget(refState: refState,),
              const SizedBox(height: 15,),
-             _ItemRequestedWidget(),
+             _ItemRequestedWidget(refState: refState,),
              const SizedBox(height: 15,),
-             RemarksWidget()
+             RemarksWidget(
+              isEditable: false,
+              remarks: refState.viewTrialPlanModel?.data?[0].remarksnotes ?? '',
+             )
           ],
         ),
       ),
@@ -143,7 +165,8 @@ class _StatusWidget extends StatelessWidget {
 }
 
 class _TrialPlanDetailsWidget extends StatelessWidget {
-  const _TrialPlanDetailsWidget();
+  final TrialPlanState refState;
+  const _TrialPlanDetailsWidget({required this.refState});
 
   @override
   Widget build(BuildContext context) {
@@ -173,6 +196,7 @@ class _TrialPlanDetailsWidget extends StatelessWidget {
   }
 
   Widget expandedWidget({required bool isExpanded}){
+    var model = refState.viewTrialPlanModel?.data?[0];
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 15,vertical: 10),
       decoration: BoxDecoration(
@@ -186,15 +210,40 @@ class _TrialPlanDetailsWidget extends StatelessWidget {
             const SizedBox(height: 10,),
           dotteDivierWidget(dividerColor: AppColors.edColor,),
             const SizedBox(height: 9,),
-            itemsWidget("Trial Type", "Self"),
+             itemsWidget("Name", model?.customerName?? ''),
             const SizedBox(height: 16,),
-            itemsWidget("Trial Date :", "11-02-2024"),
+            itemsWidget("Shop Name", model?.shopName?? ''),
             const SizedBox(height: 16,),
-            itemsWidget("Trial Time :", "14:23"),
+            itemsWidget("Contact", (model?.contact?.isEmpty ?? true) 
+            ? '' 
+           : model?.contact?.map((e) => e.contact).join(', ') ?? ''),
+           const SizedBox(height: 16,),
+            itemsWidget("Trial Type", model?.conductBy ?? ''),
             const SizedBox(height: 16,),
-            itemsWidget("Customer Type : ", "Primary"),
+            itemsWidget("Trial Location", model?.trialLoc ?? ''),
             const SizedBox(height: 16,),
-            itemsWidget("Type", "Product"),
+            itemsWidget("Trial Date :", model?.date ?? ''),
+            const SizedBox(height: 16,),
+            itemsWidget("Trial Time :", model?.time ?? ''),
+            const SizedBox(height: 16,),
+            itemsWidget("Customer Type : ", model?.customerLevel ?? ''),
+            const SizedBox(height: 16,),
+            itemsWidget("Type", model?.trialType ?? ''),
+            const SizedBox(height: 16,),
+             itemsWidget("Address Type", model?.addressTitle ?? ''),
+            const SizedBox(height: 13,),
+            itemsWidget("Address-1", model?.addressLine1 ?? ''),
+            const SizedBox(height: 13,),
+            itemsWidget("Address-2", model?.addressLine2 ?? ''),
+            const SizedBox(height: 13,),
+            itemsWidget("District", model?.district ?? ''),
+            const SizedBox(height: 13,),
+            itemsWidget("State", model?.state ?? ''),
+            const SizedBox(height: 13,),
+            itemsWidget("Pincode", (model?.pincode ?? '').toString()),
+            const SizedBox(height: 13,),
+            itemsWidget("Appointment Date", (model?.appointmentDate ?? '').toString()),
+        
         ],
       )
     );
@@ -214,7 +263,8 @@ class _TrialPlanDetailsWidget extends StatelessWidget {
 
 
 class _ItemRequestedWidget extends StatelessWidget {
-  const _ItemRequestedWidget();
+  final TrialPlanState refState;
+  const _ItemRequestedWidget({required this.refState});
 
   @override
   Widget build(BuildContext context) {
@@ -225,6 +275,7 @@ class _ItemRequestedWidget extends StatelessWidget {
   }
 
  Widget collapsedWidget({required bool isExpanded}){
+  var model = refState.viewTrialPlanModel?.data?[0];
    return Container(
     padding:!isExpanded?EdgeInsets.zero: EdgeInsets.symmetric(horizontal: 10,vertical: 11),
           decoration: BoxDecoration(
@@ -237,13 +288,14 @@ class _ItemRequestedWidget extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-              AppText(title: 'Trial Products',fontFamily: AppFontfamily.poppinsSemibold,),
+              AppText(title:(model?.trialType ?? '').toString().toLowerCase() == "product"? 'Trial Products' : "Trial Items",fontFamily: AppFontfamily.poppinsSemibold,),
               Icon(Icons.expand_less,color: AppColors.light92Color,),
         ],
       ),
    );
   }
   Widget expandedWidget({required bool isExpanded}){
+    var model = refState.viewTrialPlanModel?.data?[0];
    return Container(
     padding: EdgeInsets.symmetric(horizontal: 15,vertical: 10),
       decoration: BoxDecoration(
@@ -256,49 +308,16 @@ class _ItemRequestedWidget extends StatelessWidget {
            const SizedBox(height: 10,),
           dotteDivierWidget(dividerColor: AppColors.edColor,),
             const SizedBox(height: 9,),
-            headingWidget(),
+            headingWidget(model?.trialType ?? ''),
             const SizedBox(height: 7,),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 19),
-              child: GestureDetector(
-                onTap: (){
-                  AppRouter.pushCupertinoNavigation(TrialProductItemScreen());
-                },
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    AppText(title: "Item 1",fontWeight: FontWeight.w400,),
-                    Container(
-                      alignment: Alignment.center,
-                      child: AppText(title: "pending",fontsize: 12,color: AppColors.mossGreyColor,),)
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 15,),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 19),
-              child: GestureDetector(
-                onTap: (){
-                  AppRouter.pushCupertinoNavigation(TrialProductItemScreen());
-                },
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    AppText(title: "Item 2",fontWeight: FontWeight.w400,),
-                    Container(
-                      alignment: Alignment.center,
-                      child: AppText(title: "pending",fontsize: 12,color: AppColors.mossGreyColor,),)
-                  ],
-                ),
-              ),
-            ),
+            (model?.trialType ?? '').toString().toLowerCase() == "product"?
+            productViewWidget() : itemViewWidget()
         ],
       ),
    );
   }
 
-  headingWidget(){
+  headingWidget(String title){
     return Container(
       decoration: BoxDecoration(
         color: AppColors.edColor,
@@ -308,7 +327,7 @@ class _ItemRequestedWidget extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Expanded(child: AppText(title: "Item",fontsize: 12,fontFamily: AppFontfamily.poppinsMedium,color: AppColors.oliveGray,)),
+          Expanded(child: AppText(title: title,fontsize: 12,fontFamily: AppFontfamily.poppinsMedium,color: AppColors.oliveGray,)),
           SizedBox(
             width: 60,
             child: AppText(title: "Report",fontsize: 12,fontFamily: AppFontfamily.poppinsMedium,color: AppColors.oliveGray,),
@@ -316,6 +335,69 @@ class _ItemRequestedWidget extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Widget productViewWidget(){
+    var model = refState.viewTrialPlanModel?.data?[0];
+    return   ListView.separated(
+              separatorBuilder: (ctx,sb){
+                return const SizedBox(height: 15,);
+              },
+              itemCount: (model?.productTrialTable ?? []).length,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemBuilder: (ctx,index){
+                var productModel = model?.productTrialTable?[index];
+                return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 19),
+              child: GestureDetector(
+                onTap: (){
+                  AppRouter.pushCupertinoNavigation(TrialProductItemScreen());
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    AppText(title: productModel?.product ?? '',fontWeight: FontWeight.w400,),
+                    Container(
+                      alignment: Alignment.center,
+                      child: AppText(title: "pending",fontsize: 12,color: AppColors.mossGreyColor,),)
+                  ],
+                ),
+              ),
+            );
+            });
+  }
+
+
+  Widget itemViewWidget(){
+    var model = refState.viewTrialPlanModel?.data?[0];
+    return   ListView.separated(
+              separatorBuilder: (ctx,sb){
+                return const SizedBox(height: 15,);
+              },
+              itemCount: (model?.itemTrialTable ?? []).length,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemBuilder: (ctx,index){
+                var productModel = model?.itemTrialTable?[index];
+                return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 19),
+              child: GestureDetector(
+                onTap: (){
+                  AppRouter.pushCupertinoNavigation(TrialProductItemScreen());
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    AppText(title: productModel?.itemName ?? '',fontWeight: FontWeight.w400,),
+                    Container(
+                      alignment: Alignment.center,
+                      child: AppText(title: "pending",fontsize: 12,color: AppColors.mossGreyColor,),)
+                  ],
+                ),
+              ),
+            );
+            });
   }
 
 }

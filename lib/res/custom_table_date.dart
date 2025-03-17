@@ -4,10 +4,12 @@ import 'package:mohan_impex/res/app_fontfamily.dart';
 import 'package:table_calendar/table_calendar.dart';
 
   Widget customTableWidget({
-    required DateTime selectedDay,required DateTime focusedDay, Function(DateTime, DateTime)? onDaySelected}) {
+    required DateTime selectedDay,required DateTime focusedDay, Function(DateTime, DateTime)? onDaySelected,
+     DateTime? firstDay
+    }) {
       DateTime currentDay = DateTime.now();
     return TableCalendar(
-      firstDay: DateTime.now(),
+      firstDay: firstDay ?? DateTime.now(),
       lastDay: DateTime.utc(2030, 3, 14),
       focusedDay: focusedDay,
       selectedDayPredicate: (day) {

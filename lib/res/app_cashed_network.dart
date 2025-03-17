@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:mohan_impex/data/datasources/local_share_preference.dart';
 import 'package:mohan_impex/utils/validation_helper.dart';
 
 class AppNetworkImage extends StatefulWidget {
@@ -49,7 +50,7 @@ class _AppNetworkImageState extends State<AppNetworkImage> {
   @override
   Widget build(BuildContext context) {
     _checkMemory();
-    return (widget.imgUrl.isEmpty || !_validURL)
+    return (widget.imgUrl.isEmpty)
         ? SizedBox(
             height: widget.height,
             width: widget.width,
@@ -74,11 +75,13 @@ class _AppNetworkImageState extends State<AppNetworkImage> {
                           const _ImageProgressIndicatorBuilder(),
                     )
                   : CachedNetworkImage(
+                    httpHeaders: {
+                  'Authorization': "Bearer ${LocalSharePreference.token}",  // If needed for authentication
+                     },
                       height: widget.height,
                       width: widget.width,
                       imageUrl: widget.imgUrl,
                       fit: widget.boxFit,
-
                       /// when enable to cache the image then
                       cacheKey: widget.enableCache ? widget.imgUrl : null,
                       maxWidthDiskCache: widget.maxWidthDiskCache,
@@ -114,7 +117,7 @@ class _AppNetworkImageState extends State<AppNetworkImage> {
     return ext == "svg";
   }
 
-  bool get _validURL => ValidationHelper.isUrl(widget.imgUrl);
+  // bool get _validURL => ValidationHelper.isUrl(widget.imgUrl);
 
   void _checkMemory() {
     final ImageCache imageCache = PaintingBinding.instance.imageCache;

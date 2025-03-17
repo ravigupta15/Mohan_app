@@ -37,7 +37,7 @@ class JourneyPendingWidget extends StatelessWidget {
             GestureDetector(
               onTap: (){
                   AppRouter.pushCupertinoNavigation( ViewJourneyPlanScreen(id: model?.name??'',)).then((val){
-                    refNotifier.journeyPlanListApiFunction();
+                    // refNotifier.journeyPlanListApiFunction();
                   });
               },
               child: Container(
@@ -60,7 +60,7 @@ class JourneyPendingWidget extends StatelessWidget {
                     children: [
                       JourneyPlanItemsWidget(
                       title:"Ticket #${model?.name??''}",
-                      status: "Pending",
+                      status: model?.status??'',
                       statusDes: model?.approvedDate??'',
                       ),
                     ],

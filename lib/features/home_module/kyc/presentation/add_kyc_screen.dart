@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mohan_impex/core/helper/dropdown_item_helper.dart';
 import 'package:mohan_impex/core/services/date_picker_service.dart';
 import 'package:mohan_impex/core/services/image_picker_service.dart';
 import 'package:mohan_impex/core/widget/app_date_widget.dart';
@@ -11,8 +12,9 @@ import 'package:mohan_impex/core/widget/custom_checkbox.dart';
 import 'package:mohan_impex/core/widget/custom_radio_button.dart';
 import 'package:mohan_impex/core/widget/expandable_widget.dart';
 import 'package:mohan_impex/data/datasources/local_share_preference.dart';
-import 'package:mohan_impex/features/home_module/kyc/riverpod/kyc_notifier.dart';
-import 'package:mohan_impex/features/home_module/kyc/riverpod/kyc_state.dart';
+import 'package:mohan_impex/features/home_module/custom_visit/model/view_visit_model.dart';
+import 'package:mohan_impex/features/home_module/kyc/riverpod/add_kyc_notifier.dart';
+import 'package:mohan_impex/features/home_module/kyc/riverpod/add_kyc_state.dart';
 import 'package:mohan_impex/features/home_module/kyc/widgets/documents_widget.dart';
 import 'package:mohan_impex/features/home_module/kyc/widgets/kyc_page_number.dart';
 import 'package:mohan_impex/res/app_asset_paths.dart';
@@ -27,8 +29,11 @@ import '../../../../core/widget/app_text_field/label_text_textfield.dart';
 import '../../../../res/app_colors.dart';
 import '../../../../res/app_fontfamily.dart';
 
+// ignore: must_be_immutable
 class AddKycScreen extends ConsumerStatefulWidget {
-  const AddKycScreen({super.key});
+  VisitItemsModel? visitItemsModel;
+  final String route;
+   AddKycScreen({super.key, this.visitItemsModel, this.route = ''});
 
   @override
   ConsumerState<AddKycScreen> createState() => _AddKycScreenState();
@@ -39,10 +44,34 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
   DateTime? startDate;
   DateTime? endDate;
 
+// int tabBarIndex =0;
+
+  @override
+  void initState() {
+    Future.microtask((){
+      callInitFunction();
+    });
+    super.initState();
+  }
+
+  callInitFunction(){
+    final refNotifier = ref.read(addKycProvider.notifier);
+    refNotifier.resetControllers();
+    refNotifier.segementApiFunction(context);
+    refNotifier.stateApiFunction(context);
+    if(widget.visitItemsModel!=null){
+     refNotifier.setVisitValues(context,widget.visitItemsModel);
+    }
+    setState(() {
+      
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    final refState = ref.watch(kycProvider);
-    final refNotifier = ref.read(kycProvider.notifier);
+    print(LocalSharePreference.token);
+    final refState = ref.watch(addKycProvider);
+    final refNotifier = ref.read(addKycProvider.notifier);
     return WillPopScope(
       onWillPop: ()async{
         _handleBackButton(refNotifier: refNotifier, refState: refState);
@@ -60,10 +89,10 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
                   const EdgeInsets.only(left: 18, right: 19, top: 14, bottom: 30),
               child: Column(
                 children: [
-                  refState.tabBarIndex == 0
+                  refState.addKycTabBarIndex==0
                       ? customerDetailsWidget(
                           refNotifier: refNotifier, refState: refState)
-                      : refState.tabBarIndex == 1
+                      : refState.addKycTabBarIndex == 1
                           ? documentUploadWidget(
                               refNotifer: refNotifier, refState: refState)
                           : kycReviewWidget(refNotifier: refNotifier,refState: refState),
@@ -91,19 +120,19 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
                               width: 120,
                               color: Colors.black,
                               onPressed: () {
-                                if (refState.tabBarIndex == 0) {
+                                if (refState.addKycTabBarIndex == 0) {
                                   refNotifier.checkValidation(context);
                                 }
-                                else if(refState.tabBarIndex == 1){
+                                else if(refState.addKycTabBarIndex == 1){
                                   refNotifier.checkDocumentValidation();
                                 }
-                                else if(refState.tabBarIndex==2){
+                                else if(refState.addKycTabBarIndex==2){
                                   print(LocalSharePreference.token);
-                                  refNotifier.createKycApiFunction();
+                                  refNotifier.createKycApiFunction(context);
                                 }
                               },
                               height: 40,
-                              title: refState.tabBarIndex ==2 ?"Submit": "Next")),
+                              title: refState.addKycTabBarIndex ==2 ?"Submit": "Next")),
                     ],
                   ),
                 ],
@@ -114,19 +143,8 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
       ),
     );
   }
-
-  _handleBackButton({required KycNotifier refNotifier, required KycState refState}){
-      if (refState.tabBarIndex == 0) {
-                              print(LocalSharePreference.token);
-                              Navigator.pop(context);
-                            } else {
-                              refNotifier
-                                  .updateTabBarIndex(refState.tabBarIndex - 1);
-                            }
-  }
-
   Widget businessTypeWidget(
-      {required KycNotifier refNotifier, required KycState refState}) {
+      {required AddKycNotifier refNotifier, required AddKycState refState}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -161,7 +179,8 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
   }
 
   Widget customerDetailsWidget(
-      {required KycNotifier refNotifier, required KycState refState}) {
+      {required AddKycNotifier refNotifier, required AddKycState refState}) {
+        
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -184,6 +203,7 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
         AppTextfield(
           hintText: "Enter customer name",
           fillColor: false,
+          isReadOnly: true,
           controller: refNotifier.customerNameController,
           textInputAction: TextInputAction.next,
           validator: (val) {
@@ -191,6 +211,11 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
               return "Enter customer name";
             }
             return null;
+          },
+          onTap: (){
+            if(widget.route.isEmpty){
+              
+            }
           },
         ),
         const SizedBox(height: 15),
@@ -202,6 +227,7 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
         AppTextfield(
             hintText: "Enter contact number",
             fillColor: false,
+            isReadOnly: true,
             controller: refNotifier.contactNumberController,
             textInputAction: TextInputAction.next,
             textInputType: TextInputType.number,
@@ -223,24 +249,6 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
               ),
             )),
         const SizedBox(height: 15),
-        LabelTextTextfield(title: 'Address', isRequiredStar: true),
-        const SizedBox(height: 5),
-        AppTextfield(
-          hintText: "Enter address",
-          fillColor: false,
-          controller: refNotifier.addressController,
-          textInputAction: TextInputAction.next,
-          inputFormatters: [
-            emojiRestrict(),
-          ],
-          validator: (val) {
-            if (val!.isEmpty) {
-              return "Enter your address";
-            }
-            return null;
-          },
-        ),
-        const SizedBox(height: 15),
         LabelTextTextfield(title: 'Email', isRequiredStar: true),
         const SizedBox(height: 5),
         AppTextfield(
@@ -259,6 +267,7 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
         AppTextfield(
           hintText: "Enter business name",
           fillColor: false,
+          isReadOnly: true,
           textInputAction: TextInputAction.next,
           controller: refNotifier.businessNameController,
           validator: (val) {
@@ -268,43 +277,90 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
             return null;
           },
         ),
-        // const SizedBox(height: 15),
-        // LabelTextTextfield(title: 'Shop name', isRequiredStar: true),
-        // const SizedBox(height: 5),
-        // AppTextfield(
-        //   hintText: "Enter shop name",
-        //   fillColor: false,
-        //   textInputAction: TextInputAction.next,
-        //   controller: refNotifier.shopNameController,
-        //   validator: (val) {
-        //     if (val!.isEmpty) {
-        //       return "Enter shop name";
-        //     }
-        //     return null;
-        //   },
-        // ),
+        
         const SizedBox(height: 15),
-        LabelTextTextfield(title: 'Customer Type', isRequiredStar: true),
+         LabelTextTextfield(title: 'Address', isRequiredStar: true),
         const SizedBox(height: 5),
-        CustomDropDown(
-          hintText: "Select customer type",
-          selectedValue: refNotifier.selectedCustomerTypeValue,
-          items: dropDownMenuItems(refNotifier.list),
-          onChanged: refNotifier.onChangedCustomType,
+        AppTextfield(
+          hintText: "Enter address",
+          fillColor: false,
+          controller: refNotifier.addressController,
+          textInputAction: TextInputAction.next,
+          inputFormatters: [
+            emojiRestrict(),
+          ],
           validator: (val) {
-            if ((val ?? "").isEmpty) {
-              return "Select customer type";
+            if (val!.isEmpty) {
+              return "Enter your address";
             }
             return null;
           },
         ),
         const SizedBox(height: 15),
+       
+          LabelTextTextfield(title: 'State', isRequiredStar: true),
+        const SizedBox(height: 5),
+        CustomDropDown(
+          selectedValue: refNotifier.selectedState,
+          items: DropdownItemHelper().stateItems((refState.stateModel?.data??[])),
+          hintText: "state",
+          onChanged: (val){
+            refNotifier.onChangedStateVal(context, val);
+            setState(() {
+              
+            });
+          },
+        validator: (val) {
+            if ((val??'').isEmpty) {
+              return "Select state";
+            }
+            return null;
+          },
+        ),
+        const SizedBox(height: 15),
+      
+        LabelTextTextfield(title: 'District', isRequiredStar: true),
+        const SizedBox(height: 5),
+        CustomDropDown(
+          selectedValue: refNotifier.selectedDistrict,
+          items: DropdownItemHelper().districtItems((refState.districtModel?.data??[])),
+          hintText: "Select district",
+          onChanged: (val){
+            refNotifier.districtController.text = val;
+            refNotifier.selectedDistrict = val;
+            setState(() {
+              
+            });
+          },
+        validator: (val) {
+            if ((val??'').isEmpty) {
+              return "Select district";
+            }
+            return null;
+          },
+        ),
+        const SizedBox(height: 15),
+        // LabelTextTextfield(title: 'Visit Type', isRequiredStar: true),
+        // const SizedBox(height: 5),
+        // CustomDropDown(
+        //   hintText: "Select visit type",
+        //   selectedValue: refNotifier.selectedVisitTypeValue,
+        //   items: DropdownItemHelper().dropdownListt(refNotifier.list),
+        //   onChanged: refNotifier.onChangedVisitType,
+        //   validator: (val) {
+        //     if ((val ?? "").isEmpty) {
+        //       return "Select visit type";
+        //     }
+        //     return null;
+        //   },
+        // ),
+        // const SizedBox(height: 15),
         LabelTextTextfield(title: 'Segment', isRequiredStar: true),
         const SizedBox(height: 5),
         CustomDropDown(
           hintText: "Select segment type",
           selectedValue: refNotifier.selectedSegmentTypeValue,
-          items: dropDownMenuItems(refNotifier.segemantList),
+          items: DropdownItemHelper().segmentList((refState.segmentModel?.data??[])),
           onChanged: refNotifier.onChangedSegment,
           validator: (val) {
             if ((val ?? "").isEmpty) {
@@ -325,7 +381,7 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
             emojiRestrict(),
           ],
           validator: (val) {
-            if (val!.isEmpty) {
+            if ((val??"").isEmpty) {
               return "Enter shipping address1";
             }
             return null;
@@ -343,48 +399,56 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
             emojiRestrict(),
           ],
           validator: (val) {
-            if (val!.isEmpty) {
+            if ((val??'').isEmpty) {
               return "Enter shipping address2";
             }
             return null;
           },
         ),
         const SizedBox(height: 15),
-        LabelTextTextfield(title: 'Shipping City', isRequiredStar: true),
+          LabelTextTextfield(title: 'Shipping state', isRequiredStar: true),
         const SizedBox(height: 5),
-        AppTextfield(
-          hintText: "Enter shipping city",
-          fillColor: false,
-          controller: refNotifier.shippingCityController,
-          textInputAction: TextInputAction.next,
-          inputFormatters: [
-            emojiRestrict(),
-          ],
-          validator: (val) {
-            if (val!.isEmpty) {
-              return "Enter shipping city";
+        CustomDropDown(
+          selectedValue:refNotifier.selectedShippingState,
+          items: DropdownItemHelper().stateItems((refState.shippingStateModel?.data??[])),
+          hintText: "Select state",
+          onChanged: (val){
+            print("asfsd..${refState.shippingDistrictModel}");
+            refNotifier.onChangedShippingStateVal(context, val);
+            setState(() {
+              
+            });
+          },
+        validator: (val) {
+            if ((val??"").isEmpty) {
+              return "Select shipping state";
             }
             return null;
           },
         ),
         const SizedBox(height: 15),
-        LabelTextTextfield(title: 'Shipping state', isRequiredStar: true),
+      
+        LabelTextTextfield(title: 'Shipping District', isRequiredStar: true),
         const SizedBox(height: 5),
-        AppTextfield(
-          hintText: "Enter shipping state",
-          fillColor: false,
-          controller: refNotifier.shippingStateController,
-          textInputAction: TextInputAction.next,
-          inputFormatters: [
-            emojiRestrict(),
-          ],
-          validator: (val) {
-            if (val!.isEmpty) {
-              return "Enter shipping state";
+        CustomDropDown(
+          selectedValue: refNotifier.selectedShippingDistrict ,
+          items: DropdownItemHelper().districtItems((refState.shippingDistrictModel?.data??[])),
+          hintText: "Select district",
+          onChanged: (val){
+            refNotifier.shippingDistrictController.text = val;
+            refNotifier.selectedShippingDistrict = val;
+            setState(() {
+              
+            });
+          },
+        validator: (val) {
+            if ((val??"").isEmpty) {
+              return "Select shipping district";
             }
             return null;
           },
         ),
+        
         const SizedBox(height: 15),
         LabelTextTextfield(title: 'Shipping pincode', isRequiredStar: true),
         const SizedBox(height: 5),
@@ -399,7 +463,7 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
             FilteringTextInputFormatter.digitsOnly
           ],
           validator: (val) {
-            if (val!.isEmpty) {
+            if ((val??"").isEmpty) {
               return "Enter shipping pincode";
             }
             return null;
@@ -412,7 +476,7 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
               customCheckbox(
                   isCheckbox: refState.isSameBillingAddress,
                   onChanged: (val) {
-                    refNotifier.onChangedCheckBox(val!);
+                    refNotifier.onChangedCheckBox(context, val!);
                   }),
               AppText(
                 title: "Same as billing address",
@@ -432,7 +496,7 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
           controller: refNotifier.billingAddress1Controller,
           textInputAction: TextInputAction.next,
           validator: (val) {
-            if (val!.isEmpty) {
+            if ((val??'').isEmpty) {
               return "Enter your billing addres1";
             }
             return null;
@@ -447,38 +511,50 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
           controller: refNotifier.billingAddress2Controller,
           textInputAction: TextInputAction.next,
           validator: (val) {
-            if (val!.isEmpty) {
+            if ((val??"").isEmpty) {
               return "Enter your billing addres2";
             }
             return null;
           },
         ),
+       
         const SizedBox(height: 15),
-        LabelTextTextfield(title: 'Billing city', isRequiredStar: true),
+        LabelTextTextfield(title: 'Billing state', isRequiredStar: true),
         const SizedBox(height: 5),
-        AppTextfield(
-          hintText: "Enter billing city",
-          fillColor: false,
-          controller: refNotifier.billingCityController,
-          textInputAction: TextInputAction.next,
-          validator: (val) {
-            if (val!.isEmpty) {
-              return "Enter your billing city";
+        CustomDropDown(
+          selectedValue: refNotifier.selectedBillingState,
+          items: DropdownItemHelper().stateItems((refState.billingStateModel?.data??[])),
+          hintText: "Select state",
+          onChanged: (val){
+            refNotifier.onChangedBillingStateVal(context, val);
+            setState(() {
+              
+            });
+          },
+        validator: (val) {
+            if ((val??"").isEmpty) {
+              return "Select billing state";
             }
             return null;
           },
         ),
-        const SizedBox(height: 15),
-        LabelTextTextfield(title: 'Billing state', isRequiredStar: true),
+         const SizedBox(height: 15),
+        LabelTextTextfield(title: 'Billing District', isRequiredStar: true),
         const SizedBox(height: 5),
-        AppTextfield(
-          hintText: "Enter billing state",
-          fillColor: false,
-          controller: refNotifier.billingStateController,
-          textInputAction: TextInputAction.next,
-          validator: (val) {
-            if (val!.isEmpty) {
-              return "Enter your billing state";
+         CustomDropDown(
+          selectedValue: refNotifier.selectedBillingDistrict,
+          items: DropdownItemHelper().districtItems((refState.billingDistrictModel?.data??[])),
+          hintText: "Select district",
+          onChanged: (val){
+            refNotifier.billingDistrictController.text = val;
+            refNotifier.selectedBillingDistrict = val;
+            setState(() {
+              
+            });
+          },
+        validator: (val) {
+            if ((val??"").isEmpty) {
+              return "Select billing district";
             }
             return null;
           },
@@ -515,11 +591,13 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
           fillColor: false,
           textCapitalization: TextCapitalization.characters,
           inputFormatters: [
-            removeWhiteSpace()
+            removeWhiteSpace(),
+            FilteringTextInputFormatter.allow(RegExp('[a-zA-Z0-9 ]')) 
           ],
           controller: refState.selectedBusinessType == 0
               ? refNotifier.gstNumberController
               : refNotifier.panNumberController,
+              
           textInputAction: TextInputAction.next,
           validator: (val) {
             if (val!.isEmpty) {
@@ -609,7 +687,7 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
   }
 
   Widget documentUploadWidget(
-      {required KycNotifier refNotifer, required KycState refState}) {
+      {required AddKycNotifier refNotifer, required AddKycState refState}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -679,11 +757,7 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
           ],
         ),
         refState.cdImageList.isNotEmpty?
-        viewUploadedImage(url: refState.cdImageList[0]['url'],removeImg: (){
-                    refState.cdImageList.clear();
-                    setState(() {
-                    });
-                  }): EmptyWidget(),
+        viewUploadedImage( refState.cdImageList): EmptyWidget(),
         const SizedBox(
           height: 24,
         ),
@@ -737,11 +811,7 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
           ],
         ),
         refState.clImageList.isNotEmpty?
-        viewUploadedImage(url: refState.clImageList[0]['url'],removeImg: (){
-                    refState.clImageList.clear();
-                    setState(() {
-                    });
-                  }): EmptyWidget(),
+        viewUploadedImage(refState.clImageList): EmptyWidget(),
         //  Spacer(),
         //   Row(
         //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -778,33 +848,56 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
     );
   }
 
-viewUploadedImage({required String url, Function()? removeImg}){
-  return   Container(
-          padding: const EdgeInsets.only(top: 6),
-          height: 80,width: 80,
-          child: Stack(
-            children: [
-              ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                child: AppNetworkImage(imgUrl: url,height: 80,width: 80,)),
-               Align(
-                alignment: Alignment.topRight,
-                child: GestureDetector(
-                  onTap: removeImg,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: AppColors.redColor
-                    ),
-                    child: Icon(Icons.close,color: AppColors.whiteColor,size: 15,),
-                  ),
-                ))
-            ],
-          ),
-  );
-}
 
-  Widget kycReviewWidget({required KycNotifier refNotifier, required KycState refState}) {
+
+
+  viewUploadedImage(List list){
+    return  GridView.builder(
+                  itemCount: list.length,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      mainAxisSpacing: 15,
+                      crossAxisSpacing: 15,
+                      childAspectRatio: 2.9 / 3),
+                  itemBuilder: (ctx, index) {
+                    return Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              AppNetworkImage(
+                                imgUrl: 
+                                list[index]['url'],
+                                height: 79,
+                                width: 100,
+                                boxFit: BoxFit.cover,borderRadius:10
+                              ),
+                              Align(
+                                  alignment: Alignment.topRight,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      list.removeAt(index);
+                                      setState(() {
+                                        
+                                      });
+                                    },
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: AppColors.redColor),
+                                      child: Icon(
+                                        Icons.close,
+                                        color: AppColors.whiteColor,
+                                        size: 15,
+                                      ),
+                                    ),
+                                  ))
+                            ],
+                          );
+                  })
+              ;
+  }
+  Widget kycReviewWidget({required AddKycNotifier refNotifier, required AddKycState refState}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -832,32 +925,23 @@ viewUploadedImage({required String url, Function()? removeImg}){
     );
   }
 
-  List<DropdownMenuItem<String>> dropDownMenuItems(List list) {
-    final List<DropdownMenuItem<String>> menuItems = [];
-    for (final item in list) {
-      menuItems.addAll(
-        [
-          DropdownMenuItem(
-            value: item,
-            child: Text(
-              item,
-            ),
-          ),
-          if (item != list.last)
-            const DropdownMenuItem<String>(
-              enabled: false,
-              child: Divider(),
-            ),
-        ],
-      );
-    }
-    return menuItems;
+
+
+  _handleBackButton({required AddKycNotifier refNotifier, required AddKycState refState}){
+      if (refState.addKycTabBarIndex == 0) {
+                              print(LocalSharePreference.token);
+                              Navigator.pop(context);
+                            } else {
+                              refNotifier
+                                  .addKycTabBarIndex(refState.addKycTabBarIndex - 1);
+                            }
   }
+
 }
 
 class _CustomInfoWidget extends StatelessWidget {
-  final KycNotifier refNotifier;
-  final KycState refState;
+  final AddKycNotifier refNotifier;
+  final AddKycState refState;
    _CustomInfoWidget({required this.refNotifier,required this.refState});
 
   @override
@@ -943,15 +1027,15 @@ class _CustomInfoWidget extends StatelessWidget {
           // const SizedBox(height: 10),
           // itemsWidget("Shop name", refNotifier.shopNameController.text),
           const SizedBox(height: 10),
-          itemsWidget("Customer type", refNotifier.customerTypeController.text),
-          const SizedBox(height: 10),
+          // itemsWidget("Visit type", refNotifier.visitTypeController.text),
+          // const SizedBox(height: 10),
           itemsWidget("Segment", refNotifier.segmentController.text),
           const SizedBox(height: 10),
           itemsWidget("Shipping address-1", refNotifier.shippingAddress1Controller.text),
           const SizedBox(height: 10),
           itemsWidget("Shipping address-2", refNotifier.shippingAddress2Controller.text),
           const SizedBox(height: 10),
-          itemsWidget("Shipping city", refNotifier.shippingCityController.text),
+          itemsWidget("Shipping District", refNotifier.shippingDistrictController.text),
           const SizedBox(height: 10),
           itemsWidget("Shipping state", refNotifier.shippingStateController.text),
           const SizedBox(height: 10),
@@ -961,7 +1045,7 @@ class _CustomInfoWidget extends StatelessWidget {
           const SizedBox(height: 10),
           itemsWidget("Billing address-2", refNotifier.billingAddress2Controller.text),
           const SizedBox(height: 10),
-          itemsWidget("Billing city", refNotifier.billingCityController.text),
+          itemsWidget("Billing District", refNotifier.billingDistrictController.text),
           const SizedBox(height: 10),
           itemsWidget("Billing state", refNotifier.billingStateController.text),
           const SizedBox(height: 10),
@@ -1004,8 +1088,8 @@ class _CustomInfoWidget extends StatelessWidget {
 }
 
 class _DocumentCheckListWidget extends StatelessWidget {
-   final KycNotifier refNotifier;
-  final KycState refState;
+   final AddKycNotifier refNotifier;
+  final AddKycState refState;
  
   const _DocumentCheckListWidget({required this.refNotifier, required this.refState});
 
@@ -1085,7 +1169,7 @@ class _DocumentCheckListWidget extends StatelessWidget {
              refState.cdImageList.isNotEmpty?
              Padding(
                padding: const EdgeInsets.only(top: 6),
-               child: AppNetworkImage(imgUrl: refState.cdImageList[0]['url'],height: 80,width: 80,),
+               child: viewImage(refState.cdImageList)
              ): EmptyWidget() ,
              const SizedBox(height: 15,),
              LabelTextTextfield(
@@ -1093,10 +1177,34 @@ class _DocumentCheckListWidget extends StatelessWidget {
               refState.clImageList.isNotEmpty?
              Padding(
                padding: const EdgeInsets.only(top: 6),
-               child: AppNetworkImage(imgUrl: refState.clImageList[0]['url'],height: 80,width: 80,),
+               child: viewImage(refState.clImageList),
              ) : EmptyWidget(),
         ],
       ),
     );
   }
+
+
+  viewImage(List list){
+    return  GridView.builder(
+                  itemCount: list.length,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      mainAxisSpacing: 15,
+                      crossAxisSpacing: 15,
+                      childAspectRatio: 2.9 / 3),
+                  itemBuilder: (ctx, index) {
+                    return    AppNetworkImage(
+                                imgUrl: 
+                                list[index]['url'],
+                                height: 79,
+                                width: 100,
+                                boxFit: BoxFit.cover,borderRadius:10
+                              );
+                  })
+              ;
+  }
+
 }

@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:mohan_impex/core/widget/app_text.dart';
 
 class CustomSliderWidget extends StatefulWidget {
+  final double? value;
+  final bool isEnable;
+  CustomSliderWidget({this.value, this.isEnable =true});
   @override
   _CustomSliderWidgetState createState() => _CustomSliderWidgetState();
 }
@@ -36,16 +39,46 @@ class _CustomSliderWidgetState extends State<CustomSliderWidget> {
     }
   }
 
+  double getSliderValue(double value){
+     if (value == 0.1) {
+    return 1;  // Maps to range [0, 1]
+  } else if (value == 2) {
+    return 0.3;  // Maps to range [0.1, 0.3]
+  } else if (value == 3) {
+    return 0.5;  // Maps to range [0.3, 0.5]
+  } else if (value == 4) {
+    return 0.7;  // Maps to range [0.5, 0.7]
+  } else if (value == 5) {
+    return 1.0;  // Maps to range [0.7, 1]
+  } else {
+    return 0;  // Fallback value, should not be reached if slider values are restricted
+  }
+  }
+
+@override
+  void initState() {
+    Future.microtask((){
+      if(widget.value!=null){
+   _sliderValue = getSliderValue(widget.value!);
+      }
+      setState(() {
+        
+      });
+    });
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
      double screenWidth = MediaQuery.of(context).size.width;
       double sliderWidth = screenWidth * 0.85;
-    return Column(
+          return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Center(
           child: GestureDetector(
             onHorizontalDragUpdate: (details) {
+              if(widget.isEnable){
               setState(() {
                  double newPosition = details.localPosition.dx;
                 if (newPosition < 0) newPosition = 0; 
@@ -55,6 +88,7 @@ class _CustomSliderWidgetState extends State<CustomSliderWidget> {
                 _sliderValue = newPosition / sliderWidth;
                 print(getSnappedValue(_sliderValue));
               });
+              }
             },
             child: Container(
               width: sliderWidth,

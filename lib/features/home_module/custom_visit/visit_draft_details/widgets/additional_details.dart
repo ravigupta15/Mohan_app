@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:mohan_impex/core/widget/app_text.dart';
 import 'package:mohan_impex/core/widget/custom_radio_button.dart';
-import 'package:mohan_impex/core/widget/custom_slider_widget.dart';
 import 'package:mohan_impex/core/widget/expandable_widget.dart';
 import 'package:mohan_impex/features/home_module/custom_visit/visit_draft_details/widgets/deal_type_widget.dart';
 import 'package:mohan_impex/res/app_asset_paths.dart';

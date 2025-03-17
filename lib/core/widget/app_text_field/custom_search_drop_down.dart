@@ -5,6 +5,7 @@ import 'package:mohan_impex/res/app_fontfamily.dart';
 import 'package:mohan_impex/res/app_router.dart';
 
 
+// ignore: must_be_immutable
 class CustomSearchDropDown extends StatefulWidget {
   //  final ValueChanged<List<String>>? onChanged;
    final ValueChanged<String>? onChanged;
@@ -13,19 +14,24 @@ class CustomSearchDropDown extends StatefulWidget {
   List<DropdownMenuItem<String>>? items;
   String? Function(String?)? validator;
   TextEditingController? searchController;
- 
+ double height;
+ bool isfillColor;
+ Color hintColor;
    CustomSearchDropDown({required this.items,
     required this.selectedValues,
     this.onChanged,
     this.hintText = '',
     this.validator,
-    this.searchController,});
+    this.searchController,this.height = double.infinity,
+    this.isfillColor = false,this.hintColor = AppColors.lightTextColor
+    });
 
   @override
   State<CustomSearchDropDown> createState() => _CustomSearchDropDownState();
 }
 
 class _CustomSearchDropDownState extends State<CustomSearchDropDown> {
+  // final searchController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return customDropDown();
@@ -41,7 +47,7 @@ class _CustomSearchDropDownState extends State<CustomSearchDropDown> {
             fontFamily: AppFontfamily.poppinsRegular,
           ),
           isDense: true,
-          fillColor: AppColors.whiteColor,
+          fillColor:widget.isfillColor?AppColors.edColor: AppColors.whiteColor,
           filled: true,
           contentPadding: EdgeInsetsDirectional.only(start: 15, end: 15, top: 15, bottom: 15),
           enabledBorder: textFormFieldEnabledBorder,
@@ -61,7 +67,7 @@ class _CustomSearchDropDownState extends State<CustomSearchDropDown> {
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w400,
-                  color: AppColors.lightTextColor,
+                  color: widget.hintColor,
                   fontFamily: AppFontfamily.poppinsRegular,
                 ),
               ),
@@ -76,6 +82,7 @@ class _CustomSearchDropDownState extends State<CustomSearchDropDown> {
         value: widget.selectedValues.isEmpty ? null : widget.selectedValues,
         // value: widget.selectedValues.isEmpty ? null : widget.selectedValues.first,  // Select the first value by default
         onChanged: (String? newValue) {
+          print(newValue);
            widget.selectedValues = newValue!;
            if(widget.onChanged != null){
             widget.onChanged!(widget.selectedValues);
@@ -107,6 +114,7 @@ class _CustomSearchDropDownState extends State<CustomSearchDropDown> {
         ),
         dropdownStyleData: DropdownStyleData(
           elevation: 4,
+          maxHeight: widget.height,
           width: MediaQuery.sizeOf(navigatorKey.currentContext!).width - 30,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
@@ -144,7 +152,7 @@ class _CustomSearchDropDownState extends State<CustomSearchDropDown> {
                     horizontal: 10,
                     vertical: 8,
                   ),
-                  hintText: 'Search for an item...',
+                  hintText: 'Search...',
                   hintStyle: const TextStyle(fontSize: 12),
                   focusedBorder: OutlineInputBorder(
                     borderSide: BorderSide(color: AppColors.greenColor),

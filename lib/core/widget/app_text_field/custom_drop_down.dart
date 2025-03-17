@@ -2,7 +2,6 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:mohan_impex/res/app_colors.dart';
 import 'package:mohan_impex/res/app_fontfamily.dart';
-import 'package:mohan_impex/res/app_router.dart';
   
   
   // ignore: must_be_immutable
@@ -11,8 +10,12 @@ import 'package:mohan_impex/res/app_router.dart';
     final String? selectedValue;
     final String hintText;
     List<DropdownMenuItem<String>>? items;
+    double height;
     String? Function(String?)? validator;
-   CustomDropDown({required this.items, this.onChanged,this.selectedValue,this.hintText = '', this.validator});
+    bool isfillColor;
+   CustomDropDown({required this.items, this.onChanged,this.selectedValue,this.hintText = '', this.validator,
+   this.height = double.infinity, this.isfillColor=false
+   });
 
   @override
   Widget build(BuildContext context) {
@@ -27,12 +30,10 @@ Widget customDropDown(){
                     fontSize: 14,color: AppColors.black1,fontFamily: AppFontfamily.poppinsRegular
                   ),
         isDense: true,
-        
-        fillColor:  AppColors.whiteColor,
+        fillColor: isfillColor? AppColors.edColor: AppColors.whiteColor,
         filled: true,
         contentPadding: EdgeInsetsDirectional.only(
             start: 15, end: 15, top: 15, bottom: 15),
-      
          enabledBorder: textFormFieldEnabledBorder,
         disabledBorder: textFormFieldDisabledBorder,
         errorBorder: textFormFieldErrorBorder,
@@ -77,6 +78,7 @@ Widget customDropDown(){
             ),
             dropdownStyleData: DropdownStyleData(
               elevation: 4,
+              maxHeight: height,
               // width: MediaQuery.sizeOf(navigatorKey.currentContext!).width-0,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
@@ -106,7 +108,7 @@ OutlineInputBorder get textFormFieldErrorBorder => OutlineInputBorder(
 
   OutlineInputBorder get textFormFieldFocusBorder => OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide:  BorderSide(color:AppColors.e2Color),
+        borderSide:  BorderSide(color: AppColors.e2Color),
       );
 
   OutlineInputBorder get textFormFieldFocusErrorBorder => OutlineInputBorder(

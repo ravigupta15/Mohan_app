@@ -1,13 +1,13 @@
 class ProductModel {
-  List<Data>? data;
+  List<ProductItems>? data;
 
   ProductModel({this.data});
 
   ProductModel.fromJson(Map<String, dynamic> json) {
     if (json['data'] != null) {
-      data = <Data>[];
+      data = <ProductItems>[];
       json['data'].forEach((v) {
-        data!.add( Data.fromJson(v));
+        data!.add( ProductItems.fromJson(v));
       });
     }
   }
@@ -21,12 +21,14 @@ class ProductModel {
   }
 }
 
-class Data {
+class ProductItems {
   dynamic productName;
+  int quantity =0;
+  bool isSelected=false;
 
-  Data({this.productName});
+  ProductItems({this.productName});
 
-  Data.fromJson(Map<String, dynamic> json) {
+  ProductItems.fromJson(Map<String, dynamic> json) {
     productName = json['product_name'];
   }
 

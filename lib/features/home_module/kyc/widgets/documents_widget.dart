@@ -4,6 +4,7 @@ import 'package:mohan_impex/core/widget/app_text.dart';
 import 'package:mohan_impex/res/app_colors.dart';
 import 'package:mohan_impex/res/app_fontfamily.dart';
 
+// ignore: must_be_immutable
 class DocumantWidget extends StatelessWidget {
   final String image;
   final String title;

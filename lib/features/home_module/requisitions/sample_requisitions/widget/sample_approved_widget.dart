@@ -8,6 +8,7 @@ import 'package:mohan_impex/res/app_router.dart';
 import 'package:mohan_impex/res/no_data_found_widget.dart';
 import 'package:mohan_impex/res/shimmer/list_shimmer.dart';
 
+// ignore: must_be_immutable
 class SampleApprovedWidget extends StatelessWidget {
   final SampleState refState;
   final SampleNotifier refNotifier;

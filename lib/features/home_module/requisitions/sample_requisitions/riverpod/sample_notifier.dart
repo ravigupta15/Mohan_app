@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mohan_impex/api_config/api_service.dart';
 import 'package:mohan_impex/api_config/api_urls.dart';
-import 'package:mohan_impex/features/home_module/custom_visit/model/item_model.dart';
+import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit/model/item_model.dart';
 import 'package:mohan_impex/features/home_module/requisitions/marketing_collaterals/model/collaterals_request_model.dart';
 import 'package:mohan_impex/features/home_module/requisitions/sample_requisitions/model/view_sample_requisitions_model.dart';
 import 'package:mohan_impex/features/home_module/requisitions/sample_requisitions/riverpod/sample_state.dart';
@@ -158,9 +158,9 @@ increasePageCount(){
       }
       if (newModel.data!.isEmpty || newModel.data!.length < state.page) {
       } else {
-        // if(isLoadMore){
+        if(isLoadMore){
           increasePageCount();
-        // }
+        }
       }
       }
   }

@@ -72,9 +72,29 @@ class _AddComplaintScreenState extends ConsumerState<AddComplaintScreen>
                 customerTypeWidget(
                     addComplaintNotifier: addComplaintNotifier,
                     addComplaintState: addComplaintState),
-                const SizedBox(
-                  height: 15,
-                ),
+                
+                addComplaintState.selectedCustomerType == 0 ? EmptyWidget():
+                 Padding(
+                   padding: const EdgeInsets.only(top: 15),
+                   child: Column(
+                     children: [
+                       LabelTextTextfield(title: 'Channel Partner', isRequiredStar: true),
+                       const SizedBox(height: 15),
+                                   CustomDropDown(
+                    hintText: "Select channel partner",
+                    items: companyNameDropDownItem(addComplaintState.channerPartnerList),
+                    onChanged: addComplaintNotifier.onChangedCompanyName,
+                    validator: (val) {
+                      if ((val ?? "").isEmpty) {
+                        return "Select partner channel";
+                      }
+                      return null;
+                    },
+                                   ),
+                                  
+                     ],
+                   ),
+                 ),
                 const SizedBox(
                   height: 14,
                 ),
@@ -126,22 +146,6 @@ class _AddComplaintScreenState extends ConsumerState<AddComplaintScreen>
                   validator: (val) {
                     if (val!.isEmpty) {
                       return "Enter the subject";
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(
-                  height: 15,
-                ),
-                 LabelTextTextfield(title: 'Company Name', isRequiredStar: true),
-                const SizedBox(height: 15),
-                CustomDropDown(
-                  hintText: "Select company name",
-                  items: companyNameDropDownItem(addComplaintState.channerPartnerList),
-                  onChanged: addComplaintNotifier.onChangedCompanyName,
-                  validator: (val) {
-                    if ((val ?? "").isEmpty) {
-                      return "Select company name";
                     }
                     return null;
                   },
@@ -248,15 +252,15 @@ class _AddComplaintScreenState extends ConsumerState<AddComplaintScreen>
                 const SizedBox(
                   height: 15,
                 ),
-                LabelTextTextfield(title: 'Item Name', isRequiredStar: true),
+                LabelTextTextfield(title: 'Item', isRequiredStar: true),
                 const SizedBox(height: 15),
                 CustomDropDown(
-                  hintText: "Select customer type",
+                  hintText: "Select item",
                   items: dropDownMenuItems(addComplaintState.itemList),
                   onChanged: addComplaintNotifier.onChangedCustomType,
                   validator: (val) {
                     if ((val ?? "").isEmpty) {
-                      return "Select customer type";
+                      return "Select item";
                     }
                     return null;
                   },

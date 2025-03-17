@@ -1,16 +1,28 @@
+import 'dart:io';
+import 'dart:isolate';
+import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:mohan_impex/core/widget/app_search_bar.dart';
 import 'package:mohan_impex/core/widget/app_text_button.dart';
 import 'package:mohan_impex/core/widget/custom_app_bar.dart';
+import 'package:mohan_impex/data/datasources/local_share_preference.dart';
 import 'package:mohan_impex/features/home_module/digital_marking_collaterals/riverpod/digital_marking_state.dart';
 import 'package:mohan_impex/res/app_asset_paths.dart';
 import 'package:mohan_impex/res/app_cashed_network.dart';
 import 'package:mohan_impex/res/app_colors.dart';
 import 'package:mohan_impex/res/app_fontfamily.dart';
+import 'package:mohan_impex/res/loader/show_loader.dart';
 import 'package:mohan_impex/res/no_data_found_widget.dart';
+import 'package:mohan_impex/utils/message_helper.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:skeletonizer/skeletonizer.dart';
+import 'package:pdfx/pdfx.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:http/http.dart' as http;
+
 
 class DigitalMarkingCollateralsScreen extends ConsumerStatefulWidget {
   const DigitalMarkingCollateralsScreen({super.key});
@@ -20,8 +32,9 @@ class DigitalMarkingCollateralsScreen extends ConsumerStatefulWidget {
 }
 
 class _DigitalMarkingCollateralsScreenState extends ConsumerState<DigitalMarkingCollateralsScreen> {
-
-
+  PdfDocument? pdfDocument;
+  // String fileUrl = "";
+  ImageProvider? pdfImage;
 @override
   void initState() {
     Future.microtask((){
@@ -34,8 +47,39 @@ class _DigitalMarkingCollateralsScreenState extends ConsumerState<DigitalMarking
     final refNotifier = ref.read(digitalMarkingProvider.notifier);
     refNotifier.digitalMarkingApiFunction();
   }
+ 
+ReceivePort port = ReceivePort();
+String downloadStatus = '';
+   callDownloaderFunction() {
+     IsolateNameServer.registerPortWithName(
+         port.sendPort, 'downloader_send_port');
+         port.listen((dynamic data) {
+       int progress = data[2];
+       print("progress...$progress");
+       if (progress < 99 && progress > 1) {
+         downloadStatus = 'running';
+       } else if (progress > 99) {
+         downloadStatus = 'completed';
+         MessageHelper.showToast('downloading finished...',);
+         // Platform.isAndroid?
+         // FlutterDownloader.open(taskId: tas);
+         // launchURL(pdfUrl.value);
+       } else {
+         downloadStatus = '';
+       }
+       setState(() {});
+     });
+     FlutterDownloader.registerCallback(downloadCallback);
+   }
 
-  @override
+   @pragma('vm:entry-point')
+   static void downloadCallback(String id, int status, int progress) {
+     final SendPort? send =
+     IsolateNameServer.lookupPortByName('downloader_send_port');
+     send!.send([id, status, progress]);
+   }
+
+ @override
   Widget build(BuildContext context) {
     final refState = ref.watch(digitalMarkingProvider);
     final refNotifier = ref.read(digitalMarkingProvider.notifier);
@@ -50,21 +94,24 @@ class _DigitalMarkingCollateralsScreenState extends ConsumerState<DigitalMarking
                 child: AppSearchBar(
                   hintText: "Search by product,campaigns",
                   onChanged: refNotifier.onChangedSearch,
-                  suffixWidget: SvgPicture.asset(AppAssetPaths.searchIcon),
+                  suffixWidget: Padding(
+                    padding: const EdgeInsets.only(right: 10),
+                    child: SvgPicture.asset(AppAssetPaths.searchIcon),
+                  ),
                 ),
               ),
               Expanded(
                 child:  refState.isLoading?
-              shimmerList(): (refState.digitalMarkingModel?.data?.length??0)>0?
+              shimmerList(): (refState.digitalMarkingModel?.data?[0].records?.length??0)>0?
                  ListView.separated(
                   separatorBuilder: (ctx,sb){
                     return const SizedBox(height: 15,);
                   },
-                itemCount: (refState.digitalMarkingModel?.data?.length??0),
+                itemCount: (refState.digitalMarkingModel?.data?[0].records?.length??0),
                 padding: EdgeInsets.all(16),
                 shrinkWrap: true,
                 itemBuilder: (context,index){
-                  var model =refState.digitalMarkingModel?.data?[index];
+                  var model =refState.digitalMarkingModel?.data?[0].records?[index];
                   return Container(
                     decoration: BoxDecoration(
                       color: AppColors.whiteColor,
@@ -82,8 +129,10 @@ class _DigitalMarkingCollateralsScreenState extends ConsumerState<DigitalMarking
                       children: [
                         Padding(
                           padding: const EdgeInsets.only(left: 15,top: 15,right: 15),
-                          child: AppNetworkImage(imgUrl: model?.productAttachment??''),
-                        ), 
+                          child: 
+                          AppNetworkImage(imgUrl:model?.thumbnailImage??'',
+                          boxFit: BoxFit.cover,borderRadius: 10,
+                          ),),
                         const SizedBox(height: 12,),
                         Container(
                           height: 1,
@@ -109,13 +158,45 @@ class _DigitalMarkingCollateralsScreenState extends ConsumerState<DigitalMarking
                                   ),
                                   borderRadius: BorderRadius.circular(15)
                                 ),
-                                child: Text("Jpg"),
+                                child: Text(model?.fileType??''),
                               )
                             ],
                           ),
                         ),
                         Padding(padding: EdgeInsets.all(15),
-                        child: buttonWidget(),
+                        child: buttonWidget(
+                          shareTap: (){
+                            print('object');
+                            downloadAndShareImage(model?.productAttachment ?? '',model?.fileType ??'').then((val){
+                              if(val!=null){
+                                Share.shareXFiles([XFile(val)]);
+                              }
+                            });
+                          },
+                          downloadTap: ()async
+                        {
+                          downloadAndShareImage(model?.productAttachment ?? '', model?.fileType ??'').then((val)async{
+                            if(val!=null){
+                              // final result = await OpenFile.open(val,);
+                            }
+                          });
+                          //  downloadAndShareImage(model?.productAttachment ?? '', model?.fileType ??'');
+                          // MessageHelper.showToast("Not implemented");
+                          //  downloadImageCount = imgIndex;
+                            // String dir = (await getApplicationDocumentsDirectory()).path;
+                            // await FlutterDownloader.enqueue(
+                            //   url: ("${model?.productAttachment??''}?token=${LocalSharePreference.token}"),
+                            //   headers: {}, // optional: header send with url (auth token etc)
+                            //   savedDir: Platform.isAndroid
+                            //       ? '/storage/emulated/0/Download/'
+                            //       : "$dir/",
+                            //   showNotification: true,
+                            //   openFileFromNotification: true,
+                            //   saveInPublicStorage: true,
+                            // );
+                           
+
+                        }),
                         ),
                       ],
                     ),
@@ -124,7 +205,7 @@ class _DigitalMarkingCollateralsScreenState extends ConsumerState<DigitalMarking
       ],
      ),
      ),
-           
+
     );
   }
 
@@ -176,7 +257,11 @@ class _DigitalMarkingCollateralsScreenState extends ConsumerState<DigitalMarking
                           ],
                         ),
                         const SizedBox(height: 15,),
-                        buttonWidget()
+                        buttonWidget(
+                          shareTap: (){
+                        
+                          }
+                        )
                       ],
                     ),
         );
@@ -187,7 +272,7 @@ class _DigitalMarkingCollateralsScreenState extends ConsumerState<DigitalMarking
   buttonWidget({Function()?downloadTap,Function()?shareTap,}){
     return        Row(
                           children: [
-                            Expanded(child: 
+                            Expanded(child:
                             AppTextButton(title: "Download",color: AppColors.arcticBreeze, height: 40,width: double.infinity,onTap: downloadTap,)),
                             const SizedBox(width: 6,),
                             AppTextButton(title: "Share",color: AppColors.arcticBreeze,
@@ -196,4 +281,48 @@ class _DigitalMarkingCollateralsScreenState extends ConsumerState<DigitalMarking
                           ],
                         );
   }
+
+Future downloadAndShareImage(String imgUrl,String filetype) async {
+  print("imafe...$imgUrl");
+    try {
+      ShowLoader.loader(context);
+      final response = await http.get(Uri.parse(imgUrl),headers: {
+    'Authorization':"Bearer ${LocalSharePreference.token}"  
+  });
+  ShowLoader.hideLoader();
+      if (response.statusCode == 200) {
+        final directory = await getApplicationDocumentsDirectory();
+        if(filetype.toLowerCase() == 'pdf'){
+          final imagePath = '${directory.path}/downloaded_image.pdf';
+        final file = File(imagePath);
+        await file.writeAsBytes(response.bodyBytes);
+        return imagePath;
+        }
+        else if(filetype.toLowerCase() == 'video'){
+          final imagePath = '${directory.path}/downloaded_image.mp4';
+        final file = File(imagePath);
+        await file.writeAsBytes(response.bodyBytes);
+        return imagePath;
+        }
+        else if(filetype.toLowerCase() == 'mp3'){
+          final imagePath = '${directory.path}/downloaded_image.mp3';
+        final file = File(imagePath);
+        await file.writeAsBytes(response.bodyBytes);
+        return imagePath;
+        }
+        else{
+          final imagePath = '${directory.path}/downloaded_image.png';
+        final file = File(imagePath);
+        await file.writeAsBytes(response.bodyBytes);
+        return imagePath;
+        }
+      } else {
+        print('Failed to download image.');
+      }
+    } catch (e) {
+      ShowLoader.hideLoader();
+      print('Error: $e');
+    }
+  }
+
 }

@@ -19,11 +19,17 @@ static const imageUploadUrl = "${baseUrl}method/mohan_impex.api.cvm.capture_imag
 
  /// custom visit
  static const customVisitListUrl = "${baseUrl}method/mohan_impex.api.cvm.cvm_list";
- static const createCVMurl =  "${baseUrl}mohan_impex.api.cvm.create_cvm";
+ static const createCVMurl =  "${baseUrl}method/mohan_impex.api.cvm.create_cvm";
+ static const unvCustomerUrl = "${baseUrl}method/mohan_impex.api.unv_customer_list";
+ static const getCustomerAddressUrl = "${baseUrl}method/mohan_impex.api.cvm.get_customer_address";
+ static const convertToOrderUrl = "${baseUrl}method/mohan_impex.api.cvm.convert_to_order";
+ static const viewCustomerVisitUrl = "${baseUrl}method/mohan_impex.api.cvm.cvm_form";
+ static const locationValidationurl =  "${baseUrl}method/mohan_impex.api.is_within_range";
  
  /// product trial
- static const productTrialUrl = "${baseUrl}method/mohan_impex.api.product_trial.create_product_trial";
- static const trialPlanUrl = "${baseUrl}method/mohan_impex.api.product_trial.trial_list";
+ static const createProductTrialUrl = "${baseUrl}method/mohan_impex.api.trial_plan.create_product_trial";
+ static const trialPlanUrl = "${baseUrl}method/mohan_impex.api.trial_plan.trial_list";
+ static const viewTrailPlanUrl = "${baseUrl}method/mohan_impex.api.trial_plan.trial_form";
 
  /// price list
  static const priceListUrl = "${baseUrl}method/mohan_impex.api.price_list.price_list";
@@ -31,7 +37,10 @@ static const imageUploadUrl = "${baseUrl}method/mohan_impex.api.cvm.capture_imag
  /// kyc
  static const kycList = "${baseUrl}method/mohan_impex.api.kyc.kyc_list";
  static const uploadKycAttachementUrl = "${baseUrl}method/mohan_impex.api.upload_attachments";
- static const createKycUrl = "${baseUrl}mohan_impex.api.kyc.create_kyc";
+ static const createKycUrl = "${baseUrl}method/mohan_impex.api.kyc.create_kyc";
+ static const segementUrl = "${baseUrl}resource/Market Segment";
+ static const viewKycUrl = "${baseUrl}method/mohan_impex.api.kyc.kyc_form";
+ static const customerCategoryUrl = "${baseUrl}resource/Customer Category";
 
  /// scheme 
  static const schemeListUrl = "${baseUrl}method/mohan_impex.api.scheme.scheme_list";
@@ -47,7 +56,7 @@ static const imageUploadUrl = "${baseUrl}method/mohan_impex.api.cvm.capture_imag
  static const channelPartnerurl = "${baseUrl}method/mohan_impex.api.get_channel_partner";
  static const shopUrl = "${baseUrl}method/mohan_impex.api.get_shops";
  static const competitorUrl = "${baseUrl}resource/Competitor";
- static const productUrl = "${baseUrl}resource/Product/";
+ static const productUrl = "${baseUrl}method/mohan_impex.api.master.get_products";
  static const productItemUrl = "${baseUrl}method/mohan_impex.api.get_items";
  static const productCategoryUrl = "${baseUrl}resource/Product Category";
  static const getCustomerurl = "${baseUrl}method/mohan_impex.api.get_customer_info";
@@ -72,4 +81,18 @@ static const viewCollateralUrl = "${baseUrl}method/mohan_impex.api.collateral_re
 
 /// digital marking
 static const digitalMarkingCollateralsUrl = "${baseUrl}method/mohan_impex.api.marketing_collateral.digital_mc_list";
+
+/// my customer 
+static const myCustomerListUrl = "${baseUrl}method/mohan_impex.api.my_customer.my_customer_list";
+static const viewMyCustomerUrl = "${baseUrl}method/mohan_impex.api.my_customer.my_customer_form";
+static const ledgerUrl = "${baseUrl}method/mohan_impex.api.my_customer.my_customer_ledger";
+
+/// sales order
+static const salesOrderListUrl = '${baseUrl}method/mohan_impex.api.sales_order.so_list';
+static const viewSalesOrderUrl = "${baseUrl}method/mohan_impex.api.sales_order.so_form";
+static const itemTemplateUrl = "${baseUrl}method/mohan_impex.api.get_item_templates";
+static const salesItemVariantUrl = "${baseUrl}method/mohan_impex.api.get_item_variants";
+static const createSalesOrderUrl = "${baseUrl}method/mohan_impex.api.sales_order.create_so";
+
+/// logout
 }

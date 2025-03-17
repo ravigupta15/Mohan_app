@@ -9,26 +9,32 @@ class AppSearchBar extends StatelessWidget {
  Widget? suffixWidget;
  final bool isReadOnly;
  final void Function()?onTap;
-   AppSearchBar({this.controller,this.hintText,this.onChanged,this.suffixWidget,this.onTap,this.isReadOnly=false});
+ bool autofocus;
+   AppSearchBar({this.controller,this.hintText,this.onChanged,this.suffixWidget,this.onTap,this.isReadOnly=false,
+   this.autofocus = false
+   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 44,
+      height: 50,
       width: double.infinity,
       decoration: BoxDecoration(
         color: AppColors.edColor,
         borderRadius: BorderRadius.circular(8)
       ),
+      alignment: Alignment.center,
       padding: EdgeInsets.only(left: 15),
       child: TextFormField(
         onTap: onTap,
+        autofocus: autofocus,
         controller: controller,
         readOnly: isReadOnly,      
         style:const TextStyle(
           fontSize: 14
         ),
         textAlign: TextAlign.start,
+        textAlignVertical: TextAlignVertical.center,
         decoration: InputDecoration(
             hintText: hintText,
             suffixIcon: suffixWidget,
@@ -42,7 +48,7 @@ class AppSearchBar extends StatelessWidget {
               minHeight: 4,
             ),
             hintStyle: const TextStyle(
-                fontSize: 15,
+                fontSize: 13,
                 fontWeight: FontWeight.w400,
                 color: AppColors.lightBlue62Color,),
            border: InputBorder.none,

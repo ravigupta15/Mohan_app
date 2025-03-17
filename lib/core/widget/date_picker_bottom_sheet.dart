@@ -8,13 +8,15 @@ import 'package:mohan_impex/res/app_fontfamily.dart';
 
 import 'app_text.dart';
 
+// ignore: must_be_immutable
 class ViewDatePickerWidget extends StatelessWidget {
   DateTime selectedDay;
   DateTime focusedDay;
   Function(DateTime, DateTime)? onDaySelected;
   Function()?applyTap;
+  DateTime? firstDay;
    ViewDatePickerWidget({required  this.selectedDay,required this.focusedDay, 
- this.onDaySelected, this.applyTap});
+ this.onDaySelected, this.applyTap, this.firstDay});
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +50,8 @@ class ViewDatePickerWidget extends StatelessWidget {
                     customTableWidget(
                         focusedDay: focusedDay,
                         selectedDay: selectedDay,
-                        onDaySelected: onDaySelected
+                        onDaySelected: onDaySelected,
+                        firstDay: firstDay
                       ),
                       const SizedBox(height: 10,),
                       AppTextButton(title: "Apply",

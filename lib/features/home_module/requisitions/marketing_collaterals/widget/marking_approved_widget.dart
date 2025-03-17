@@ -73,7 +73,7 @@ class MarkingApprovedWidget extends StatelessWidget {
                           : SizedBox.fromSize()
           ],
         );
-    }): NoDataFound(title: "No apporved journey plan found");
+    }): NoDataFound(title: "No apporved marketing collarterals found");
   }
 
 }

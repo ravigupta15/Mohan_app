@@ -279,7 +279,7 @@ ScrollController _scrollController = ScrollController();
 
  Widget selectedFiltersWidget({required SampleNotifier refNotifier,required SampleState refState}){
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 25),
+      padding: const EdgeInsets.symmetric(horizontal: 5),
       child: Row(
         children: [
          refNotifier.filterDateValue.isNotEmpty? customFiltersUI(refNotifier.filterDateValue,
@@ -292,7 +292,6 @@ ScrollController _scrollController = ScrollController();
           });
          }
          ): EmptyWidget(),
-          const SizedBox(width: 15,),
           refNotifier.filterStatusValue.isNotEmpty? customFiltersUI(refNotifier.filterStatusValue,
           (){
             refNotifier.filterStatusValue='';
@@ -312,6 +311,7 @@ ScrollController _scrollController = ScrollController();
     return GestureDetector(
       onTap: onTap,
       child: Container(
+        margin: EdgeInsets.only(left: 15),
         decoration: BoxDecoration(
           border: Border.all(color: AppColors.greenColor),
           borderRadius: BorderRadius.circular(15)

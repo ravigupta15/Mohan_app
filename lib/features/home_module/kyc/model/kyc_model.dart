@@ -1,11 +1,11 @@
-class KYCModel {
-  bool? status;
-  String? message;
+class KycModel {
+  dynamic status;
+  dynamic message;
   List<Data>? data;
 
-  KYCModel({this.status, this.message, this.data});
+  KycModel({this.status, this.message, this.data});
 
-  KYCModel.fromJson(Map<String, dynamic> json) {
+  KycModel.fromJson(Map<String, dynamic> json) {
     status = json['status'];
     message = json['message'];
     if (json['data'] != null) {
@@ -17,7 +17,7 @@ class KYCModel {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data =  Map<String, dynamic>();
     data['status'] = status;
     data['message'] = message;
     if (this.data != null) {
@@ -28,58 +28,58 @@ class KYCModel {
 }
 
 class Data {
-  List<Pending>? pending;
-  List<Pending>? approved;
-  Perms? perms;
+  List<KycRecords>? records;
+  dynamic totalCount;
+  dynamic pageCount;
+  dynamic currentPage;
 
-  Data({this.pending, this.approved, this.perms});
+  Data({this.records, this.totalCount, this.pageCount, this.currentPage});
 
   Data.fromJson(Map<String, dynamic> json) {
-    if (json['pending'] != null) {
-      pending = <Pending>[];
-      json['pending'].forEach((v) {
-        pending!.add(new Pending.fromJson(v));
+    if (json['records'] != null) {
+      records = <KycRecords>[];
+      json['records'].forEach((v) {
+        records!.add( KycRecords.fromJson(v));
       });
     }
-    if (json['approved'] != null) {
-      approved = <Pending>[];
-       json['approved'].forEach((v) {
-        pending!.add( Pending.fromJson(v));
-      });
-     
-    }
-    perms = json['perms'] != null ?  Perms.fromJson(json['perms']) : null;
+    totalCount = json['total_count'] ?? 0;
+    pageCount = json['page_count'] ?? 0;
+    currentPage = json['current_page'] ?? 0;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    if (pending != null) {
-      data['pending'] = pending!.map((v) => v.toJson()).toList();
+    final Map<String, dynamic> data =  Map<String, dynamic>();
+    if (records != null) {
+      data['records'] = records!.map((v) => v.toJson()).toList();
     }
-    if (approved != null) {
-      data['approved'] = approved!.map((v) => v.toJson()).toList();
-    }
-    if (perms != null) {
-      data['perms'] = perms!.toJson();
-    }
+    data['total_count'] = totalCount;
+    data['page_count'] = pageCount;
+    data['current_page'] = currentPage;
     return data;
   }
 }
 
-class Pending {
+class KycRecords {
   dynamic name;
   dynamic date;
   dynamic workflowState;
+  dynamic totalCount;
   dynamic username;
   dynamic formUrl;
 
-  Pending(
-      {this.name, this.date, this.workflowState, this.username, this.formUrl});
+  KycRecords(
+      {this.name,
+      this.date,
+      this.workflowState,
+      this.totalCount,
+      this.username,
+      this.formUrl});
 
-  Pending.fromJson(Map<String, dynamic> json) {
+  KycRecords.fromJson(Map<String, dynamic> json) {
     name = json['name'];
     date = json['date'];
     workflowState = json['workflow_state'];
+    totalCount = json['total_count'];
     username = json['username'];
     formUrl = json['form_url'];
   }
@@ -89,24 +89,9 @@ class Pending {
     data['name'] = name;
     data['date'] = date;
     data['workflow_state'] = workflowState;
+    data['total_count'] = totalCount;
     data['username'] = username;
     data['form_url'] = formUrl;
-    return data;
-  }
-}
-
-class Perms {
-  dynamic createPerm;
-
-  Perms({this.createPerm});
-
-  Perms.fromJson(Map<String, dynamic> json) {
-    createPerm = json['create_perm'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data =  Map<String, dynamic>();
-    data['create_perm'] = createPerm;
     return data;
   }
 }

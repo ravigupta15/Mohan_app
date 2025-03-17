@@ -115,6 +115,8 @@ complaintListApiFunction();
   }
 }
 
+
+
 imageUploadApiFunction(BuildContext context, File imgFile, {required bool isCLImage})async{
      bool isConnected = await InternetConnectivity.isConnected();
     if(!isConnected){

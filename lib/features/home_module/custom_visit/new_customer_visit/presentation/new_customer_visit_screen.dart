@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:mohan_impex/core/services/location_service.dart';
 import 'package:mohan_impex/core/widget/app_text.dart';
 import 'package:mohan_impex/core/widget/app_text_button.dart';
 import 'package:mohan_impex/core/widget/custom_app_bar.dart';
+import 'package:mohan_impex/features/home_module/custom_visit/model/view_visit_model.dart';
 import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit/riverpod/new_customer_visit_notifier.dart';
 import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit/riverpod/new_customer_visit_state.dart';
 import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit/widgets/registration_widget.dart';
@@ -13,8 +15,11 @@ import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit
 import 'package:mohan_impex/res/app_colors.dart';
 import 'package:mohan_impex/res/app_fontfamily.dart';
 
+// ignore: must_be_immutable
 class NewCustomerVisitScreen extends ConsumerStatefulWidget {
-  const NewCustomerVisitScreen({super.key});
+  VisitItemsModel? resumeItems;
+  final String route;
+   NewCustomerVisitScreen({super.key, this.resumeItems, required this.route});
 
   @override
   ConsumerState<NewCustomerVisitScreen> createState() => _NewCustomerVisitScreenState();
@@ -22,24 +27,54 @@ class NewCustomerVisitScreen extends ConsumerStatefulWidget {
 
 class _NewCustomerVisitScreenState extends ConsumerState<NewCustomerVisitScreen> {
 
-bool isCaptureImage= false;
 
 @override
   void initState() {
     Future.microtask((){
-      callInitFuntion();
+      if(widget.route =='resume'){
+        callSetResumeData();
+      }
+      else{
+        callInitFuntion();
+      }
     });
     super.initState();
   }
 
 
 callInitFuntion(){
-  ref.read(newCustomVisitProvider.notifier).resetValues();
-  ref.read(newCustomVisitProvider.notifier).startTimer();
-  ref.read(newCustomVisitProvider.notifier).competitorApiFunction(context);
-  // ref.read(newCustomVisitProvider.notifier).itemsApiFunction(context);
-  ref.watch(newCustomVisitProvider).visitStartDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now()).toString();
+  final refNotifier = ref.read(newCustomVisitProvider.notifier);
+  final refState = ref.watch(newCustomVisitProvider);
+  refNotifier.resetValues();
+  refNotifier.startTimer();
+  refNotifier.competitorApiFunction(context);
+  refNotifier.stateApiFunction(context);
+  refState.visitStartDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now()).toString();
+  LocationService().startLocationUpdates().then((val){
+   refState.visitStartLatitude = val.latitude.toString();
+   refState.visitStartLetitude = val.longitude.toString();
+  });
+  setState(() {
+  });
 }
+
+callSetResumeData(){
+   final refNotifier = ref.read(newCustomVisitProvider.notifier);
+  // final refState = ref.watch(newCustomVisitProvider);
+  refNotifier.resetValues();
+ refNotifier.competitorApiFunction(context);
+  // refNotifier.stateApiFunction(context);
+  // refState.visitStartDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now()).toString();
+  // LocationService().startLocationUpdates().then((val){
+  //  refState.visitStartLatitude = val.latitude.toString();
+  //  refState.visitStartLetitude = val.longitude.toString();
+  // });
+    refNotifier.setResumeData(context, widget.resumeItems!);
+  
+}
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -86,7 +121,6 @@ callInitFuntion(){
                        refState.tabBarIndex == 1 ? 
                        /// sales patch
                        SalesPatchWidget(
-                        refNotifer: refNotifier,refState: refState,
                        ) :
                        /// overview
                        OverviewWidget(
@@ -96,7 +130,7 @@ callInitFuntion(){
 
                         const SizedBox(height: 30,),
                         
-                        refState.tabBarIndex==0 || refState.tabBarIndex ==1 ?
+                        refState.tabBarIndex==0 ?
                         Align(
                   alignment: Alignment.center,
                   child: AppTextButton(title: "Next",color: AppColors.arcticBreeze,
@@ -119,25 +153,37 @@ callInitFuntion(){
                           Align(
                        alignment: Alignment.center,
                         child: AppTextButton(title:
-                        refState.captureImageList.length>1?
-                        "Draft": "Previous",color: AppColors.arcticBreeze,
+                          refState.tabBarIndex ==1 ?
+                          "Previous" :
+                        "Draft"
+                        // : "Previous"
+                        ,color: AppColors.arcticBreeze,
                         height: 44,width: 120,
                         onTap: (){
-                          if(refState.captureImageList.length>1){
-                            refNotifier.checkOverViewValidation(context,actionType: "Draft" );
+                          if(refState.tabBarIndex ==1 ){
+                            _handleBackButton(refNotifier, refState);
                           }
                           else{
-                            _handleBackButton(refNotifier, refState); 
+                          refNotifier.createProductApiFunction(context, actionType: 'Draft');
                           }
+                          // if(refState.captureImageList.length>1){
+                          //   refNotifier.checkOverViewValidation(context,actionType: "Draft" );
+                          // }
+                          // el/
                           // Navigator.pop(context);
                         },
                   ),
                 ),
                 Align(
                   alignment: Alignment.center,
-                  child: AppTextButton(title: "Submit",color: AppColors.arcticBreeze,
+                  child: AppTextButton(title:refState.tabBarIndex ==1? "Next": "Submit",color: AppColors.arcticBreeze,
                   height: 44,width: 120,onTap: (){
+                    if(refState.tabBarIndex ==1 ){
+                       refNotifier.checkSalesPitchValidation(context);
+                    }
+                    else{
                     refNotifier.checkOverViewValidation(context,actionType: "Submit");
+                    }
                     // AppRouter.pushCupertinoNavigation(const BookTrialSuccessScreen());
                   },
                   ),
@@ -205,6 +251,8 @@ width: 50,color: color,height: 1,
     case 0:
       return 'New Customer Visit';
       case 1:
+      return "New Customer Visit";
+      case 2:
       return "Submit";
     default:
     return 'New Customer Visit';
@@ -232,5 +280,7 @@ width: 50,color: color,height: 1,
           Navigator.pop(context);
         }
   }
+
+
 }
 

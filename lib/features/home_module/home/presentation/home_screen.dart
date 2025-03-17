@@ -14,11 +14,9 @@ import 'package:mohan_impex/features/home_module/digital_marking_collaterals/pre
 import 'package:mohan_impex/features/home_module/home/model/dashboard_model.dart';
 import 'package:mohan_impex/features/home_module/home/riverpod/home_state.dart';
 import 'package:mohan_impex/features/home_module/home/widgets/header_widget.dart';
-import 'package:mohan_impex/features/home_module/home/widgets/slider_widget.dart';
 import 'package:mohan_impex/features/home_module/kyc/presentation/kyc_screen.dart';
 import 'package:mohan_impex/features/home_module/my_customers/presentation/my_customer_screen.dart';
 import 'package:mohan_impex/features/home_module/price_list/presentation/price_list_screen.dart';
-import 'package:mohan_impex/features/home_module/requisitions/marketing_collaterals/presentation/marketing_collaterals_screen.dart';
 import 'package:mohan_impex/features/home_module/requisitions/presentation/requisitions_screen.dart';
 import 'package:mohan_impex/features/home_module/schemes_management/presentation/schemes_management_screen.dart';
 import 'package:mohan_impex/features/home_module/seles_order/presentation/sales_order_history_screen.dart';
@@ -238,7 +236,7 @@ dashboardWidget(List<Dashboard>? scoreDashboard){
       var model = scoreDashboard?[index];
     return otherUserCustomContainer(
                           title: model?.name??"",
-                          img: model?.url ??'',
+                          img: model?.imgUrl ??'',
                           isBoxShadow: true,
                           onTap: (){
                             _onClick(model?.name??'');
@@ -252,7 +250,7 @@ sliderWidget(HomeState refState){
   Container():
    Column(
     children: [
-      SizedBox(height: 168,
+      SizedBox(height: 150,
                       child: CarouselSlider.builder(
                         itemCount: (refState.dashboardModel?.data?[0].bannerInfo?.length??0),
                         itemBuilder: (BuildContext context, int itemIndex,
@@ -264,7 +262,7 @@ sliderWidget(HomeState refState){
                             ),
                             child: ClipRRect(
                                 borderRadius: BorderRadius.circular(15),
-                                child:AppNetworkImage(imgUrl: model?.bannerImage??'')),
+                                child:Image.network(model?.bannerImage??'',fit: BoxFit.cover,)),
                           );
                         },
                         options: CarouselOptions(
@@ -299,62 +297,18 @@ sliderWidget(HomeState refState){
 }
 
 
-  // otherUserWidget(List<Dashboard>? scoreDashboard) {
-  //   return ListView.builder(
-  //       itemCount: scoreDashboard?.length??0,
-  //       padding: const EdgeInsets.only(left: 18, right: 18),
-  //       shrinkWrap: true,
-  //       physics: const NeverScrollableScrollPhysics(),
-  //       itemBuilder: (ctx, index) {
-  //         var model = scoreDashboard?[index];
-  //         return Column(
-  //           children: [
-  //             Row(
-  //               children: [
-  //                 Expanded(
-  //                     child: otherUserCustomContainer(
-  //                         title: model?.name??"",
-  //                         img: list[index]['img1'],
-  //                         isBoxShadow: true,
-  //                         onTap: (){
-  //                           _onClick(list[index]['title1']);
-  //                         })),
-  //                 Container(
-  //                   margin: EdgeInsets.only(left: 12, right: 12, ),
-  //                   height: 90,
-  //                   width: 1,
-  //                   color: Color(0xff64748B).withOpacity(.1),
-  //                 ),
-  //                 Expanded(
-  //                     child: otherUserCustomContainer(
-  //                         title: list[index]['title2'],
-  //                         img: list[index]['img2'],
-  //                         onTap: (){
-  //                           _onClick(list[index]['title2']);
-  //                         })),
-  //               ],
-  //             ),
-  //             index==list.length-1?Container():
-  //             Container(
-  //               height: 1,
-  //               color: Color(0xff64748B).withValues(alpha: .1),
-  //             ),
-  //           ],
-  //         );
-  //       });
-  // }
-
   otherUserCustomContainer(
       {required String title,
       bool isBoxShadow = false,
       required String img,
       required Function() onTap}) {
-    return InkWell(
+    return GestureDetector(
       onTap: onTap,
       child: Container(
         height: 70,
         margin: EdgeInsets.symmetric(vertical: 10),
         width: double.infinity,
+        
         alignment: Alignment.center,
         decoration: BoxDecoration(
             color: AppColors.whiteColor,
@@ -368,10 +322,16 @@ sliderWidget(HomeState refState){
                         blurRadius: 86)
                   ]
                 : []),
-        padding: EdgeInsets.only(left: 10),
+        padding: EdgeInsets.symmetric(horizontal: 8),
         child: Row(
           children: [
-            AppNetworkImage(imgUrl: img,height: 30,),
+            Container(
+              alignment: Alignment.center,
+              height: 35,width: 35,decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.greenColor.withValues(alpha: .2)
+              ),
+              child: AppNetworkImage(imgUrl: img,height: 20,width: 20,)),
             const SizedBox(
               width: 10,
             ),
@@ -388,7 +348,8 @@ sliderWidget(HomeState refState){
   }
 
   _onClick(title){
-    switch (title.toString().toLowerCase()) {
+    print(title);
+    switch (title.toString().toLowerCase()) {      
       case AppConstants.salesOrder:
       AppRouter.pushCupertinoNavigation(const SalesOrderHistoryScreen());
         break;

@@ -3,6 +3,7 @@ import 'package:mohan_impex/data/datasources/local_share_preference.dart';
 import 'package:mohan_impex/features/app_navigation/pages/app_navigation_screen.dart';
 import 'package:mohan_impex/features/auth/sign-in/pages/sign_in_screen.dart';
 import 'package:mohan_impex/features/onboarding/onboarding_screen.dart';
+import 'package:mohan_impex/res/app_asset_paths.dart';
 import 'package:mohan_impex/res/app_router.dart';
 
 
@@ -36,6 +37,13 @@ class _SplashScreenState extends State<SplashScreen> {
   }
   @override
   Widget build(BuildContext context) {
-    return Scaffold();
+    return Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 15),
+        child: Center(
+          child: Image.asset(AppAssetPaths.appLogoIcon),
+        ),
+      ),
+    );
   }
 }

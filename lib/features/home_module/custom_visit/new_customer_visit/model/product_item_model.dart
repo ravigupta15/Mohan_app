@@ -1,6 +1,6 @@
 class ProductItemModel {
   List<ProductItem>? data;
-
+  List<ProductItem> selectedList = [];
   ProductItemModel({this.data});
 
   ProductItemModel.fromJson(Map<String, dynamic> json) {
@@ -23,21 +23,41 @@ class ProductItemModel {
 
 class ProductItem {
   dynamic name;
+  dynamic itemCode;
   String seletedCompetitor = '';
   int quantity =0;
   bool isSelected=false;
   String productType = '';
   String productCategory = '';
 
-  ProductItem({this.name});
+  ProductItem(
+    this.seletedCompetitor,
+    this.quantity,
+    this.isSelected,
+    this.productCategory,
+    this.productType,
+    this.name, 
+    this.itemCode);
 
   ProductItem.fromJson(Map<String, dynamic> json) {
-    name = json['name'];
+    name = json['item_name'];
+    itemCode = json['item_code'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['name'] = name;
+    data['item_code'] = itemCode;
     return data;
   }
 }
+
+  class ProductSendModel{
+    String productType = '';
+    List<ProductItem> list = [];
+
+    ProductSendModel({
+      required this.list,
+      required this.productType
+    });
+  }

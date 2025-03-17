@@ -1,4 +1,4 @@
-import 'package:mohan_impex/features/home_module/custom_visit/model/item_model.dart';
+import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit/model/item_model.dart';
 import 'package:mohan_impex/features/home_module/requisitions/marketing_collaterals/model/collaterals_request_model.dart';
 import 'package:mohan_impex/features/home_module/requisitions/sample_requisitions/model/view_sample_requisitions_model.dart';
 import 'package:mohan_impex/features/home_module/requisitions/sample_requisitions/riverpod/sample_notifier.dart';

@@ -11,13 +11,13 @@ class TrialPlanModel {
     if (json['data'] != null) {
       data = <Data>[];
       json['data'].forEach((v) {
-        data!.add(new Data.fromJson(v));
+        data!.add( Data.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data =  Map<String, dynamic>();
     data['status'] = status;
     data['message'] = message;
     if (this.data != null) {
@@ -28,82 +28,78 @@ class TrialPlanModel {
 }
 
 class Data {
-  List<Pending>? approved;
-  List<Pending>? pending;
-  bool? createPerm;
+  List<TrialRecords>? records;
+  dynamic totalCount;
+  dynamic pageCount;
+  dynamic currentPage;
 
-  Data({this.approved, this.pending, this.createPerm});
+  Data({this.records, this.totalCount, this.pageCount, this.currentPage});
 
   Data.fromJson(Map<String, dynamic> json) {
-    if (json['approved'] != null) {
-      approved = <Pending>[];
-      json['approved'].forEach((v) {
-        approved!.add(new Pending.fromJson(v));
+    if (json['records'] != null) {
+      records = <TrialRecords>[];
+      json['records'].forEach((v) {
+        records!.add( TrialRecords.fromJson(v));
       });
     }
-    if (json['pending'] != null) {
-      pending = <Pending>[];
-      json['pending'].forEach((v) {
-        pending!.add(new Pending.fromJson(v));
-      });
-    }
-    createPerm = json['create_perm'];
+    totalCount = json['total_count'];
+    pageCount = json['page_count'];
+    currentPage = json['current_page'] ?? 1;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    if (approved != null) {
-      data['approved'] = approved!.map((v) => v.toJson()).toList();
+    final Map<String, dynamic> data = Map<String, dynamic>();
+    if (records != null) {
+      data['records'] = records!.map((v) => v.toJson()).toList();
     }
-    if (pending != null) {
-      data['pending'] = pending!.map((v) => v.toJson()).toList();
-    }
-    data['create_perm'] = createPerm;
+    data['total_count'] = totalCount;
+    data['page_count'] = pageCount;
+    data['current_page'] = currentPage;
     return data;
   }
 }
 
-class Pending {
+class TrialRecords {
   dynamic name;
   dynamic trialType;
   dynamic shopName;
+  dynamic contact;
   dynamic location;
   dynamic createdByEmp;
   dynamic workflowState;
-  List<String>? contact;
-  dynamic formUrl;
+  dynamic totalCount;
 
-  Pending(
+  TrialRecords(
       {this.name,
       this.trialType,
       this.shopName,
+      this.contact,
       this.location,
       this.createdByEmp,
       this.workflowState,
-      this.contact,
-      this.formUrl});
+      this.totalCount});
 
-  Pending.fromJson(Map<String, dynamic> json) {
+  TrialRecords.fromJson(Map<String, dynamic> json) {
     name = json['name'];
     trialType = json['trial_type'];
     shopName = json['shop_name'];
+    contact = json['contact'];
     location = json['location'];
     createdByEmp = json['created_by_emp'];
     workflowState = json['workflow_state'];
-    contact = json['contact'].cast<String>();
-    formUrl = json['form_url'];
+    totalCount = json['total_count'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data =  Map<String, dynamic>();
     data['name'] = name;
     data['trial_type'] = trialType;
     data['shop_name'] = shopName;
+    data['contact'] = contact;
     data['location'] = location;
     data['created_by_emp'] = createdByEmp;
     data['workflow_state'] = workflowState;
-    data['contact'] = contact;
-    data['form_url'] = formUrl;
+    data['total_count'] = totalCount;
     return data;
   }
 }

@@ -50,13 +50,28 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: PageView.builder(
-            itemCount: list.length,
-            controller: _pageController,
-            physics: NeverScrollableScrollPhysics(),
-            itemBuilder: (context, index) {
-              return screenContent(index);
-            }));
+        body: Column(
+          children: [
+            Expanded(
+              child: PageView.builder(
+                  itemCount: list.length,
+                  controller: _pageController,
+                  physics: ScrollPhysics(),
+                  itemBuilder: (context, index) {
+                    return screenContent(index);
+                  }),
+            ),
+          Padding(
+          padding: const EdgeInsets.only(left: 19, right: 19, bottom: 30),
+            child: AppButton(
+              title: "Next",
+              onPressed: () {
+                _updateIndex(selectedIndex);
+              },
+            ),
+          )
+          ],
+        ));
   }
 
   Widget screenContent(int index) {
@@ -76,12 +91,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             textAlign: TextAlign.center,
           ),
           const Spacer(),
-          AppButton(
-            title: "Next",
-            onPressed: () {
-              _updateIndex(index);
-            },
-          )
         ],
       ),
     );

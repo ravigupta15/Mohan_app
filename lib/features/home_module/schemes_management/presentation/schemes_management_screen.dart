@@ -6,11 +6,16 @@ import 'package:mohan_impex/core/widget/app_text.dart';
 import 'package:mohan_impex/core/widget/app_text_button.dart';
 import 'package:mohan_impex/core/widget/custom_app_bar.dart';
 import 'package:mohan_impex/core/widget/custom_radio_button.dart';
+import 'package:mohan_impex/features/home_module/schemes_management/model/scheme_model.dart';
+import 'package:mohan_impex/features/home_module/schemes_management/riverpod/schemes_notifier.dart';
 import 'package:mohan_impex/features/home_module/schemes_management/riverpod/schemes_state.dart';
 import 'package:mohan_impex/res/app_asset_paths.dart';
 import 'package:mohan_impex/res/app_colors.dart';
 import 'package:mohan_impex/res/app_fontfamily.dart';
+import 'package:mohan_impex/res/empty_widget.dart';
 import 'package:mohan_impex/res/no_data_found_widget.dart';
+import 'package:mohan_impex/utils/message_helper.dart';
+import 'package:mohan_impex/utils/render_html_widget.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 class SchemesManagementScreen extends ConsumerStatefulWidget {
@@ -23,8 +28,10 @@ class SchemesManagementScreen extends ConsumerStatefulWidget {
 class _SchemesManagementScreenState extends ConsumerState<SchemesManagementScreen> {
 
   int selectedRadio=0;
+  String filterValue = '';
 
- @override
+ScrollController _scrollController = ScrollController();
+  @override
   void initState() {
     Future.microtask((){
       callInitFunction();
@@ -33,9 +40,34 @@ class _SchemesManagementScreenState extends ConsumerState<SchemesManagementScree
   }
 
   callInitFunction(){
-    final refNotifier = ref.read(schemesProvider.notifier);
-    refNotifier.callApiFunction(context);
+    ref.read(schemesProvider.notifier).resetValues();
+    filterValue='';
+     _scrollController.addListener(_scrollListener); 
+   ref.read(schemesProvider.notifier).callApiFunction();
+    setState(() {      
+    });
+    
   }
+   @override
+  void dispose() {
+    _scrollController.removeListener(_scrollListener);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _scrollListener() {
+    final state = ref.watch(schemesProvider);
+    final notifier = ref.read(schemesProvider.notifier);
+    if (_scrollController.position.pixels ==
+        _scrollController.position.maxScrollExtent) {
+      // Trigger the API to fetch the next page of data
+      if ((state.schemeModel?.data?.length??0) <
+              int.parse((state.schemeModel?.data?[0].totalCount??0).toString())) {
+        notifier.callApiFunction(isLoadMore: true);
+      }
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -50,6 +82,7 @@ class _SchemesManagementScreenState extends ConsumerState<SchemesManagementScree
               padding: const EdgeInsets.symmetric(horizontal: 17),
               child: AppSearchBar(
                 hintText: "Search scheme",
+                onChanged: refNotifier.onChangedSearch,
                 suffixWidget: Container(
                   alignment: Alignment.center,
                   width:  60,
@@ -62,7 +95,7 @@ class _SchemesManagementScreenState extends ConsumerState<SchemesManagementScree
                       ),
                        InkWell(
                         onTap: (){
-                          filterBottomSheet(context);
+                          filterBottomSheet(context, refNotifier);
                         },
                         child: SvgPicture.asset(AppAssetPaths.filterIcon)),
                     ],
@@ -71,20 +104,39 @@ class _SchemesManagementScreenState extends ConsumerState<SchemesManagementScree
               ),
             ),
          const SizedBox(height: 10,),
+         selectedFiltersWidget(refNotifier: refNotifier, refState: refState),
+         const SizedBox(height: 15,),
          Expanded(
            child: refState.isLoading?
            SchemsShimmer():
-           (refState.schemeModel?.data??[]).isEmpty? 
+           (refState.schemeModel?.data?[0].records??[]).isEmpty? 
            NoDataFound(title: "No schemes data found"):
            ListView.separated(
             separatorBuilder: (ctx,sb){
               return const SizedBox(height: 15,);
             },
-            itemCount: (refState.schemeModel?.data?.length??0),
+            controller: _scrollController,
+            itemCount: (refState.schemeModel?.data?[0].records?.length??0),
             padding: EdgeInsets.only(top: 5,left: 17,right:  17,bottom: 30),
             shrinkWrap: true,
             itemBuilder: (ctx,index){
-            return _SchemeWidget();
+              var model = refState.schemeModel?.data?[0].records?[index];
+            return Column(
+              children: [
+                schemeWidget(model!),
+                 index == (refState.schemeModel?.data?[0].records?.length??0) - 1 &&
+                              refState.isLoadingMore
+                          ? Container(
+                              padding: const EdgeInsets.all(4),
+                              width: 37,
+                              height: 37,
+                              child: const CircularProgressIndicator(
+                                strokeWidth: 3,
+                              ),
+                            )
+                          : SizedBox.fromSize()
+              ],
+            );
            }),
          )
         ],
@@ -93,7 +145,7 @@ class _SchemesManagementScreenState extends ConsumerState<SchemesManagementScree
   }
 
 
-  filterBottomSheet(BuildContext context){
+  filterBottomSheet(BuildContext context, SchemesNotifier refNotifier){
   showModalBottomSheet(
     backgroundColor: AppColors.whiteColor,
     context: context, builder: (context){
@@ -142,6 +194,7 @@ class _SchemesManagementScreenState extends ConsumerState<SchemesManagementScree
                           onTap: (){
                             state(() {
                               selectedRadio=0;
+                              filterValue = "";
                             });
                           }
                           ),
@@ -150,34 +203,28 @@ class _SchemesManagementScreenState extends ConsumerState<SchemesManagementScree
                           onTap: (){
                             state(() {
                               selectedRadio=1;
+                              filterValue = "Spot";
                             });
                           }),
                         ],
                       ),
-                      const SizedBox(height: 28,),
-                           Row(
-                            children: [
-                              customRadioButton(isSelected:selectedRadio==2? true:false, title: 'Monthly Trade',
-                          onTap: (){
-                            state(() {
-                              selectedRadio=2;
-                            });
-                          }
-                          ),
-                          const SizedBox(width: 15,),
-                          customRadioButton(isSelected:selectedRadio==3? true:false, title: 'Speical Scheme',
-                          onTap: (){
-                            state(() {
-                              selectedRadio=3;
-                            });
-                          }
-                          ),
-                            ],
-                           ),
-                     const SizedBox(height: 67,),
+                      const SizedBox(height: 30,),
                        Align(
                   alignment: Alignment.center,
-                  child: AppTextButton(title: "Apply",height: 35,width: 150,color: AppColors.arcticBreeze,),
+                  child: AppTextButton(title: "Apply",height: 35,width: 150,color: AppColors.arcticBreeze,
+                  onTap: (){
+                      if(filterValue.isEmpty){
+                       MessageHelper.showToast("Select any filter");
+                    }
+                    else{
+                        Navigator.pop(context);
+                    refNotifier.updateFilterValues(type: filterValue);
+                    setState(() {
+                    });
+                    refNotifier.callApiFunction(isLoadMore: false);
+                    }
+                  },
+                  ),
                  )
                     ],
                   ),
@@ -190,6 +237,140 @@ class _SchemesManagementScreenState extends ConsumerState<SchemesManagementScree
     );
   });
 }
+
+Widget schemeWidget(SchemeRecord model){
+  return Container(
+       padding: EdgeInsets.only(bottom: 15),
+          decoration: BoxDecoration(
+            color: AppColors.whiteColor,
+            borderRadius: BorderRadius.circular(5),
+            boxShadow: [
+              BoxShadow(
+                offset: Offset(0, 0),
+                color: AppColors.black.withValues(alpha: .2),
+                blurRadius: 3
+              )
+            ]
+          ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 17,right: 5),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        AppText(title: model.title??'',fontsize: 20,fontFamily: AppFontfamily.poppinsMedium,),
+                        const SizedBox(height: 10,),
+                        AppText(title: model.description??'',fontsize: 10,fontWeight: FontWeight.w300,)
+                      ],
+                    ),
+                  ),
+                  AppText(title: "${(model.discountPercentage??'')}%".toString(),color: AppColors.greenColor,fontsize: 48,fontFamily: AppFontfamily.poppinsMedium,)
+                ],
+              ),
+            ),
+            Divider(
+                  color: AppColors.edColor,
+                ),
+                const SizedBox(height: 5,),
+                validWidget(model),
+                termsConditionWidget(model)
+          ],
+        ),
+    );
+
+}
+
+
+  validWidget(SchemeRecord model){
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 9),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Container(
+          height: 5,width: 5,
+          decoration: BoxDecoration(
+            color: AppColors.greenColor,shape: BoxShape.circle
+          ),
+        ),
+        const SizedBox(width: 4,),
+        AppText(title: "Valid till : ",fontsize: 10,fontFamily: AppFontfamily.poppinsSemibold,color: AppColors.visitItem,),
+        AppText(title: model.validUpto??'',fontsize: 10,fontFamily: AppFontfamily.poppinsRegular,color: AppColors.visitItem,),
+        const Spacer(),
+        AppText(title: "Min Order : ",fontsize: 10,fontFamily: AppFontfamily.poppinsSemibold,color: AppColors.visitItem,),
+        AppText(title: (model.minQty??'').toString(),fontsize: 10,fontFamily: AppFontfamily.poppinsRegular,color: AppColors.visitItem,),
+            ],
+          ),
+          
+        ],
+      ),
+    );
+  }
+
+  termsConditionWidget(SchemeRecord model){
+    return Padding(
+      padding: const EdgeInsets.only(left: 18,right: 8,top: 5),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          AppText(title: "Terms Condition:",fontsize: 10,fontFamily: AppFontfamily.poppinsMedium,),
+          const SizedBox(height: 6,),
+         RandersHtmlWidget(text: model.termsAndConditions)
+        ],
+      ),
+    );
+  }
+
+
+ Widget selectedFiltersWidget({required SchemesNotifier refNotifier,required SchemesState refState}){
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 25),
+      child: Row(
+        children: [
+         refNotifier.filterSchemeType.isNotEmpty? customFiltersUI(refNotifier.filterSchemeType,
+         (){
+          refNotifier.filterSchemeType='';
+          filterValue = '';
+          selectedRadio=0;
+          refNotifier.callApiFunction();
+          setState(() {
+            
+          });
+         }
+         ): EmptyWidget(),
+        ],
+      ),
+    );
+  }
+  
+  customFiltersUI(String title, Function()?onTap){
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(color: AppColors.greenColor),
+          borderRadius: BorderRadius.circular(15)
+        ),
+        padding: EdgeInsets.symmetric(horizontal: 9,vertical: 2),
+        child: Row(
+          children: [
+            AppText(title: title,fontFamily: AppFontfamily.poppinsSemibold,fontsize: 13,),
+            const SizedBox(width: 5,),
+            Icon(Icons.close,size: 15,)
+          ],
+        ),
+      ),
+    );
+  }
+
+
 
 }
 
@@ -208,14 +389,15 @@ class SchemsShimmer extends StatelessWidget {
               padding: EdgeInsets.only(top: 5,left: 17,right:  17,bottom: 30),
               shrinkWrap: true,
         itemBuilder: (ctx,index){
-          return _SchemeWidget();
+          return _SchemeWidgetForShimmer();
       }),
     );
   }
 }
 
-class _SchemeWidget extends StatelessWidget {
-  const _SchemeWidget();
+class _SchemeWidgetForShimmer extends StatelessWidget {
+
+  const _SchemeWidgetForShimmer();
 
   @override
   Widget build(BuildContext context) {

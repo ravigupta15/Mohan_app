@@ -6,7 +6,7 @@ class ImagePickerService {
    static Future imagePicker(ImageSource source) async {
     final ImagePicker picker = ImagePicker();
     final XFile? img = await picker.pickImage(
-      source: source,imageQuality: 75
+      source: source,imageQuality: 70
     );
     if (img==null) return null;
   return File(img.path);

@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:mohan_impex/core/widget/app_text.dart';
 import 'package:mohan_impex/core/widget/expandable_widget.dart';
+import 'package:mohan_impex/data/datasources/local_share_preference.dart';
+import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit/riverpod/new_customer_visit_notifier.dart';
 import 'package:mohan_impex/res/app_colors.dart';
+import 'package:mohan_impex/res/empty_widget.dart';
 
 import '../../../../../res/app_fontfamily.dart';
+import '../riverpod/new_customer_visit_state.dart';
 
 // ignore: must_be_immutable
-class CustomerInfoWidget extends StatelessWidget {
-  final String name;
-  final String shopName;
-  final String number;
-  final String location;
-   List? contactList = [];
-   CustomerInfoWidget({
-    required this.name,required this.shopName,required this.number,required this.location,this.contactList
+class CustomerVisitInfoWidget extends StatelessWidget {
+  NewCustomerVisitNotifier refNotifier;
+  NewCustomerVisitState refState;
+   CustomerVisitInfoWidget({
+    required this.refNotifier,
+    required this.refState
   });
 
   @override
@@ -55,15 +57,35 @@ Widget expandedWidget({required bool isExpanded}){
         children: [
        collapsedWidget(isExpanded: isExpanded),
             const SizedBox(height: 10,),
-            itemsWidget("Vendor Name", name),
+            itemsWidget("Vendor Name", refNotifier.customerNameController.text),
             const SizedBox(height: 10,),
-            itemsWidget("Shop Name", shopName),
-            const SizedBox(height: 10,),
-            itemsWidget("Contact", (contactList??[]).isEmpty ? number :
-            contactList!.join(', ')
+            itemsWidget("Shop Name", refNotifier.shopNameController.text),
+            refNotifier.channelPartnerController.text.isEmpty ? EmptyWidget():
+            Padding(
+              padding: const EdgeInsets.only(top: 10),
+              child: itemsWidget("Channel Partner", refNotifier.channelPartnerController.text),
             ),
             const SizedBox(height: 10,),
-            itemsWidget("Location", location),
+            itemsWidget("Contact", (refState.contactNumberList).isEmpty ? refNotifier.numberController.text :
+            refState.contactNumberList.join(', ')
+            ),
+            const SizedBox(height: 10,),
+            itemsWidget("Location", LocalSharePreference.currentAddress),
+            const SizedBox(height: 10,),
+            itemsWidget("Address Type", refNotifier.addressTypeController.text),
+            const SizedBox(height: 10,),
+            itemsWidget("Address-1", refNotifier.address1Controller.text),
+            refNotifier.address2Controller.text.isEmpty ?EmptyWidget():
+            Padding(
+              padding: const EdgeInsets.only(top: 10),
+              child: itemsWidget("Address-2", refNotifier.address2Controller.text),
+            ),
+            const SizedBox(height: 10,),
+            itemsWidget("District", refNotifier.districtController.text),
+            const SizedBox(height: 10,),
+            itemsWidget("State", refNotifier.stateController.text),
+            const SizedBox(height: 10,),
+            itemsWidget("Pincode", refNotifier.pincodeController.text),
         ],
       ),
     );

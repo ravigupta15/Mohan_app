@@ -13,6 +13,7 @@ import 'package:mohan_impex/features/home_module/requisitions/journey_plan/model
 import 'package:mohan_impex/features/home_module/requisitions/journey_plan/riverpod/journey_notifier.dart';
 import 'package:mohan_impex/features/home_module/requisitions/journey_plan/riverpod/journey_state.dart';
 import 'package:mohan_impex/res/app_colors.dart';
+import 'package:mohan_impex/res/empty_widget.dart';
 
 class AddJourneyPlanScreen extends ConsumerStatefulWidget {
   const AddJourneyPlanScreen({super.key});
@@ -64,7 +65,12 @@ refNotifier.stateApiFunction(context);
               const SizedBox(height: 8,),
                 CustomDropDown(items: naturalTravelItems(refNotifier.naturalTravelList),
              hintText: "Select nature of travel",
-             onChanged: refNotifier.onChangedNaturalTravl,
+             onChanged: (val){
+              refNotifier.onChangedNaturalTravl(val);
+              setState(() {
+                
+              });
+             },
              validator: (val) {
                     if ((val ?? "").isEmpty) {
                       return "Please select nature of travel";
@@ -72,21 +78,27 @@ refNotifier.stateApiFunction(context);
                     return null;
                   },
              ),
-
-             const SizedBox(height: 15,),
-              LabelTextTextfield(title: "Night Out Location", isRequiredStar: false),
-              const SizedBox(height: 8,),
-              AppTextfield(
-              fillColor: false,
-              controller: refNotifier.naturalOutLocationController,
-              textInputAction: TextInputAction.next,
-              validator: (val){
-                if((val??'').isEmpty){
-                  return "Please enter night out location";
+             refNotifier.naturalOfTravelController.text.toLowerCase() == "night out"?
+             Padding(
+               padding: const EdgeInsets.only(top: 15),
+               child: Column(
+                children: [
+                   LabelTextTextfield(title: "Night Out Location", isRequiredStar: false),
+                const SizedBox(height: 8,),
+                AppTextfield(
+                fillColor: false,
+                controller: refNotifier.naturalOutLocationController,
+                textInputAction: TextInputAction.next,
+                validator: (val){
+                  if((val??'').isEmpty){
+                    return "Please enter night out location";
+                  }
+                  return null;
                 }
-                return null;
-              }
-             ),
+               ),
+                ],
+               ),
+             ) : EmptyWidget(),
              const SizedBox(height: 15,),
               LabelTextTextfield(title: "Travel To State", isRequiredStar: false),
               const SizedBox(height: 8,),

@@ -1,6 +1,5 @@
-import 'package:mohan_impex/features/home_module/custom_visit/model/item_model.dart';
-import 'package:mohan_impex/features/home_module/requisitions/marketing_collaterals/model/collaterals_request_model.dart';
-import 'package:mohan_impex/features/home_module/requisitions/sample_requisitions/model/view_sample_requisitions_model.dart';
+import 'package:mohan_impex/features/home_module/requisitions/trial_plan/model/trial_plan_model.dart';
+import 'package:mohan_impex/features/home_module/requisitions/trial_plan/model/view_trial_plan_model.dart';
 import 'package:mohan_impex/features/home_module/requisitions/trial_plan/riverpod/trial_plan_notifier.dart';
 import 'package:riverpod/riverpod.dart';
 
@@ -8,22 +7,27 @@ import 'package:riverpod/riverpod.dart';
 class TrialPlanState {
   final bool isLoading;
   int tabBarIndex;
-  int selectedTrialPlan;
-  CollateralsRequestModel? jounreyPlanModel;
-  ViewSampleRequisitionsModel? viewSampleRequisitionsModel;
-  ItemModel? itemModel;
-  TrialPlanState({required this.isLoading, this.jounreyPlanModel, required this.tabBarIndex,this.viewSampleRequisitionsModel, this.itemModel, this.selectedTrialPlan=0});
+  int selectedConductType;
+  TrialPlanModel? trialPlanModel;
+  ViewTrialPlanModel? viewTrialPlanModel;
+  int currentPage;
+  bool isLoadingMore;
+  TrialPlanState({required this.isLoading, this.trialPlanModel, required this.tabBarIndex,this.viewTrialPlanModel, this.selectedConductType=0,this.currentPage = 1,this.isLoadingMore =false, 
+  });
 
-  TrialPlanState copyWith({  bool? isLoading,int?tabBarIndex, CollateralsRequestModel? jounreyPlanModel,
-  ViewSampleRequisitionsModel? viewSampleRequisitionsModel,ItemModel? itemModel, int?selectedTrialPlan
+  TrialPlanState copyWith({  bool? isLoading,int?tabBarIndex, TrialPlanModel? trialPlanModel,
+  ViewTrialPlanModel? viewTrialPlanModel, int?selectedConductType,
+  int? currentPage,
+  bool? isLoadingMore,
   }) {
     return TrialPlanState(
       isLoading: isLoading??this.isLoading,
       tabBarIndex: tabBarIndex??this.tabBarIndex,
-      jounreyPlanModel: jounreyPlanModel??this.jounreyPlanModel,
-      viewSampleRequisitionsModel: viewSampleRequisitionsModel??this.viewSampleRequisitionsModel,
-      itemModel: itemModel??this.itemModel,
-      selectedTrialPlan:selectedTrialPlan??this.selectedTrialPlan
+      trialPlanModel: trialPlanModel??this.trialPlanModel,
+      viewTrialPlanModel: viewTrialPlanModel??this.viewTrialPlanModel,
+      selectedConductType:selectedConductType??this.selectedConductType,
+      currentPage: currentPage??this.currentPage,
+      isLoadingMore: isLoadingMore??this.isLoadingMore,
     );
   }
 }

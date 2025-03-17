@@ -27,7 +27,7 @@ class MessageHelper{
     const snackBar = SnackBar(
       behavior: SnackBarBehavior.floating,
       content: Text("No internet connection",style: TextStyle(
-        color: AppColors.black
+        color: AppColors.whiteColor
       ),),
       backgroundColor: AppColors.redColor,
     );

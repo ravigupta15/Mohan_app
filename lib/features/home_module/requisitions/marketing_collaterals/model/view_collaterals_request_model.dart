@@ -1,3 +1,5 @@
+import '../../../kyc/model/activity_model.dart';
+
 class ViewCollateralsReqestModel {
   dynamic status;
   dynamic message;
@@ -44,7 +46,7 @@ class Data {
   dynamic workflowState;
   dynamic doctype;
   List<MktgCollItem>? mktgCollItem;
-  List<MarkingActivities>? activities;
+  List<Activities>? activities;
 
   Data(
       {this.name,
@@ -88,9 +90,9 @@ class Data {
       });
     }
     if (json['activities'] != null) {
-      activities = <MarkingActivities>[];
+      activities = <Activities>[];
       json['activities'].forEach((v) {
-        activities!.add(new MarkingActivities.fromJson(v));
+        activities!.add(new Activities.fromJson(v));
       });
     }
   }
@@ -184,38 +186,6 @@ class MktgCollItem {
     data['parentfield'] = parentfield;
     data['parenttype'] = parenttype;
     data['doctype'] = doctype;
-    return data;
-  }
-}
-
-class MarkingActivities {
-  dynamic role;
-  dynamic name;
-  dynamic status;
-  dynamic comments;
-  dynamic date;
-  dynamic time;
-
-  MarkingActivities(
-      {this.role, this.name, this.status, this.comments, this.date, this.time});
-
-  MarkingActivities.fromJson(Map<String, dynamic> json) {
-    role = json['role'];
-    name = json['name'];
-    status = json['status'];
-    comments = json['comments'];
-    date = json['date'];
-    time = json['time'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['role'] = role;
-    data['name'] = name;
-    data['status'] = status;
-    data['comments'] = comments;
-    data['date'] =date;
-    data['time'] =time;
     return data;
   }
 }

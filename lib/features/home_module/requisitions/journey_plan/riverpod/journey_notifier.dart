@@ -18,7 +18,7 @@ class JourneyNotifier extends StateNotifier<JourneyState> {
     state = state.copyWith(isLoading: value);
   }
 
-
+final searchController = TextEditingController();
 String filterNatureOfTravelValue = '';
 String filterDateValue = '';
 String searchText = '';
@@ -54,6 +54,8 @@ List<DistrictItem> districtList = [];
 resetValues(){
   state = state.copyWith(tabBarIndex: 0,districtModel: null,stateModel: null,page: 1);
   selectedTabbar = "Approved";
+  searchText  ='';
+  searchController.clear();
 }
 
   onChangedNaturalTravl(val) {
@@ -100,10 +102,17 @@ resetPageCount(){
 }
 
   updateTabBarIndex(val){
+   selectedTabbar = val==0?"Approved":"Pending";
+    if(state.tabBarIndex !=val){
+      resetFilter();
+      searchController.clear();
+      searchText = '';
+      journeyPlanListApiFunction();
+    }
     state = state.copyWith(tabBarIndex: val);
     state = state.copyWith(page: 1);
     selectedTabbar = val==0?"Approved":"Pending";
-    journeyPlanListApiFunction();
+
   }
 
 
@@ -113,6 +122,7 @@ increasePageCount(){
 
 
 updateFilterValues({required String date, required String type}){
+  resetPageCount();
   filterNatureOfTravelValue = type;
   filterDateValue=date;
 }
@@ -138,10 +148,12 @@ onChangedSearch(String val){
       "nature_of_travel": naturalOfTravelController.text,
       "mode_of_travel": modeOfTravelController.text,
       "visit_to_date": toController.text,
-      "night_out_location": naturalOutLocationController.text,
+      "night_out_location":naturalOfTravelController.text.toLowerCase() == 'night out'? naturalOutLocationController.text : '',
       "travel_to_district": travelToDistrictController.text,
-      "travel_to_state": travelToStateController.text
+      "travel_to_state": travelToStateController.text,
+      "remarks": remarksController.text
     };
+    print(data);
     ShowLoader.loader(context);
     final response = await ApiService().makeRequest(
         apiUrl: ApiUrls.createJourneyUrl,
@@ -155,7 +167,7 @@ onChangedSearch(String val){
           btnTitle: "Track",
           onTap: () {
             Navigator.pop(context);
-            Navigator.pop(context);
+            Navigator.pop(context,true);
           }));
     }
   }
@@ -173,7 +185,7 @@ onChangedSearch(String val){
       }
     }
   
-    final response = await ApiService().makeRequest(apiUrl: "${ApiUrls.journeyPlanListUrl}?nature_of_travel=$filterNatureOfTravelValue&date=$filterDateValue&search_text=$searchText?tab=$selectedTabbar&limit=5&current_page=${state.page}", method: ApiMethod.get.name);
+    final response = await ApiService().makeRequest(apiUrl: "${ApiUrls.journeyPlanListUrl}?nature_of_travel=$filterNatureOfTravelValue&date=$filterDateValue&search_text=$searchText&tab=$selectedTabbar&limit=5&current_page=${state.page}", method: ApiMethod.get.name);
    updateLoading(false);
     if (!isLoadMore) {
     } else {
@@ -192,9 +204,9 @@ onChangedSearch(String val){
       }
       if (newModel.data!.isEmpty || newModel.data!.length < state.page) {
       } else {
-        // if(isLoadMore){
+        if(isLoadMore){
           increasePageCount();
-        // }
+        }
       }
       }
   
@@ -214,7 +226,7 @@ onChangedSearch(String val){
   stateApiFunction(BuildContext context, { String searchText =''})async{
   state = state.copyWith(stateModel: null);
     ShowLoader.loader(context);
-    final response =await ApiService().makeRequest(apiUrl: '${ApiUrls.stateUrl}/?filters=[["state", "like", "%$searchText%"]]', method: ApiMethod.get.name);
+    final response =await ApiService().makeRequest(apiUrl: '${ApiUrls.stateUrl}/?filters=[["state", "like", "%$searchText%"]]&limit=100', method: ApiMethod.get.name);
     ShowLoader.hideLoader();
     if(response!=null){
       var model =  StateModel.fromJson(response.data);
@@ -225,7 +237,7 @@ onChangedSearch(String val){
   districtApiFunction(BuildContext context,{required String stateText})async{
     state = state.copyWith(districtModel: null);
   ShowLoader.loader(context);
-    final response =await ApiService().makeRequest(apiUrl: '${ApiUrls.districtUrl}/?fields=["district", "state"]&filters=[["district", "like", "%%"], ["state", "=", "$stateText"]]', method: ApiMethod.get.name);
+    final response =await ApiService().makeRequest(apiUrl: '${ApiUrls.districtUrl}/?fields=["district", "state"]&filters=[["district", "like", "%%"], ["state", "=", "$stateText"]]&limit=100', method: ApiMethod.get.name);
     ShowLoader.hideLoader();
     if(response!=null){
      state = state.copyWith(districtModel: DistrictModel.fromJson(response.data));

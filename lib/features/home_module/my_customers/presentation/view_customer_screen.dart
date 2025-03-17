@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:mohan_impex/core/widget/app_date_widget.dart';
 import 'package:mohan_impex/core/widget/app_search_bar.dart';
@@ -7,126 +8,64 @@ import 'package:mohan_impex/core/widget/app_text_button.dart';
 import 'package:mohan_impex/core/widget/custom_app_bar.dart';
 import 'package:mohan_impex/core/widget/dotted_divider.dart';
 import 'package:mohan_impex/core/widget/expandable_widget.dart';
+import 'package:mohan_impex/features/home_module/my_customers/riverpod/my_customer_notifier.dart';
+import 'package:mohan_impex/features/home_module/my_customers/riverpod/my_customer_state.dart';
 import 'package:mohan_impex/res/app_asset_paths.dart';
 import 'package:mohan_impex/res/app_colors.dart';
 import 'package:mohan_impex/res/app_fontfamily.dart';
+import 'package:mohan_impex/res/empty_widget.dart';
 
-class ViewCustomerScreen extends StatefulWidget {
-  const ViewCustomerScreen({super.key});
+class ViewCustomerScreen extends ConsumerStatefulWidget {
+  final String id;
+  const ViewCustomerScreen({super.key, required this.id});
 
   @override
-  State<ViewCustomerScreen> createState() => _ViewCustomerScreenState();
+  ConsumerState<ViewCustomerScreen> createState() => _ViewCustomerScreenState();
 }
 
-class _ViewCustomerScreenState extends State<ViewCustomerScreen> {
+class _ViewCustomerScreenState extends ConsumerState<ViewCustomerScreen> {
+
+  @override
+  void initState() {
+    Future.microtask((){
+      callInitFunction();
+    });
+    super.initState();
+  }
+
+  callInitFunction(){
+    final refNotifier = ref.read(myCustomerProvider.notifier);
+    // final refWatch = ref.watch(myCustomerProvider);
+    refNotifier.viewCustomerApiFunction(context, widget.id);
+    refNotifier.ledgerApiFunction(context, widget.id);
+  }
   @override
   Widget build(BuildContext context) {
+      final refState = ref.watch(myCustomerProvider);
+    final refNotifier = ref.read(myCustomerProvider.notifier);
     return Scaffold(
       appBar: customAppBar(title: 'My Customers'),
-      body: SingleChildScrollView(
+      body: (refState.viewMyCustomerModel?.data?[0])!=null? SingleChildScrollView(
         padding: EdgeInsets.only(top: 12,left: 18,right: 18,bottom: 25),
         child: Column(
           children: [
-            _CustomInfoWidget(),
+            _CustomInfoWidget(refState: refState,),
             const SizedBox(height: 15,),
-            _LedgerHistory()
+            ledgerWidget(refNotifier: refNotifier,refState: refState)
           ],
         ),
-      ),
+      ): EmptyWidget(),
     );
   }
-}
 
-
-class _CustomInfoWidget extends StatelessWidget {
-  const _CustomInfoWidget();
-
-  @override
-  Widget build(BuildContext context) {
+  Widget ledgerWidget({required MyCustomerState refState, required MyCustomerNotifier refNotifier}){
     return ExpandableWidget(
       initExpanded: true,
-      collapsedWidget: collapsedWidget(isExpanded: true),
-     expandedWidget: expandedWidget(isExpanded: false));
-  }
-  
-
-  collapsedWidget({required bool isExpanded}){
-    return Container(
-      padding:!isExpanded?EdgeInsets.zero: EdgeInsets.symmetric(horizontal: 15,vertical: 10),
-      decoration: BoxDecoration(
-        color:!isExpanded?null: AppColors.whiteColor,
-        borderRadius: BorderRadius.circular(10),
-        boxShadow:!isExpanded?[]: [
-          BoxShadow(
-            offset: Offset(0, 0),
-            color: AppColors.black.withValues(alpha: .2),
-            blurRadius: 10
-          )
-        ]
-      ),
-      child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              AppText(title: 'Customer Information',fontFamily: AppFontfamily.poppinsSemibold,
-              ),
-            Icon(!isExpanded ? Icons.expand_less : Icons.expand_more,color: AppColors.light92Color,),
-            ],
-          ),
-    );
-  }
-
-   expandedWidget({required bool isExpanded}){
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 15,vertical: 10),
-      decoration: BoxDecoration(
-        color: AppColors.itemsBG,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          collapsedWidget(isExpanded: isExpanded),
-          const SizedBox(height: 9,),
-          dotteDivierWidget(dividerColor: AppColors.edColor,),
-            const SizedBox(height: 6,),
-            itemsWidget("Customer Name", "Ramesh"),
-            const SizedBox(height: 10,),
-            itemsWidget("Shop Name", "Ammas"),
-            const SizedBox(height: 10,),
-            itemsWidget("Contact", "7049234489"),
-            const SizedBox(height: 10,),
-            itemsWidget("Location", "123, Market Street"),
-        ],
-      ),
-    );
+      collapsedWidget: collpasedWidget(context, isExpanded: true,refNotifier: refNotifier,refState: refState), expandedWidget: expandedWidget(context,isExpanded: false,refNotifier: refNotifier,refState: refState));
   }
 
 
-
-
-  Widget itemsWidget(String title, String subTitle){
-    return Row(
-      children: [
-        AppText(title: "$title : ",fontFamily: AppFontfamily.poppinsMedium,),
-        AppText(title: subTitle,
-        fontsize: 13,
-        fontFamily: AppFontfamily.poppinsRegular,color: AppColors.lightTextColor,),
-      ],
-    );
-  }
-}
-
-class _LedgerHistory extends StatelessWidget {
-  const _LedgerHistory();
-
-  @override
-  Widget build(BuildContext context) {
-    return ExpandableWidget(
-      initExpanded: true,
-      collapsedWidget: collpasedWidget(context, isExpanded: true), expandedWidget: expandedWidget(context,isExpanded: false));
-  }
-
-  collpasedWidget(BuildContext context,{required bool isExpanded}){
+  collpasedWidget(BuildContext context,{required bool isExpanded,required MyCustomerState refState, required MyCustomerNotifier refNotifier}){
     return Container(
       padding:!isExpanded?EdgeInsets.zero: EdgeInsets.symmetric(horizontal: 15,vertical: 10),
       decoration: BoxDecoration(
@@ -151,7 +90,8 @@ class _LedgerHistory extends StatelessWidget {
     );
   }
 
-  expandedWidget(BuildContext context, {required bool isExpanded,}){
+  expandedWidget(BuildContext context, {required bool isExpanded,required MyCustomerState refState, required MyCustomerNotifier refNotifier}){
+    var model = refState.viewMyCustomerModel?.data?[0];
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 15,vertical: 10),
       decoration: BoxDecoration(
@@ -161,15 +101,15 @@ class _LedgerHistory extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          collpasedWidget(context, isExpanded: isExpanded),
+          collpasedWidget(context, isExpanded: isExpanded,refNotifier: refNotifier,refState: refState),
             const SizedBox(height: 9,),
           dotteDivierWidget(dividerColor: AppColors.edColor,),
             const SizedBox(height: 15,),
            Row(
             children: [
-              customBalanceContainer("Outstanding Balance", "120000.65"),
+              customBalanceContainer("Outstanding Balance", (model?.outstandingAmt??'').toString()),
               const SizedBox(width: 10,),
-              customBalanceContainer("Last Billing rate", "120000.65"),
+              customBalanceContainer("Last Billing rate", (model?.lastBillingRate??'').toString()),
             ],
            ),
             const SizedBox(height: 15,),
@@ -387,4 +327,86 @@ filterBottomSheet(BuildContext context){
   });
 }
 
+
+}
+
+
+class _CustomInfoWidget extends StatelessWidget {
+  final MyCustomerState refState;
+   _CustomInfoWidget({required this.refState});
+
+  @override
+  Widget build(BuildContext context) {
+    return ExpandableWidget(
+      initExpanded: true,
+      collapsedWidget: collapsedWidget(isExpanded: true),
+     expandedWidget: expandedWidget(isExpanded: false));
+  }
+  
+
+  collapsedWidget({required bool isExpanded}){
+    return Container(
+      padding:!isExpanded?EdgeInsets.zero: EdgeInsets.symmetric(horizontal: 15,vertical: 10),
+      decoration: BoxDecoration(
+        color:!isExpanded?null: AppColors.whiteColor,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow:!isExpanded?[]: [
+          BoxShadow(
+            offset: Offset(0, 0),
+            color: AppColors.black.withValues(alpha: .2),
+            blurRadius: 10
+          )
+        ]
+      ),
+      child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              AppText(title: 'Customer Information',fontFamily: AppFontfamily.poppinsSemibold,
+              ),
+            Icon(!isExpanded ? Icons.expand_less : Icons.expand_more,color: AppColors.light92Color,),
+            ],
+          ),
+    );
+  }
+
+   expandedWidget({required bool isExpanded}){
+    var model = refState.viewMyCustomerModel?.data?[0];
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 15,vertical: 10),
+      decoration: BoxDecoration(
+        color: AppColors.itemsBG,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          collapsedWidget(isExpanded: isExpanded),
+          const SizedBox(height: 9,),
+          dotteDivierWidget(dividerColor: AppColors.edColor,),
+            const SizedBox(height: 6,),
+            itemsWidget("Customer Name", model?.customerName??''),
+            const SizedBox(height: 10,),
+            itemsWidget("Shop Name", model?.shopName??''),
+            const SizedBox(height: 10,),
+            itemsWidget("Contact", model?.contact??''),
+            const SizedBox(height: 10,),
+            itemsWidget("Location",model?.location??''),
+        ],
+      ),
+    );
+  }
+
+
+
+
+  Widget itemsWidget(String title, String subTitle){
+    return Row(
+      children: [
+        AppText(title: "$title : ",fontFamily: AppFontfamily.poppinsMedium,),
+        AppText(title: subTitle,
+        fontsize: 13,
+        fontFamily: AppFontfamily.poppinsRegular,color: AppColors.lightTextColor,),
+      ],
+    );
+  }
 }

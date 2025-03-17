@@ -76,24 +76,13 @@ ScrollController _scrollController = ScrollController();
                 padding: const EdgeInsets.symmetric(horizontal: 17),
                 child: AppSearchBar(
                   hintText: "Search by name, status, etc",
-                  suffixWidget: Container(
-                    alignment: Alignment.center,
-                    width:  60,
-                    child: Row(
-                      children: [
-                        SvgPicture.asset(AppAssetPaths.searchIcon),
-                            Container(
-                          margin: EdgeInsets.symmetric(horizontal: 4),
-                          height: 20,width: 1,color: AppColors.lightBlue62Color.withValues(alpha: .3),
-                        ),
-                         InkWell(
-                          onTap: (){
-                            // filterBottomSheet(context);
-                          },
-                          child: SvgPicture.asset(AppAssetPaths.filterIcon)),
-                      ],
-                    ),
-                  ),
+                  onChanged: refNotifier.onChangedSearch,
+                  controller: refNotifier.searchController,
+                  suffixWidget: Padding(
+                  padding: const EdgeInsets.only(right: 10),
+                  child: SvgPicture.asset(AppAssetPaths.searchIcon),
+                ),
+                        
                 ),
               ),
               const SizedBox(height: 16,),

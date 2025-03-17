@@ -9,7 +9,7 @@ import 'package:mohan_impex/core/widget/app_text_field/app_textfield.dart';
 import 'package:mohan_impex/core/widget/custom_app_bar.dart';
 import 'package:mohan_impex/core/widget/date_picker_bottom_sheet.dart';
 import 'package:mohan_impex/features/common_widgets/remarks_widgets.dart';
-import 'package:mohan_impex/features/home_module/custom_visit/model/item_model.dart';
+import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit/model/item_model.dart';
 import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit/widgets/add_remove_container_widget.dart';
 import 'package:mohan_impex/features/home_module/requisitions/sample_requisitions/riverpod/sample_notifier.dart';
 import 'package:mohan_impex/features/home_module/requisitions/sample_requisitions/riverpod/sample_state.dart';
@@ -17,6 +17,7 @@ import 'package:mohan_impex/res/app_asset_paths.dart';
 import 'package:mohan_impex/res/app_colors.dart';
 import 'package:mohan_impex/res/app_fontfamily.dart';
 import 'package:mohan_impex/utils/app_date_format.dart';
+import 'package:mohan_impex/utils/message_helper.dart';
 
 import '../../../../../res/no_data_found_widget.dart';
 
@@ -407,6 +408,15 @@ class _AddSampleRequisitionsScreenState
                                   )),
                                   InkWell(
                                     onTap: () {
+                                        bool isMatchingItemFound =
+                                         refNotifier.selectedItem.any((selectedValue) {
+                                        return model?.itemCode ==
+                                            selectedValue.itemCode ? true : false;
+                                      });
+                                      if(isMatchingItemFound){
+                                      MessageHelper.showToast("Already added");
+                                      }
+                                       else{
                                       if (model?.isSelected == false) {
                                         model?.isSelected = true;
                                         refNotifier.selectedItem.add(model!);
@@ -421,6 +431,7 @@ class _AddSampleRequisitionsScreenState
                                           }
                                         }
                                       }
+                                       }
                                       setState(() {
                                         
                                       });

@@ -17,6 +17,8 @@ class CollateralsRequestNotifier extends StateNotifier<CollateralsRequestState> 
   updateLoading(bool value) {
     state = state.copyWith(isLoading: value);
   }
+
+  final searchController =TextEditingController();
   
 String  selectedValues = '';
 String selectedTabbar = "Approved";
@@ -34,6 +36,7 @@ List<MaterialItems> selectedItem = [];
 resetValues(){
   searchText='';
   selectedTabbar = "Approved";
+  searchController.clear();
  state = state.copyWith(tabBarIndex: 0);
 }
 
@@ -74,19 +77,9 @@ onChangedMaterial(val){
 }
 
 updateFilterValues({required String date, required String type}){
+  resetPageCount();
   filterStatusValue = type;
   filterDateValue=date;
-}
-
-onChangedSearch(String val){
-  if(val.isEmpty){
-    searchText = '';
-    // sampleRequisitionsListApiFunction();
-  }
-  else{
-    searchText = val;
-    // sampleRequisitionsListApiFunction();
-  }
 }
 
 
@@ -122,11 +115,32 @@ resetPageCount(){
 }
 
   updateTabBarIndex(val){
+      selectedTabbar = val==0?"Approved":"Pending";
+      if(state.tabBarIndex !=val){
+      resetFilter();
+      searchText = '';
+      searchController.clear();
+      collateralListApiFunction();
+    }
     state = state.copyWith(tabBarIndex: val);
     state = state.copyWith(page: 1);
-    selectedTabbar = val==0?"Approved":"Pending";
+  
     collateralListApiFunction();
   }
+
+  onChangedSearch(String val){
+  if(val.isEmpty){
+    searchText = '';
+     resetPageCount();
+     collateralListApiFunction();
+  }
+  else{
+    print('sdfd..$val');
+    searchText = val;
+     resetPageCount();
+    collateralListApiFunction();
+  }
+}
 
 
 increasePageCount(){
@@ -145,7 +159,7 @@ increasePageCount(){
         state = state.copyWith(page: 1);
       }
     }
-  final response= await ApiService().makeRequest(apiUrl: "${ApiUrls.collateralRequestListUrl}?tab=$selectedTabbar&limit=5&current_page=${state.page}", method: ApiMethod.get.name,);
+  final response= await ApiService().makeRequest(apiUrl: "${ApiUrls.collateralRequestListUrl}?tab=$selectedTabbar&limit=10&current_page=${state.page}&search_text=$searchText", method: ApiMethod.get.name,);
   updateLoading(false);
   if (!isLoadMore) {
     } else {

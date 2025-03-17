@@ -6,12 +6,19 @@ import 'package:riverpod/riverpod.dart';
 class PriceListState {
   final bool isLoading;
   PriceListModel? priceListModel;
-  PriceListState({required this.isLoading, this.priceListModel});
+  int currentPage;
+  bool isLoadingMore;
+  PriceListState({required this.isLoading, this.priceListModel,this.currentPage = 1, this.isLoadingMore=false});
 
-  PriceListState copyWith({  bool? isLoading, PriceListModel? priceListModel}) {
+  PriceListState copyWith({  bool? isLoading, PriceListModel? priceListModel,
+  int? currentPage,
+  bool? isLoadingMore
+  }) {
     return PriceListState(
       isLoading: isLoading??this.isLoading,
-      priceListModel: priceListModel??this.priceListModel
+      priceListModel: priceListModel??this.priceListModel,
+      currentPage: currentPage??this.currentPage,
+      isLoadingMore: isLoadingMore??this.isLoadingMore
     );
   }
 }

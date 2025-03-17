@@ -12,6 +12,17 @@ class AppConstants {
   static const specialReport = "special report";
 
 
+static List verificationTypeList = ["Verified", "Unverified"];
+
+static List visitTypeList = ["Primary","Secondary"];
+static List trailTypeList = ['Product','Item'];
+static List conductByList = ["Self","TSM Required"];
+static List triaLocList = ["On Site","R&D Lab"];
+static List customerType = ["New", "Existing"];
+static List companyTypeList = ['Company','Individual', 'Partnership'];
+static List businessList = ["Registered","UnRegistered"];
+static List customerCategoryList = ['Domestic','International'];
+static List segmentList = ['Lower Income','Middle Income','Upper Income'];
 
   /// local storage keys
   static const FCM_TOKEN  = "FCM_TOKEN";

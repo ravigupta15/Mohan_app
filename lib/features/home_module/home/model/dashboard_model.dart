@@ -103,18 +103,21 @@ class ScoreDashboard {
 class Dashboard {
   dynamic name;
   dynamic url;
+  dynamic imgUrl;
 
-  Dashboard({this.name, this.url});
+  Dashboard({this.name, this.url, this.imgUrl});
 
   Dashboard.fromJson(Map<String, dynamic> json) {
     name = json['name'] ?? "";
     url = json['url'] ?? "";
+    imgUrl = json['image_url'] ?? "";
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['name'] = name ;
     data['url'] = url;
+    data['image_url'] = imgUrl;
     return data;
   }
 }

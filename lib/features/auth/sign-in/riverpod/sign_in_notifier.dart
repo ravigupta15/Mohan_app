@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:mohan_impex/api_config/api_urls.dart';
 import 'package:mohan_impex/data/datasources/local_share_preference.dart';
 import 'package:mohan_impex/features/app_navigation/pages/app_navigation_screen.dart';
-import 'package:mohan_impex/features/auth/otp_verification/pages/otp_verification_screen.dart';
 import 'package:mohan_impex/features/auth/sign-in/model/sign_in_response_model.dart';
 import 'package:mohan_impex/features/auth/sign-in/riverpod/sign_in_state.dart';
 import 'package:mohan_impex/res/app_router.dart';
@@ -94,6 +93,8 @@ callApiFunction()async{
   final response = await ApiService().makeRequest(apiUrl: ApiUrls.loginUrl, method: ApiMethod.post.name,data:data);
    updateLoading(false);
    if(response!=null){
+    emailController.clear();
+    passwordController.clear();
     LoginResponseModel model = LoginResponseModel.fromJson(response.data);
     LocalSharePreference.setToken = model.data[0].accessToken;
     LocalSharePreference.setEmpId = model.data[0].employeeId;

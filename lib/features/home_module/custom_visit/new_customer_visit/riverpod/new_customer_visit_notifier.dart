@@ -7,13 +7,21 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mohan_impex/api_config/api_service.dart';
 import 'package:mohan_impex/api_config/api_urls.dart';
+import 'package:mohan_impex/core/services/location_service.dart';
 import 'package:mohan_impex/data/datasources/local_share_preference.dart';
-import 'package:mohan_impex/features/home_module/custom_visit/model/competitor_model.dart';
-import 'package:mohan_impex/features/home_module/custom_visit/model/customer_info_model.dart';
-import 'package:mohan_impex/features/home_module/custom_visit/model/item_model.dart';
-import 'package:mohan_impex/features/home_module/custom_visit/model/product_item_model.dart';
-import 'package:mohan_impex/features/home_module/custom_visit/model/product_model.dart';
+import 'package:mohan_impex/features/home_module/custom_visit/model/view_visit_model.dart';
+import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit/model/api_response_model/create_order_response_model.dart';
+import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit/model/competitor_model.dart';
+import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit/model/customer_info_model.dart';
+import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit/model/item_model.dart';
+import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit/model/product_item_model.dart';
+import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit/model/product_model.dart';
+import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit/model/unv_customer_model.dart';
+import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit/presentation/book_trial_success_screen.dart';
 import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit/riverpod/new_customer_visit_state.dart';
+import 'package:mohan_impex/features/home_module/requisitions/journey_plan/model/district_model.dart';
+import 'package:mohan_impex/features/home_module/requisitions/journey_plan/model/state_model.dart';
+import 'package:mohan_impex/res/app_router.dart';
 import 'package:mohan_impex/res/loader/show_loader.dart';
 import 'package:mohan_impex/utils/logout_helper.dart';
 import 'package:mohan_impex/utils/message_helper.dart';
@@ -24,9 +32,24 @@ import 'package:http/http.dart' as http;
 class NewCustomerVisitNotifier extends StateNotifier<NewCustomerVisitState> {
   NewCustomerVisitNotifier() : super(NewCustomerVisitState(isLoading: false,tabBarIndex: 0, currentTimer: 0,
   selectedCustomerType: 0,selectedVisitType: 0,customerName: '',shopName: '',addQuantity: 0, captureImageList: [1],
-  uploadedImageList: [],channelList: [],selectedProductList: [],contactNumberList: [],selectedExistingCustomer:'' ));
+  uploadedImageList: [],channelList: [],selectedProductList: [],contactNumberList: [] ));
+
+/// trial product
+String trialType = '';
+String trialConductType = '';
+List trailItems = [];
+
 
 Timer? timer;
+ String? selectedDistrictValue;
+  String? selectedStateValue;
+  String selectedUNVCustomer = '';
+  String? selectedVerificationType;
+  String selectedExistingCustomer = '';
+ bool isReadOnlyFields = false;
+
+ 
+  int selectedProductCategoryIndex= 0;
 
 final customerNameController = TextEditingController();
 final shopNameController = TextEditingController();
@@ -35,6 +58,19 @@ final channelPartnerController = TextEditingController();
 final remarksController  = TextEditingController();
  final searchController = TextEditingController();
  final bookAppointmentController = TextEditingController();
+ final verfiyTypeController = TextEditingController();
+
+ String verifiedCustomerLocation = '';
+
+ ///
+ String unvName = '';
+ final addressTypeController = TextEditingController();
+ final address1Controller = TextEditingController();
+ final address2Controller = TextEditingController();
+ final districtController = TextEditingController();
+ final stateController = TextEditingController();
+ final pincodeController = TextEditingController();
+
 
 final formKey = GlobalKey<FormState>();
 
@@ -45,18 +81,69 @@ updateLoading(bool isLoading){
 
  resetValues(){
   timer?.cancel();
-  state = state.copyWith(currentTimer: 0,selectedCustomerType: 0,selectedVisitType: 0,tabBarIndex: 0,captureImageList: [1],addQuantity: 0,customerName: '',isLoading: false,shopName: '',productTrial: 0,selectedProductList: [],channelList: [],competitorModel: null,customerInfoModel: null,itemModel: null,uploadedImageList: [],contactNumberList: [],selectedExistingCustomer:'',channelParterName: '',productModel: null);
+  state = state.copyWith(currentTimer: 0,selectedCustomerType: 0,selectedVisitType: 0,tabBarIndex: 0,captureImageList: [1],addQuantity: 0,customerName: '',isLoading: false,shopName: '',productTrial: 0,selectedProductList: [],channelList: [],competitorModel: null,customerInfoModel: null,itemModel: null,uploadedImageList: [],contactNumberList: [],channelParterName: '',productModel: null,
+  visitEndLatitude: '',visitEndLetitude: '',visitStartLatitude: '',visitStartLetitude: ''
+  
+  );
+  resetControllers();
+  selectedDistrictValue =null;
+  selectedStateValue= null;
+  isReadOnlyFields=false;
+  selectedUNVCustomer = '';
+  verifiedCustomerLocation = '';
+ selectedExistingCustomer = '';
+ trailItems = [];
+ trialConductType = '';
+ trialType = '';
+ }
+
+ resetControllers(){
+  state = state.copyWith(customerInfoModel: null,unvCustomerModel: null);
+  verifiedCustomerLocation = '';
+  unvName = '';
+  selectedVerificationType = null;
+  customerNameController.clear();
+  shopNameController.clear();
+  numberController.clear();
+  verfiyTypeController.clear();
+  searchController.clear();
+  channelPartnerController.clear();
+  bookAppointmentController.clear();
+  address1Controller.clear();
+  address2Controller.clear();
+  districtController.clear();
+  stateController.clear();
+  addressTypeController.clear();
+  pincodeController.clear();
+  addressTypeController.clear();
+  verfiyTypeController.clear();
+  remarksController.clear();
+ }
+
+ resetControllersWhenSwitchCustomType(){
+  state = state.copyWith(customerInfoModel: null,unvCustomerModel: null,contactNumberList: [],);
+  selectedProductCategoryIndex = 0;
   customerNameController.clear();
   shopNameController.clear();
   numberController.clear();
   searchController.clear();
-  channelPartnerController.clear();
+  // channelPartnerController.clear();
   bookAppointmentController.clear();
-
+  address1Controller.clear();
+  address2Controller.clear();
+  districtController.clear();
+  stateController.clear();
+  addressTypeController.clear();
+  pincodeController.clear();
+  addressTypeController.clear();
  }
 
  updateCustomerType(int index){
-  state = state.copyWith(selectedCustomerType: index);
+  if(index ==0 && state.selectedCustomerType ==1){
+    selectedVerificationType = null;
+    resetControllersWhenSwitchCustomType();
+  }
+  state = state.copyWith(selectedCustomerType: index); 
  }
 
  updateVisitType(int index){
@@ -80,6 +167,26 @@ timer = Timer.periodic(Duration(seconds: 1), (val){
   });
 }
 
+  onChangedState(BuildContext context, val) {
+    stateController.text = val;
+    districtApiFunction(context, stateText: val);
+  }
+
+  onChangedDistrict(val) {
+    districtController.text = val;
+  }
+
+  onChangedVerificationType(val){ 
+    verfiyTypeController.text = val;
+    selectedVerificationType = val;
+    resetControllersWhenSwitchCustomType();
+    if(val.toString().toLowerCase()=="verified"){
+    }
+    else{
+    }
+  }
+
+
 checkRegistrationValidation(){
   if(formKey.currentState!.validate()){
     if(state.contactNumberList.isEmpty){
@@ -90,7 +197,10 @@ checkRegistrationValidation(){
 }
 
 checkSalesPitchValidation(BuildContext context){
-   if(remarksController.text.isEmpty){
+  if(state.selectedProductList.isEmpty){
+    MessageHelper.showErrorSnackBar(context, "Please add your products");
+  }
+   else if(remarksController.text.isEmpty){
     MessageHelper.showErrorSnackBar(context, "Please add your remarks");
   }
   else{
@@ -99,20 +209,21 @@ checkSalesPitchValidation(BuildContext context){
 }
 
 checkOverViewValidation(BuildContext context,{required String actionType}){
-  // if(state.selectedProductList.isEmpty){
-  //   MessageHelper.showToast("Please add your product");
-  // }
-   if(bookAppointmentController.text.isEmpty){
-    MessageHelper.showToast("Please select appointment date");
+  LocationService().startLocationUpdates().then((val){
+    state = state.copyWith(visitEndLatitude: val.latitude.toString(),visitEndLetitude: val.longitude.toString());
+  });
+  if(state.selectedProductList.isEmpty){
+    MessageHelper.showErrorSnackBar(context,"Please add your product");
   }
   else if(state.uploadedImageList.isEmpty){
-    MessageHelper.showToast( "Please upload the image");
+    MessageHelper.showErrorSnackBar(context, "Please upload the image");
   }
   else if(state.productTrial==0){
-    MessageHelper.showToast("Please select product trial type");
+    MessageHelper.showErrorSnackBar(context,"Please select product trial type");
   }
   else{
-    createProductApiFunction(actionType: actionType);
+    // locationValidationApiFunction(context);
+    createProductApiFunction(context, actionType: actionType);
   }
 }
 
@@ -130,6 +241,75 @@ saveUploadedImge(value){
   state = state.copyWith(uploadedImageList: [...state.uploadedImageList, value]);
 }
 
+
+convertInSelectproductedListFromResume(VisitItemsModel model){
+  List<ProductSendModel> modelList = model.productPitching!.map((e) {
+  return ProductSendModel(
+    productType: e.product,
+    list: e.item!.map((item) {
+      return ProductItem(
+        item.competitor ??'',
+        item.qty,
+        true,
+        item.itemCategory ?? '',
+        item.product ?? '',
+        item.name,
+        item.itemCode,
+      );
+    }).toList(),
+  );
+}).toList();
+return modelList;
+}
+
+setResumeData(BuildContext context, VisitItemsModel model){ 
+  List contactList = (model.contact??[]).map((e)=>e.contact).toList();
+    state = state.copyWith(tabBarIndex: 2,
+    currentTimer: double.parse(model.visitDuration.toString()).round(),
+    selectedCustomerType: model.customerType.toString().toLowerCase() == "new"? 0: 1,
+    visitStartDate: model.visitStart,
+    channelParterName:  model.channelPartner,
+    captureImageList: model.imageUrl,
+    selectedVisitType: model.customerLevel.toString().toLowerCase() == "primary"?0:1,
+    selectedProductList: convertInSelectproductedListFromResume(model),
+    dealTypeValue: int.parse((model.dealType ?? '0').toString()),
+    contactNumberList: contactList,
+    hasProductTrial: model.hasTrialPlan
+    );
+     
+    selectedExistingCustomer = model.customer ?? '';
+    verifiedCustomerLocation = model.location ?? '';
+    selectedVerificationType = model.verificType ?? '';
+    trialConductType = model.conductBy ?? '';
+    trialType  = model.trialType ?? '';
+    trailItems = model.itemTrial ?? [];
+
+    
+
+    customerNameController.text = model.customerName ?? '';
+    shopNameController.text = model.shopName ?? '';
+    addressTypeController.text = model.addressTitle?? '';
+    address1Controller.text = model.addressLine1 ?? '';
+    address2Controller.text = model.addressLine2 ?? '';
+    pincodeController.text = model.pincode ?? '';
+    channelPartnerController.text = model.channelPartner ?? '';
+    verfiyTypeController.text = model.verificType ?? '';
+
+    remarksController.text = model.remarksnotes ?? '';
+    bookAppointmentController.text = model.appointmentDate ?? '';
+    districtController.text = model.district ?? '';
+    numberController.text = model.contact?[0].contact;
+    stateController.text = model.state ?? '';
+    stateApiFunction(context);
+    if((model.state ?? '').isNotEmpty){
+      selectedStateValue = model.state;
+      districtApiFunction(context, stateText: model.state);
+      selectedDistrictValue = model.district;
+    }
+    
+    
+    startTimer();
+}
 
 imageUploadApiFunction(BuildContext context, File imgFile)async{
   print(imgFile);
@@ -160,9 +340,6 @@ imageUploadApiFunction(BuildContext context, File imgFile)async{
     }
   }
 
-
-
-
 channelListApiFunction(String searchText,)async{ 
   final response = await ApiService().makeRequest(apiUrl: "${ApiUrls.channelPartnerurl}?search_text=$searchText", method: ApiMethod.get.name);
   if(response!=null){
@@ -170,29 +347,48 @@ channelListApiFunction(String searchText,)async{
   }
 }
 
-customerInfoApiFunction(String searchText)async{ 
-  final response = await ApiService().makeRequest(apiUrl: "${ApiUrls.getCustomerurl}?search_text=$searchText", method: ApiMethod.get.name);
+customerInfoApiFunction({required String searchText, String channelPartern = '', String visitType = ''})async{ 
+  final response = await ApiService().makeRequest(apiUrl: "${ApiUrls.getCustomerurl}?search_text=$searchText&customer_level=$visitType&channel_partner=$channelPartern", method: ApiMethod.get.name);
   if(response!=null){
     state = state.copyWith(customerInfoModel: CustomerInfoModel.fromJson(response.data));
   }
 }
 
+unvCustomerApiFunction(String searchText)async{
+  state = state.copyWith(unvCustomerModel: null);
+   final response = await ApiService().makeRequest(apiUrl: "${ApiUrls.unvCustomerUrl}?search_text=$searchText", method: ApiMethod.get.name);
+  if(response!=null){
+    state = state.copyWith(unvCustomerModel: UNVCustomerModel.fromJson(response.data));
+  }
+}
+
+Future customerAddressApiFunction(BuildContext context, String searchText)async{
+  ShowLoader.loader(context);
+   final response = await ApiService().makeRequest(apiUrl: "${ApiUrls.getCustomerAddressUrl}?customer=$searchText", method: ApiMethod.get.name);
+   ShowLoader.hideLoader();
+  if(response!=null){
+    return response.data;
+  }
+}
+
 productApiFunction(String searchText)async{
-  // state = state.copyWith(productModel: null);
-  final response = await ApiService().makeRequest(apiUrl: '${ApiUrls.productUrl}?fields=["product_name"]&filters=[["product_name", "like", "%$searchText%"]]', method:ApiMethod.get.name);
+  state = state.copyWith(productModel: null);
+  final response = await ApiService().makeRequest(apiUrl: '${ApiUrls.productUrl}?search_text=$searchText', method:ApiMethod.get.name);
   if(response!=null){
    state = state.copyWith(productModel: ProductModel.fromJson(response.data));
    print(state.productModel?.data);
   } 
 }
 
-productItemApiFunction(BuildContext context, {required String productItem})async{
-  state = state.copyWith(productItem: null);
+Future productItemApiFunction(BuildContext context, {required String productTitle,  String itemCategory = "MP"})async{
+  state = state.copyWith(productItemModel: null);
   ShowLoader.loader(context);
-  final response = await ApiService().makeRequest(apiUrl: '${ApiUrls.productUrl}?product=$productItem', method:ApiMethod.get.name);
+  final response = await ApiService().makeRequest(apiUrl: '${ApiUrls.productItemUrl}?product=$productTitle&item_category=$itemCategory', method:ApiMethod.get.name);
   ShowLoader.hideLoader();
   if(response!=null){
-   state = state.copyWith(productItem: ProductItem.fromJson(response.data));
+   state = state.copyWith(productItemModel: ProductItemModel.fromJson(response.data));
+   print("dsfcsd..${state.productItemModel?.data}");
+   return response.data;
   } 
 }
 
@@ -205,16 +401,14 @@ competitorApiFunction(BuildContext context)async{
   }
 }
 
-
 Future itemsApiFunction(BuildContext context, String searchText)async{ 
   ShowLoader.loader(context);
   state = state.copyWith(itemModel: null);
   final response = await ApiService().makeRequest(apiUrl: '${ApiUrls.itemListUrl}?fields=["item_code", "item_name","item_category", "competitor"]&filters=[["item_name", "like", "%$searchText%"]]', method: ApiMethod.get.name);
   ShowLoader.hideLoader();
   if(response!=null){
-    print(response.data);
     state = state.copyWith(itemModel: ItemModel.fromJson(response.data));
-    return response;
+    return response.data;
   }
   else{
     state = state.copyWith(itemModel: null);
@@ -222,59 +416,123 @@ Future itemsApiFunction(BuildContext context, String searchText)async{
   return response?.data;
 }
 
-// shopApiFunction(BuildContext context)async{ 
-//   ShowLoader.loader(context);
-//   final response = await ApiService().makeRequest(apiUrl: ApiUrls.shopUrl, method: ApiMethod.get.name);
-//   ShowLoader.hideLoader();
-//   if(response!=null){
-//     // state = state.copyWith(competitorModel: CompetitorModel.fromJson(response.data));
-//   }
-// }
+updatehasProductTrial(int val){
+  state = state.copyWith(hasProductTrial: val);
+} 
+
+void detailsBack(List list){
+  print("list...$list");
+  trialType = list[0];
+  trialConductType = list[1];
+  trailItems = list[2];
+}
 
 
-createProductApiFunction({required String actionType})async{
+createProductApiFunction(BuildContext context, {required String actionType})async{
+  ShowLoader.loader(context);
+  List<Map<String, dynamic>> formattedData = state.selectedProductList.map((e) {
+  return e.list.map((items) {
+    return {
+      "product": e.productType, 
+      "item_name": items.name ?? '',
+      "item_code":items.itemCode??'',
+      "item_category": items.productCategory,
+      "competitor": items.seletedCompetitor, 
+      "qty": items.quantity, 
+    };
+  }).toList(); 
+}).expand((x) => x).toList(); 
 final body = {
    "action": actionType, //Draft or Submit
-    "is_new_customer": state.selectedCustomerType==0? 1: 0,
+    "customer_type": state.selectedCustomerType ==0 ? "New":"Existing",
     "customer_level": state.selectedVisitType==0? "Primary":"Secondary",
+    "verific_type": verfiyTypeController.text.isEmpty? "Unverified":verfiyTypeController.text,
     "channel_partner":state.channelParterName,
-    "customer": state.selectedExistingCustomer,
+    "unv_customer_name": state.selectedCustomerType ==0? customerNameController.text : "",
+    "customer": selectedExistingCustomer,
     "customer_name": customerNameController.text,
     "deal_type":state.dealTypeValue, //1 to 5
-    "lead_priority": "Hot",
-    "has_product_trial": state.hasProductTrial, //1 or 0
+    "has_product_trial": state.productTrial == 1? state.hasProductTrial : 0, //1 or 0
     "shop_name": shopNameController.text,
     "contact": state.contactNumberList.map((e){
       return {"contact": e.toString()};
     }).toList(),
-    "appointment_date": bookAppointmentController.text,
+    "location": verfiyTypeController.text.toLowerCase() =='verified'?verifiedCustomerLocation: LocalSharePreference.currentAddress ,
+    "address_title": addressTypeController.text,
+    "address_line1": address1Controller.text,
+    "address_line2": address2Controller.text,
+    "district": districtController.text,
+    "state": stateController.text,
+    "pincode":pincodeController.text,
+    // "appointment_date": bookAppointmentController.text,
     "latitude":LocalSharePreference.currentLatitude,
     "longitude": LocalSharePreference.currentLongitude,
     "remarksnotes": remarksController.text,
     "visit_start": state.visitStartDate,
     "visit_end": DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now()).toString(),
     "visit_duration": state.currentTimer,
-    "product_trial": [ //if product trial
-        {
-            "item": "Maggie"
-        }
-    ],
-    "product_pitching": [
-        {
-            "product": "Bread",
-            "item": "Noodles",
-            "product_category": "BP",
-            "competitor": "",
-            "qty": 1
-        }
-    ],
-    // "captured_images": state.captureImageList
+    "product_trial": state.productTrial == 1 && trialType.toLowerCase() == 'product' ? trailItems : [],
+    "item_trial":state.productTrial == 1 && trialType.toLowerCase() == 'item' ? trailItems:[] , // if trial plan is item,
+    "conduct_by":state.productTrial == 1 ? trialConductType : '', // if trial plan,
+    "trial_type": state.productTrial == 1 ? trialType : '', // if trial plan,
+    "product_pitching": formattedData,
+    "captured_images": state.uploadedImageList
 };
+// print(body);
+log(json.encode(body));
 
 final response = await ApiService().makeRequest(apiUrl: ApiUrls.createCVMurl, method: ApiMethod.post.name,data: body);
+ShowLoader.hideLoader();
 if(response!=null){
-
+  CreateOrderResponseModel model = CreateOrderResponseModel.fromJson(response.data);
+  AppRouter.pushCupertinoNavigation( BookTrialSuccessScreen(id: model.data?[0].cvm??'',));
 }
 }
 
+
+ stateApiFunction(BuildContext context, { String searchText =''})async{
+  state = state.copyWith(stateModel: null);
+    ShowLoader.loader(context);
+    final response =await ApiService().makeRequest(apiUrl: '${ApiUrls.stateUrl}/?filters=[["state", "like", "%$searchText%"]]&limit=100', method: ApiMethod.get.name);
+    ShowLoader.hideLoader();
+    if(response!=null){
+      var model =  StateModel.fromJson(response.data);
+    state = state.copyWith(stateModel:model);
+    }
+  }
+
+  districtApiFunction(BuildContext context,{required String stateText})async{
+    state = state.copyWith(districtModel: null);
+  ShowLoader.loader(context);
+    final response =await ApiService().makeRequest(apiUrl: '${ApiUrls.districtUrl}/?fields=["district", "state"]&filters=[["district", "like", "%%"], ["state", "=", "$stateText"]]&limit=100', method: ApiMethod.get.name);
+    ShowLoader.hideLoader();
+    if(response!=null){
+     state = state.copyWith(districtModel: DistrictModel.fromJson(response.data));
+    }
+    
+  }
+
+
+convertToOrderApiFunction(BuildContext context, String id)async{
+  ShowLoader.loader(context);
+  final body = {
+    "cvm_id":id
+  };
+  final response = await ApiService().makeRequest(apiUrl: ApiUrls.convertToOrderUrl, method: ApiMethod.post.name,data: body);
+  ShowLoader.hideLoader();
+  if(response!=null){
+    MessageHelper.showSuccessSnackBar(context, response.data['message']);
+        Navigator.pop(context);
+         Navigator.pop(context,true);
+  }
+}
+
+locationValidationApiFunction(BuildContext context)async{
+  ShowLoader.loader(context);
+  final response = await ApiService().makeRequest(apiUrl: "${ApiUrls.locationValidationurl}?destination=${state.visitStartLatitude}, ${state.visitStartLetitude}&origin=${state.visitEndLatitude}, ${state.visitEndLetitude}", method: ApiMethod.get.name);
+ ShowLoader.hideLoader();
+  if(response!=null){
+
+  }
+}
 }

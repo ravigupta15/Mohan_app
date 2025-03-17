@@ -6,12 +6,16 @@ import 'package:riverpod/riverpod.dart';
 class SchemesState {
   final bool isLoading;
   SchemeModel? schemeModel;
-  SchemesState({required this.isLoading, this.schemeModel});
+  int currentPage;
+  bool isLoadingMore;
+  SchemesState({required this.isLoading, this.schemeModel, this.currentPage=1, this.isLoadingMore=false});
 
-  SchemesState copyWith({  bool? isLoading, SchemeModel? schemeModel}) {
+  SchemesState copyWith({  bool? isLoading, SchemeModel? schemeModel, bool? isLoadingMore, int? currentPage}) {
     return SchemesState(
       isLoading: isLoading??this.isLoading,
-      schemeModel: schemeModel??this.schemeModel
+      schemeModel: schemeModel??this.schemeModel,
+      currentPage: currentPage ?? this.currentPage,
+      isLoadingMore: isLoadingMore ?? this.isLoadingMore
     );
   }
 }

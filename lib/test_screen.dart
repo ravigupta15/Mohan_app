@@ -17,8 +17,126 @@ class _TestScreenState extends State<TestScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold();
+    return MyTabBarPage();
   }
-  double _sliderValue = 0.5;  // Start at medium (0.5)
+  }
 
+  class MyTabBarPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        title: Text("Invoice"),
+      ),
+      body:DefaultTabController(
+        length: 2,
+        child: NestedScrollView(
+          headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+            return [
+              SliverAppBar(
+                expandedHeight: 350.0,
+                backgroundColor: Colors.white,
+                floating: true,
+                // snap: false,
+                
+                // pinned: true,
+                flexibleSpace: FlexibleSpaceBar(
+                  // title: Text("Top Container"),
+                  background: Container(
+                    // color: Colors.red,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Container(
+                            color: Colors.yellow,
+                            width: double.infinity,
+                            height: 40.0,
+                            child: Center(child: Text('Widget 1', style: TextStyle(color: Colors.white))),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Container(
+                            color: Colors.yellow,
+                            width: double.infinity,
+                            height: 40.0,
+                            child: Center(child: Text('Widget 2', style: TextStyle(color: Colors.white))),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Container(
+                            color: Colors.yellow,
+                            width: double.infinity,
+                            height: 40.0,
+                            child: Center(child: Text('Widget 3', style: TextStyle(color: Colors.white))),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Container(
+                            color: Colors.yellow,
+                            width: double.infinity,
+                            height: 40.0,
+                            child: Center(child: Text('Widget 4', style: TextStyle(color: Colors.white))),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Container(
+                            color: Colors.yellow,
+                            width: double.infinity,
+                            height: 40.0,
+                            child: Center(child: Text('Widget 5', style: TextStyle(color: Colors.white))),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // background: Container(color: Colors.blue),
+                ),
+                
+                bottom: PreferredSize(
+                    preferredSize: Size.fromHeight(48.0), // TabBar height
+                  child: Padding(
+                padding: EdgeInsets.only(top: 10),
+                  child: TabBar(
+                    padding: EdgeInsets.only(top: 20),
+                    dividerHeight: 0,
+                    tabs: [
+                      Tab(child: Text("Tab 1")),
+                      Tab(child: Text("Tab 2")),
+                    ],
+                  ),
+                ),
+                )
+              ),
+            ];
+          },
+          body: TabBarView(
+            children: [
+              DynamicHeightContainer(),
+              DynamicHeightContainer(),
+            ],
+          ),
+        ),
+      ),);}
+}
+
+class DynamicHeightContainer extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemCount: 50,
+      // physics: const ScrollAction(),
+      itemBuilder: (context, index) {
+        return ListTile(
+          title: Text('Item ${index + 1}'),
+        );
+      },
+    );
   }
+}
