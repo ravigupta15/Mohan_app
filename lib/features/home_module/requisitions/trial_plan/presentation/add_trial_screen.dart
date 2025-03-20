@@ -14,6 +14,7 @@ import 'package:mohan_impex/core/widget/app_text_button.dart';
 import 'package:mohan_impex/core/widget/app_text_field/app_textfield.dart';
 import 'package:mohan_impex/core/widget/app_text_field/custom_drop_down.dart';
 import 'package:mohan_impex/core/widget/custom_app_bar.dart';
+import 'package:mohan_impex/core/widget/custom_checkbox.dart';
 import 'package:mohan_impex/core/widget/custom_radio_button.dart';
 import 'package:mohan_impex/core/widget/date_picker_bottom_sheet.dart';
 import 'package:mohan_impex/features/common_widgets/remarks_widgets.dart';
@@ -21,7 +22,6 @@ import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit
 import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit/model/customer_info_model.dart';
 import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit/model/item_model.dart';
 import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit/model/product_model.dart';
-import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit/model/unv_customer_model.dart';
 import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit/riverpod/new_customer_visit_notifier.dart';
 import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit/riverpod/new_customer_visit_state.dart';
 import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit/widgets/customer_information_widget.dart';
@@ -45,7 +45,7 @@ class AddTrialScreen extends ConsumerStatefulWidget {
   final NewCustomerVisitState? refState;
   final String route;
   Function(List)?onDetails;
-   AddTrialScreen({super.key, required this.route, this.refNotifer, this.refState,this.onDetails});
+   AddTrialScreen({super.key,  this.route = '', this.refNotifer, this.refState,this.onDetails});
 
   @override
   ConsumerState<AddTrialScreen> createState() => _AddTrialScreenState();
@@ -58,6 +58,7 @@ class _AddTrialScreenState extends ConsumerState<AddTrialScreen> with AppValidat
  DateTime? selectedDate;
 ItemModel?itemModel;
 ProductModel? productModel;
+String itemTemplate = '';
 
  @override
   void initState() {
@@ -69,8 +70,7 @@ ProductModel? productModel;
 callInitFunction() {
     final refNotifier = ref.read(addTrialPlanProvider.notifier);
     refNotifier.resetAddTrialValues();
-    refNotifier.stateApiFunction(context);
-    itemsApiFunction(context, '');
+    itemsApiFunction(context, searchText: '',);
     productApiFunction('');
     if(widget.route == 'visit'){
       fromProduct();
@@ -82,7 +82,6 @@ callInitFunction() {
 
   fromProduct(){
     final trialPlanNotifier = ref.read(addTrialPlanProvider.notifier);
-    final trialPlanState = ref.watch(addTrialPlanProvider);
     final newVisitNotifier = ref.read(newCustomVisitProvider.notifier);
     final newVisitState = ref.watch(newCustomVisitProvider);
     if(widget.route == 'visit'){
@@ -91,9 +90,9 @@ callInitFunction() {
     trialPlanNotifier.businessNameController.text = newVisitNotifier.shopNameController.text;
     trialPlanNotifier.verifiedCustomerLocation = AppConstants.customerType[newVisitState.selectedCustomerType] == "new"? '' : newVisitNotifier.verifiedCustomerLocation;
     trialPlanNotifier.customer = newVisitNotifier.selectedExistingCustomer;
-    trialPlanState.unvName = newVisitNotifier.unvName;
+    // trialPlanState.unvName = newVisitNotifier.unvName;
     trialPlanNotifier.selectedVisitType = AppConstants.visitTypeList[newVisitState.selectedVisitType];
-    trialPlanNotifier.selectedVerifyType =  newVisitNotifier.verfiyTypeController.text.isEmpty ? AppConstants.verificationTypeList[1] :newVisitNotifier.verfiyTypeController.text;
+    trialPlanNotifier.selectedVerifyType =  newVisitNotifier.selectedVerificationType;
     trialPlanNotifier.channelPartner = newVisitNotifier.channelPartnerController.text;
     // LocalSharePreference.currentAddress;
     
@@ -104,7 +103,7 @@ callInitFunction() {
     trialPlanNotifier.stateController.text = newVisitNotifier.stateController.text;
     trialPlanNotifier.pincodeController.text = newVisitNotifier.pincodeController.text;
     trialPlanNotifier.appointmentController.text = newVisitNotifier.bookAppointmentController.text;
-    trialPlanNotifier.verifyTypeController.text = newVisitNotifier.verfiyTypeController.text;
+    trialPlanNotifier.verifyTypeController.text = newVisitNotifier.selectedVerificationType;
     trialPlanNotifier.remarksController.text =  newVisitNotifier.remarksController.text;
     trialPlanNotifier.contactNumberList = newVisitState.contactNumberList;
     if(newVisitState.contactNumberList.isNotEmpty){
@@ -115,16 +114,16 @@ callInitFunction() {
     }
     print("stat....${newVisitNotifier.stateController.text}");
     if((newVisitNotifier.stateController.text).isNotEmpty){
-      trialPlanNotifier.stateApiFunction(context).then((val){
-        if(val!=null){
-          trialPlanNotifier.selectedStateValue = newVisitNotifier.stateController.text;
-          trialPlanNotifier.districtApiFunction(context, stateText: (newVisitNotifier.stateController.text)).then((districtValue){
-            if(districtValue!=null){
-              trialPlanNotifier.selectedDistrictValue = newVisitNotifier.districtController.text;
-            }
-          });
-        }
-      });
+      // trialPlanNotifier.stateApiFunction(context).then((val){
+      //   if(val!=null){
+      //     trialPlanNotifier.selectedStateValue = newVisitNotifier.stateController.text;
+      //     trialPlanNotifier.districtApiFunction(context, stateText: (newVisitNotifier.stateController.text)).then((districtValue){
+      //       if(districtValue!=null){
+      //         trialPlanNotifier.selectedDistrictValue = newVisitNotifier.districtController.text;
+      //       }
+      //     });
+      //   }
+      // });
     
     }
     setState(() {
@@ -154,23 +153,48 @@ callInitFunction() {
               screenContentWidget(refNotifier,refState),
               const SizedBox(height: 30,),
               selectItemWidget(refNotifier),
-              const SizedBox(height: 30,),
-              RemarksWidget(
-                controller: refNotifier.remarksController,
-                remarks:widget.route == 'visit'? refNotifier.remarksController.text : '',
-              isEditable: widget.route == 'visit'? false : true,
-                validator: (val){
-                  if((val??'').isEmpty){
-                    return "Required";
-                  }
-                  return null;
-                },
+              Padding(
+                padding: const EdgeInsets.only(top: 30),
+                child: RemarksWidget(
+                  controller: refNotifier.remarksController,
+                  remarks:widget.route == 'visit'? refNotifier.remarksController.text : '',
+                isEditable: widget.route == 'visit'? false : true,
+                  validator: (val){
+                    if((val??'').isEmpty){
+                      return "Required";
+                    }
+                    return null;
+                  },
+                ),
               ),
               widget.route == 'visit'?
               Padding(
                 padding: const EdgeInsets.only(top: 30),
                 child: CustomerVisitInfoWidget(refNotifier: widget.refNotifer!, refState: widget.refState!),
               ) : EmptyWidget(),
+
+                 Padding(
+                   padding: const EdgeInsets.only(top: 20),
+                   child: Row(
+                             crossAxisAlignment: CrossAxisAlignment.start,
+                             children: [
+                               customCheckbox(
+                                 isCheckbox: refNotifier.isEditDetails,
+                                 onChanged: (val){
+                                  refNotifier.isEditDetails = val!;
+                                  setState(() {
+                                  });
+                                 }
+                               ),
+                               const SizedBox(width: 5,),
+                               Flexible(
+                                 child: Text('Do you want to request edit to the information?',
+                                 ),
+                               )
+                             ],
+                           ),
+                 )
+     ,
            const SizedBox(height: 40,),
              Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -181,7 +205,7 @@ callInitFunction() {
                 },
                 ),
                 AppTextButton(title: "Next",color: AppColors.arcticBreeze,width: 100,height: 40,onTap: (){
-                  refNotifier.checkvalidation(context,widget.onDetails);
+                  refNotifier.checkvalidation(context,widget.route, widget.onDetails);
                   // AppRouter.pushCupertinoNavigation( SuccessScreen(
                   //   title: '',
                   //   des: "You have successfukky Submitted", btnTitle: "Track", onTap: (){
@@ -317,21 +341,6 @@ callInitFunction() {
             },
           ),
           const SizedBox(height: 15,),
-                    LabelTextTextfield(title: 'Verify Type', isRequiredStar: false),
-          const SizedBox(height: 5),
-          CustomDropDown(
-            selectedValue: refNotifier.selectedVerifyType,
-            items: DropdownItemHelper().dropdownListt(AppConstants.verificationTypeList),
-          onChanged: refNotifier.onChangedVerifyType,
-          hintText: "Select verify type",
-          validator: (val){
-              if((val??'').isEmpty){
-                return "Required";
-              }
-              return null;
-            },
-          ),
-        const SizedBox(height: 15,),
            LabelTextTextfield(title: 'Customer Name', isRequiredStar: false),
             const SizedBox(height: 5),
             AppTextfield(
@@ -360,6 +369,7 @@ callInitFunction() {
             AppTextfield(fillColor: false,
             controller: refNotifier.businessNameController,
             hintText: "business name",
+            isReadOnly: true,
             textInputAction: TextInputAction.next,
             inputFormatters: [
               removeLeadingWhiteSpace(),
@@ -377,6 +387,7 @@ callInitFunction() {
             LabelTextTextfield(title: 'ContactNo.', isRequiredStar: false),
             const SizedBox(height: 5),
             AppTextfield(fillColor: false,
+            isReadOnly: true,
             controller: refNotifier.contactNumberController,
             hintText: "contact number",
             textInputAction: TextInputAction.next,
@@ -410,6 +421,7 @@ callInitFunction() {
           AppTextfield(
             hintText: "Enter address1",
             fillColor: false,
+            isReadOnly: true,
             textInputAction: TextInputAction.next,
             controller: refNotifier.address1Controller,
             inputFormatters: [
@@ -429,6 +441,7 @@ callInitFunction() {
           AppTextfield(
             hintText: "Enter address2",
             fillColor: false,
+            isReadOnly: true,
             controller: refNotifier.address2Controller,
             inputFormatters: [
                   removeLeadingWhiteSpace(),
@@ -439,50 +452,80 @@ callInitFunction() {
           const SizedBox(height: 15),
             LabelTextTextfield(title: 'State', isRequiredStar: true),
           const SizedBox(height: 5),
-          CustomDropDown(
-            selectedValue: refNotifier.selectedStateValue,
-            items: DropdownItemHelper().stateItems((refState.stateModel?.data??[])),
-            hintText: "state",
-            onChanged: (val){
-              refNotifier.onChangedStateVal(context, val);
-              setState(() {
-                
-              });
-            },
-          validator: (val) {
-              if ((val??'').isEmpty) {
+            AppTextfield(
+            controller: refNotifier.stateController,
+            isReadOnly: true,
+            fillColor: false,
+            hintText: "State",
+            suffixWidget: Icon(Icons.expand_more),
+            validator: (val){
+               if ((val??'').isEmpty) {
                 return "Required";
               }
               return null;
             },
           ),
+          // CustomDropDown(
+          //   selectedValue: refNotifier.selectedStateValue,
+          //   items: [],
+          //   // refNotifier.stateController.text.isEmpty ? DropdownItemHelper().stateItems((refState.stateModel?.data??[])) : [],
+          //   hintText:refNotifier.stateController.text.isEmpty ? "state" :refNotifier.stateController.text,
+          //   onChanged: (val){
+          //     refNotifier.onChangedStateVal(context, val);
+          //     setState(() {
+                
+          //     });
+          //   },
+          // validator: (val) {
+          //     if ((val??'').isEmpty) {
+          //       return "Required";
+          //     }
+          //     return null;
+          //   },
+          // ),
           const SizedBox(height: 15),
           LabelTextTextfield(title: 'District', isRequiredStar: true),
           const SizedBox(height: 5),
-         CustomDropDown(
-            selectedValue: refNotifier.selectedDistrictValue,
-            items: DropdownItemHelper().districtItems((refState.districtModel?.data??[])),
-            hintText: "Select district",
-            onChanged: (val){
-              refNotifier.districtController.text = val;
-              refNotifier.selectedDistrictValue = val;
-              setState(() {
-                
-              });
-            },
-          validator: (val) {
-              if ((val??'').isEmpty) {
+          AppTextfield(
+            controller: refNotifier.districtController,
+            isReadOnly: true,
+
+            fillColor: false,
+            hintText: "District",
+            suffixWidget: Icon(Icons.expand_more),
+            validator: (val){
+               if ((val??'').isEmpty) {
                 return "Required";
               }
               return null;
             },
           ),
+        //  CustomDropDown(
+        //     selectedValue: refNotifier.selectedDistrictValue,
+        //     items: 
+        //      DropdownItemHelper().districtItems((refState.districtModel?.data??[])),
+        //     hintText: "Select district",
+        //     onChanged: (val){
+        //       refNotifier.districtController.text = val;
+        //       refNotifier.selectedDistrictValue = val;
+        //       setState(() {
+                
+        //       });
+        //     },
+        //   validator: (val) {
+        //       if ((val??'').isEmpty) {
+        //         return "Required";
+        //       }
+        //       return null;
+        //     },
+        //   ),
            const SizedBox(height: 15),
           LabelTextTextfield(title: 'Pincode', isRequiredStar: true),
           const SizedBox(height: 5),
           AppTextfield(
             hintText: "Enter pincode",
             fillColor: false,
+            isReadOnly: true,
             controller: refNotifier.pincodeController,
             textInputAction: TextInputAction.next,
             textInputType: TextInputType.number,
@@ -586,7 +629,26 @@ callInitFunction() {
               AppText(title: refNotifier.trailTypeController.text == 'Product'? "Selected Products": 'Selected Items',fontFamily:AppFontfamily.poppinsSemibold,fontsize: 12,),
               GestureDetector(
                 onTap: (){
-                  addItemBottomSheet(context, refNotifier);
+                  if(refNotifier.trailTypeController.text == 'Product'){
+                    addItemBottomSheet(context, refNotifier);
+                  }
+                  else{
+                    AppRouter.pushCupertinoNavigation(const SearchScreen(route: 'itemTemplateSalesOrder')).then((value){
+              if((value??'').isNotEmpty){
+                itemTemplate = value;
+                 itemsApiFunction(context, searchText: '').then((val){
+              if(val!=null){
+                addItemBottomSheet(context, refNotifier);
+              }
+              setState(() {
+                
+              });
+            });
+           
+              }
+            });
+
+                  }
                 },
                 child: Container(
                   decoration: BoxDecoration(
@@ -725,142 +787,144 @@ callInitFunction() {
         context: context,
         builder: (context) {
           return StatefulBuilder(builder: (context, state) {
-            return Container(
-              padding: EdgeInsets.only(
-                  top: 14, bottom: MediaQuery.of(context).viewInsets.bottom),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(right: 11),
-                    child: Row(
-                      children: [
-                        const Spacer(),
-                        AppText(
-                          title: refNotifier.trailTypeController.text == 'Product'? "Select Products": 'Select Items', 
-                          fontsize: 16,
-                          fontFamily: AppFontfamily.poppinsSemibold,
-                        ),
-                        const Spacer(),
-                        InkWell(
-                          onTap: () {
-                            Navigator.pop(context);
-                          },
-                          child: Container(
-                            height: 24,
-                            width: 24,
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                                color: AppColors.edColor,
-                                shape: BoxShape.circle),
-                            child: Icon(
-                              Icons.close,
-                              size: 19,
-                            ),
+            return SingleChildScrollView(
+              child: Container(
+                padding: EdgeInsets.only(
+                    top: 14, bottom: MediaQuery.of(context).viewInsets.bottom),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(right: 11),
+                      child: Row(
+                        children: [
+                          const Spacer(),
+                          AppText(
+                            title: refNotifier.trailTypeController.text == 'Product'? "Select Products": 'Select Items', 
+                            fontsize: 16,
+                            fontFamily: AppFontfamily.poppinsSemibold,
                           ),
-                        )
-                      ],
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 15,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 15),
-                    child: AppTextfield(
-                      fillColor: false,
-                      suffixWidget: Container(
-                        padding: EdgeInsets.all(10),
-                        child: SvgPicture.asset(AppAssetPaths.searchIcon),
+                          const Spacer(),
+                          InkWell(
+                            onTap: () {
+                              Navigator.pop(context);
+                            },
+                            child: Container(
+                              height: 24,
+                              width: 24,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                  color: AppColors.edColor,
+                                  shape: BoxShape.circle),
+                              child: Icon(
+                                Icons.close,
+                                size: 19,
+                              ),
+                            ),
+                          )
+                        ],
                       ),
-                      onChanged: (val){
-                        _onChangedSearchForItem(val, state, refNotifier);
-                      },
                     ),
-                  ),
-                  refNotifier.trailTypeController.text == 'Product'?
-                  _createProductsForBottomSheetWidget(state, refNotifier: refNotifier):
-                  _createItemsForBottomSheetWidget(state, refNotifier: refNotifier)
-                  // (itemModel?.dataz?.length ?? 0) > 0
-                  //     ? ListView.separated(
-                  //         separatorBuilder: (ctx, index) {
-                  //           return const SizedBox(
-                  //             height: 10,
-                  //           );
-                  //         },
-                  //         shrinkWrap: true,
-                  //         padding: EdgeInsets.only(
-                  //             left: 15, right: 15, top: 20, bottom: 15),
-                  //         itemCount: (itemModel?.data?.length ?? 0),
-                  //         itemBuilder: (ctx, index) {
-                  //           var model = itemModel?.data![index];
-                  //           return Container(
-                  //             height: 40,
-                  //             alignment: Alignment.centerLeft,
-                  //             decoration: BoxDecoration(
-                  //                 border: Border(
-                  //                     bottom: BorderSide(
-                  //                         width: 1,
-                  //                         color: AppColors.light92Color
-                  //                             .withValues(alpha: .5)))),
-                  //             child: Row(
-                  //               children: [
-                  //                 Expanded(
-                  //                     child: AppText(
-                  //                   title: model?.itemName ?? '',
-                  //                   maxLines: 1,
-                  //                 )),
-                  //                 InkWell(
-                  //                   onTap: () {
-                  //                     if (model?.isSelected == false) {
-                  //                       model?.isSelected = true;
-                  //                       refNotifier.selectedItem.add(model!);
-                  //                     } else {
-                  //                       model?.isSelected = false;
-                  //                       for (int i = 0;
-                  //                           i < refNotifier.selectedItem.length;
-                  //                           i++) {
-                  //                         if (refNotifier.selectedItem[i].isSelected ==
-                  //                             false) {
-                  //                           refNotifier.selectedItem.removeAt(i);
-                  //                         }
-                  //                       }
-                  //                     }
-                  //                     setState(() {
-                                        
-                  //                     });
-                  //                     state(() {});
-                  //                   },
-                  //                   child: Container(
-                  //                     height: 20,
-                  //                     width: 20,
-                  //                     alignment: Alignment.center,
-                  //                     decoration: BoxDecoration(
-                  //                         color: AppColors.edColor,
-                  //                         borderRadius:
-                  //                             BorderRadius.circular(5)),
-                  //                     child: Icon(
-                  //                       (model?.isSelected ?? false) == false
-                  //                           ? Icons.add
-                  //                           : Icons.remove,
-                  //                       size: 20,
-                  //                       color: (model?.isSelected ?? false) ==
-                  //                               false
-                  //                           ? AppColors.greenColor
-                  //                           : AppColors.redColor,
-                  //                     ),
-                  //                   ),
-                  //                 )
-                  //               ],
-                  //             ),
-                  //           );
-                  //         })
-                  //     : Padding(
-                  //       padding: const EdgeInsets.only(top: 15),
-                  //       child: NoDataFound(title: "No items found"),
-                  //     )
-                ],
+                    const SizedBox(
+                      height: 15,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 15),
+                      child: AppTextfield(
+                        fillColor: false,
+                        suffixWidget: Container(
+                          padding: EdgeInsets.all(10),
+                          child: SvgPicture.asset(AppAssetPaths.searchIcon),
+                        ),
+                        onChanged: (val){
+                          _onChangedSearchForItem(val, state, refNotifier);
+                        },
+                      ),
+                    ),
+                    refNotifier.trailTypeController.text == 'Product'?
+                    _createProductsForBottomSheetWidget(state, refNotifier: refNotifier):
+                    _createItemsForBottomSheetWidget(state, refNotifier: refNotifier)
+                    // (itemModel?.dataz?.length ?? 0) > 0
+                    //     ? ListView.separated(
+                    //         separatorBuilder: (ctx, index) {
+                    //           return const SizedBox(
+                    //             height: 10,
+                    //           );
+                    //         },
+                    //         shrinkWrap: true,
+                    //         padding: EdgeInsets.only(
+                    //             left: 15, right: 15, top: 20, bottom: 15),
+                    //         itemCount: (itemModel?.data?.length ?? 0),
+                    //         itemBuilder: (ctx, index) {
+                    //           var model = itemModel?.data![index];
+                    //           return Container(
+                    //             height: 40,
+                    //             alignment: Alignment.centerLeft,
+                    //             decoration: BoxDecoration(
+                    //                 border: Border(
+                    //                     bottom: BorderSide(
+                    //                         width: 1,
+                    //                         color: AppColors.light92Color
+                    //                             .withValues(alpha: .5)))),
+                    //             child: Row(
+                    //               children: [
+                    //                 Expanded(
+                    //                     child: AppText(
+                    //                   title: model?.itemName ?? '',
+                    //                   maxLines: 1,
+                    //                 )),
+                    //                 InkWell(
+                    //                   onTap: () {
+                    //                     if (model?.isSelected == false) {
+                    //                       model?.isSelected = true;
+                    //                       refNotifier.selectedItem.add(model!);
+                    //                     } else {
+                    //                       model?.isSelected = false;
+                    //                       for (int i = 0;
+                    //                           i < refNotifier.selectedItem.length;
+                    //                           i++) {
+                    //                         if (refNotifier.selectedItem[i].isSelected ==
+                    //                             false) {
+                    //                           refNotifier.selectedItem.removeAt(i);
+                    //                         }
+                    //                       }
+                    //                     }
+                    //                     setState(() {
+                                          
+                    //                     });
+                    //                     state(() {});
+                    //                   },
+                    //                   child: Container(
+                    //                     height: 20,
+                    //                     width: 20,
+                    //                     alignment: Alignment.center,
+                    //                     decoration: BoxDecoration(
+                    //                         color: AppColors.edColor,
+                    //                         borderRadius:
+                    //                             BorderRadius.circular(5)),
+                    //                     child: Icon(
+                    //                       (model?.isSelected ?? false) == false
+                    //                           ? Icons.add
+                    //                           : Icons.remove,
+                    //                       size: 20,
+                    //                       color: (model?.isSelected ?? false) ==
+                    //                               false
+                    //                           ? AppColors.greenColor
+                    //                           : AppColors.redColor,
+                    //                     ),
+                    //                   ),
+                    //                 )
+                    //               ],
+                    //             ),
+                    //           );
+                    //         })
+                    //     : Padding(
+                    //       padding: const EdgeInsets.only(top: 15),
+                    //       child: NoDataFound(title: "No items found"),
+                    //     )
+                  ],
+                ),
               ),
             );
           });
@@ -876,6 +940,7 @@ return     (itemModel?.data?.length ?? 0) > 0
                             );
                           },
                           shrinkWrap: true,
+                          physics: const ScrollPhysics(),
                           padding: EdgeInsets.only(
                               left: 15, right: 15, top: 20, bottom: 15),
                           itemCount: (itemModel?.data?.length ?? 0),
@@ -978,6 +1043,7 @@ return     (productModel?.data?.length ?? 0) > 0
                             );
                           },
                           shrinkWrap: true,
+                          physics: const ScrollPhysics(),
                           padding: EdgeInsets.only(
                               left: 15, right: 15, top: 20, bottom: 15),
                           itemCount: (productModel?.data?.length ?? 0),
@@ -1089,7 +1155,7 @@ Future<void> _selectTime(BuildContext context) async {
         state((){});
       }
       else{
-        itemsApiFunction(context,'');
+        itemsApiFunction(context, searchText: '');
         state((){});
       }
     }
@@ -1102,7 +1168,7 @@ Future<void> _selectTime(BuildContext context) async {
       });
       }
       else{
-      itemsApiFunction(context,val,).then((val){
+      itemsApiFunction(context,searchText:  val,).then((val){
         if(val!=null){
           state((){});
         }
@@ -1117,9 +1183,9 @@ Future<void> _selectTime(BuildContext context) async {
 
 
 
-Future itemsApiFunction(BuildContext context, String searchText,)async{ 
+Future itemsApiFunction(BuildContext context, {required String searchText})async{ 
   itemModel = null;
-  final response = await ApiService().makeRequest(apiUrl: ApiUrls.salesItemVariantUrl, method: ApiMethod.get.name);
+  final response = await ApiService().makeRequest(apiUrl: "${ApiUrls.salesItemVariantUrl}?search_text=$searchText&item_template=$itemTemplate", method: ApiMethod.get.name);
   if(response!=null){
     itemModel =  ItemModel.fromJson(response.data);
     return response;
@@ -1131,33 +1197,34 @@ Future itemsApiFunction(BuildContext context, String searchText,)async{
 
 
 _handleCustomerName({required AddTrialPlanNotifier refNotifer, required AddTrialPlanState refState,}){
-  if (refNotifer.verifyTypeController.text.isEmpty) {
-            MessageHelper.showToast("Please select the verification type");
+  if (refNotifer.visitTypeController.text.isEmpty) {
+            MessageHelper.showToast("Please select the visit type");
           } else {
             refState.customerInfoModel = null;
             refState.unvCustomerModel = null;
             AppRouter.pushCupertinoNavigation(SearchScreen(
-              route: refNotifer.verifyTypeController.text.toLowerCase(),
+              route: 'verified',
+              visitType: refNotifer.visitTypeController.text,
             )).then((val) {
               if (val != null) {
                refNotifer. selectedStateValue = null;
                refNotifer. selectedDistrictValue = null;
                 refNotifer.resetOnChangedVerifyType();
                 ///
-                if (refNotifer.verifyTypeController.text.toLowerCase() ==
-                    'verified') {
                   CustomerDetails model = val;
                       refNotifer.contactNumberList = (model.contact??[]);
-                    refNotifer.businessNameController.text = model.shop;
-                    refNotifer.customer = model.customer;
-                    refNotifer.customerNameController.text = model.customerName;
+                    refNotifer.businessNameController.text = model.shopName ?? '';
+                    refNotifer.customer = model.name ?? '';
+                    refNotifer.customerNameController.text = model.customerName ?? '';
+                    refNotifer.selectedVerifyType = model.verificType ?? '';
+                    refNotifer.selectedShop = model.shop ?? '';
                     if (refNotifer.contactNumberList.isNotEmpty) {
                       refNotifer.contactNumberController.text =
                           refNotifer.contactNumberList[0];
                     }
                     /// calling address api
                   refNotifer
-                      .customerAddressApiFunction(context, model.customer)
+                      .customerAddressApiFunction(context, model.name ?? '', model.verificType ?? '')
                       .then((response) {
                         if(response!=null&& response['data'].isNotEmpty){
                     CustomerAddressModel addressModel =
@@ -1169,45 +1236,15 @@ _handleCustomerName({required AddTrialPlanNotifier refNotifer, required AddTrial
                     refNotifer.stateController.text = addressModel.data?.state ?? '';
                     refNotifer.pincodeController.text = addressModel.data?.pincode ?? '';
                     refNotifer.addressTypeController.text = addressModel.data?.addressTitle ?? '';
-                    refNotifer.selectedStateValue = addressModel.data?.state;
-                        if((addressModel.data?.state??'').isNotEmpty){
-                          refNotifer.districtApiFunction(context, stateText: addressModel.data?.state);
-                          refNotifer.selectedDistrictValue = addressModel.data?.district;
-                        }
+                    // refNotifer.selectedStateValue = addressModel.data?.state;
+                        // if((addressModel.data?.state??'').isNotEmpty){
+                        //   refNotifer.districtApiFunction(context, stateText: addressModel.data?.state);
+                        //   refNotifer.selectedDistrictValue = addressModel.data?.district;
+                        // }
                     
                         }
                   });
-                } else {
-                  UNVModel model = val;
-                  refNotifer.customerNameController.text =
-                      model.customerName;
-                  refNotifer.contactNumberList =(model.contact??[]);
-                  refNotifer.businessNameController.text = model.shopName;
-                  // refState.selectedExistingCustomer = model.customerName;
-                   refNotifer.customerNameController.text = model.customerName;
-                   refState.unvName = model.name;
-                   refNotifer.verifiedCustomerLocation  = model.address ?? '';
-                  refNotifer.address1Controller.text =
-                      model.addressLine1 ?? '';
-                  refNotifer.address2Controller.text =
-                      model.addressLine2 ?? '';
-                 refNotifer.districtController.text =
-                      model.district ?? '';
-                  refNotifer.stateController.text = model.state ?? '';
-                  refNotifer.pincodeController.text =
-                      model.pincode ?? '';
-                  refNotifer.addressTypeController.text =
-                      model.addressTitle ?? '';
-                       if((model.state ?? '').isNotEmpty){
-                        refNotifer.selectedStateValue = model.state;
-                          refNotifer.districtApiFunction(context, stateText: model.state);
-                          refNotifer.selectedDistrictValue = model.district;
-                        }
-                  if (refNotifer.contactNumberList.isNotEmpty) {
-                    refNotifer.contactNumberController.text =
-                        refNotifer.contactNumberList[0];
-                  }
-                }
+                
                 setState(() {});
               }
             });

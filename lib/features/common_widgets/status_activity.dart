@@ -35,8 +35,9 @@ class StatusWidget extends StatelessWidget {
           decoration: BoxDecoration(
         color:!isExpanded?null: AppColors.whiteColor,
         borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: AppColors.cardBorder),
         boxShadow:!isExpanded?[]:  [
-          BoxShadow(offset: Offset(0, 0),color: AppColors.black.withValues(alpha: .2),blurRadius: 10)
+          BoxShadow(offset: Offset(0, 0),color: AppColors.black.withValues(alpha: .1),blurRadius: 10)
         ]
       ),
       child: Row(

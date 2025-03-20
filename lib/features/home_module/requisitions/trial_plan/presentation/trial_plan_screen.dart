@@ -176,7 +176,7 @@ int selectedConductTypeIndex = -1;
         ),
       ),
       floatingActionButton: floatingActionButtonWidget(onTap: (){
-        AppRouter.pushCupertinoNavigation( AddTrialScreen(route: "trial",));
+        AppRouter.pushCupertinoNavigation( AddTrialScreen(route: "",));
       }),
     );
     

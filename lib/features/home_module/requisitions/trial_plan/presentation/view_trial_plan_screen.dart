@@ -12,6 +12,7 @@ import 'package:mohan_impex/features/home_module/requisitions/trial_plan/riverpo
 import 'package:mohan_impex/res/app_colors.dart';
 import 'package:mohan_impex/res/app_fontfamily.dart';
 import 'package:mohan_impex/res/app_router.dart';
+import 'package:mohan_impex/res/empty_widget.dart';
 
 import '../../../../../res/app_asset_paths.dart';
 
@@ -55,6 +56,7 @@ class _ViewTrialPlanScreenState extends ConsumerState<ViewTrialPlanScreen> {
              const SizedBox(height: 15,),
              RemarksWidget(
               isEditable: false,
+              horizontalPadding: 17,
               remarks: refState.viewTrialPlanModel?.data?[0].remarksnotes ?? '',
              )
           ],
@@ -176,7 +178,7 @@ class _TrialPlanDetailsWidget extends StatelessWidget {
   }
   Widget collapsedWidget({required bool isExpanded}){
     return Container(
-        padding:!isExpanded?EdgeInsets.zero: EdgeInsets.symmetric(horizontal: 10,vertical: 11),
+        padding:!isExpanded?EdgeInsets.zero: EdgeInsets.symmetric(horizontal: 17,vertical: 11),
           decoration: BoxDecoration(
         color:!isExpanded?null: AppColors.whiteColor,
         borderRadius: BorderRadius.circular(10),
@@ -198,7 +200,7 @@ class _TrialPlanDetailsWidget extends StatelessWidget {
   Widget expandedWidget({required bool isExpanded}){
     var model = refState.viewTrialPlanModel?.data?[0];
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 15,vertical: 10),
+      padding: EdgeInsets.symmetric(horizontal: 17,vertical: 10),
       decoration: BoxDecoration(
         color: AppColors.itemsBG,
         borderRadius: BorderRadius.circular(10),
@@ -277,7 +279,7 @@ class _ItemRequestedWidget extends StatelessWidget {
  Widget collapsedWidget({required bool isExpanded}){
   var model = refState.viewTrialPlanModel?.data?[0];
    return Container(
-    padding:!isExpanded?EdgeInsets.zero: EdgeInsets.symmetric(horizontal: 10,vertical: 11),
+    padding:!isExpanded?EdgeInsets.zero: EdgeInsets.symmetric(horizontal: 17,vertical: 11),
           decoration: BoxDecoration(
         color:!isExpanded?null: AppColors.whiteColor,
         borderRadius: BorderRadius.circular(10),
@@ -297,7 +299,7 @@ class _ItemRequestedWidget extends StatelessWidget {
   Widget expandedWidget({required bool isExpanded}){
     var model = refState.viewTrialPlanModel?.data?[0];
    return Container(
-    padding: EdgeInsets.symmetric(horizontal: 15,vertical: 10),
+    padding: EdgeInsets.symmetric(horizontal: 17,vertical: 10),
       decoration: BoxDecoration(
         color: AppColors.itemsBG,
         borderRadius: BorderRadius.circular(10),
@@ -327,10 +329,10 @@ class _ItemRequestedWidget extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Expanded(child: AppText(title: title,fontsize: 12,fontFamily: AppFontfamily.poppinsMedium,color: AppColors.oliveGray,)),
+          Expanded(child: AppText(title: title,fontsize: 12,fontFamily: AppFontfamily.poppinsSemibold,color: AppColors.oliveGray,)),
           SizedBox(
             width: 60,
-            child: AppText(title: "Report",fontsize: 12,fontFamily: AppFontfamily.poppinsMedium,color: AppColors.oliveGray,),
+            child: AppText(title: "Report",fontsize: 12,fontFamily: AppFontfamily.poppinsSemibold,color: AppColors.oliveGray,),
           ),
         ],
       ),
@@ -339,10 +341,8 @@ class _ItemRequestedWidget extends StatelessWidget {
 
   Widget productViewWidget(){
     var model = refState.viewTrialPlanModel?.data?[0];
-    return   ListView.separated(
-              separatorBuilder: (ctx,sb){
-                return const SizedBox(height: 15,);
-              },
+    return   ListView.builder(
+              
               itemCount: (model?.productTrialTable ?? []).length,
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -350,19 +350,29 @@ class _ItemRequestedWidget extends StatelessWidget {
                 var productModel = model?.productTrialTable?[index];
                 return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 19),
-              child: GestureDetector(
-                onTap: (){
-                  AppRouter.pushCupertinoNavigation(TrialProductItemScreen());
-                },
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    AppText(title: productModel?.product ?? '',fontWeight: FontWeight.w400,),
-                    Container(
-                      alignment: Alignment.center,
-                      child: AppText(title: "pending",fontsize: 12,color: AppColors.mossGreyColor,),)
-                  ],
-                ),
+              child: Column(
+                children: [
+                  index ==0 ? EmptyWidget() :
+                  Container(
+                    height: .5,
+                    color: AppColors.edColor,
+                    margin: EdgeInsets.symmetric(vertical: 8),
+                  ),
+                  GestureDetector(
+                    onTap: (){
+                      AppRouter.pushCupertinoNavigation(TrialProductItemScreen());
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        AppText(title: productModel?.product ?? '',fontWeight: FontWeight.w400,),
+                        Container(
+                          alignment: Alignment.center,
+                          child: AppText(title: "pending",fontsize: 12,color: AppColors.mossGreyColor,fontWeight: FontWeight.w400,),)
+                      ],
+                    ),
+                  ),
+                ],
               ),
             );
             });

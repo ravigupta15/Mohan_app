@@ -19,7 +19,6 @@ class JourneyPendingWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print(refState.collateralsReqestModel?.data?[0].records?.length);
     return refState.isLoading?
     CustomerVisitShimmer(isKyc: true,isShimmer: refState.isLoading):
     (refState.collateralsReqestModel?.data?[0].records?.length??0)>0?ListView.separated(

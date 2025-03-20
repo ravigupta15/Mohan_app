@@ -13,8 +13,9 @@ import 'package:mohan_impex/res/app_fontfamily.dart';
     double height;
     String? Function(String?)? validator;
     bool isfillColor;
+    Color hintColor;
    CustomDropDown({required this.items, this.onChanged,this.selectedValue,this.hintText = '', this.validator,
-   this.height = double.infinity, this.isfillColor=false
+   this.height = double.infinity, this.isfillColor=false, this.hintColor =AppColors.lightTextColor
    });
 
   @override
@@ -25,6 +26,7 @@ import 'package:mohan_impex/res/app_fontfamily.dart';
 Widget customDropDown(){
   return DropdownButtonHideUnderline(
     child: DropdownButtonFormField2<String>(
+      isDense: true,
       decoration: InputDecoration(
           hintStyle: TextStyle(
                     fontSize: 14,color: AppColors.black1,fontFamily: AppFontfamily.poppinsRegular
@@ -32,8 +34,7 @@ Widget customDropDown(){
         isDense: true,
         fillColor: isfillColor? AppColors.edColor: AppColors.whiteColor,
         filled: true,
-        contentPadding: EdgeInsetsDirectional.only(
-            start: 15, end: 15, top: 15, bottom: 15),
+        contentPadding: EdgeInsetsDirectional.all(15),
          enabledBorder: textFormFieldEnabledBorder,
         disabledBorder: textFormFieldDisabledBorder,
         errorBorder: textFormFieldErrorBorder,
@@ -43,20 +44,15 @@ Widget customDropDown(){
       ),
             isExpanded: true,
             validator: validator,
-            hint: Row(
-              children: [
-                Expanded(
-                    child: Text(
+            hint:  Text(
                         hintText,
                          style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w400,
-              color: AppColors.lightTextColor,
+              color: hintColor,
               fontFamily: AppFontfamily.poppinsRegular
             ),
-           )),
-              ],
-            ),
+           ),
           
             style: TextStyle(
               fontSize: 14,color: AppColors.black
@@ -65,8 +61,8 @@ Widget customDropDown(){
             value: selectedValue,
             onChanged: onChanged,
             buttonStyleData:const ButtonStyleData(
-              // height: 35,
               width: double.infinity,
+              height: 15,
               elevation: 0,
             ),
             iconStyleData: const IconStyleData(
@@ -79,21 +75,20 @@ Widget customDropDown(){
             dropdownStyleData: DropdownStyleData(
               elevation: 4,
               maxHeight: height,
-              // width: MediaQuery.sizeOf(navigatorKey.currentContext!).width-0,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
                 color: Colors.white,
               ),
-              offset: const Offset(-8, 0),
-              scrollbarTheme: ScrollbarThemeData(
-                radius: const Radius.circular(20),
-                thickness: MaterialStateProperty.all(2),
-                thumbVisibility: MaterialStateProperty.all(true),
-              ),
+              // offset: const Offset(-8, 0),
+              // scrollbarTheme: ScrollbarThemeData(
+              //   radius: const Radius.circular(20),
+              //   thickness: MaterialStateProperty.all(2),
+              //   thumbVisibility: MaterialStateProperty.all(true),
+              // ),
             ),
             menuItemStyleData:const  MenuItemStyleData(
               height: 25,
-              padding: EdgeInsets.only(left: 16, right: 16,),
+              padding: EdgeInsets.symmetric(horizontal: 16),
             ),
             
           ),

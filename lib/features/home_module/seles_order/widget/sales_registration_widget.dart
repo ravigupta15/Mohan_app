@@ -5,6 +5,7 @@ import 'package:mohan_impex/core/constant/app_constants.dart';
 import 'package:mohan_impex/core/helper/dropdown_item_helper.dart';
 import 'package:mohan_impex/core/widget/app_text.dart';
 import 'package:mohan_impex/core/widget/app_text_field/app_textfield.dart';
+import 'package:mohan_impex/core/widget/custom_checkbox.dart';
 import 'package:mohan_impex/core/widget/custom_radio_button.dart';
 import 'package:mohan_impex/core/widget/app_text_field/label_text_textfield.dart';
 import 'package:mohan_impex/core/widget/date_picker_bottom_sheet.dart';
@@ -66,55 +67,6 @@ class _SalesRegistrationWidgetState extends State<SalesRegistrationWidget>
     );
   }
 
-  customerTypeWidget() {
-    return Column(
-      children: [
-        Row(
-          children: [
-            AppText(
-              title: "Vendor Type",
-              color: AppColors.lightTextColor,
-            ),
-            AppText(
-              title: " *",
-              color: AppColors.redColor,
-            ),
-          ],
-        ),
-        const SizedBox(
-          height: 15,
-        ),
-        Row(
-          children: [
-            customRadioButton(
-                isSelected:
-                    widget.refState.selectedCustomerType == 0 ? true : false,
-                title: "New",
-                onTap: () {
-                  widget.refNotifer.isReadOnlyFields=false;
-                  // widget.refNotifer.selectedVerificationType =
-                  setState(() {
-                    
-                  });
-                  widget.refNotifer.updateCustomerType(0);
-                }),
-
-            const Spacer(),
-            customRadioButton(
-                isSelected:
-                    widget.refState.selectedCustomerType == 1 ? true : false,
-                title: "Existing",
-                onTap: () {
-                  widget.refNotifer.isReadOnlyFields = true;
-                  widget.refNotifer.updateCustomerType(1);
-                }),
-            const Spacer(),
-          ],
-        ),
-      ],
-    );
-  }
-
   visitTypeWidget() {
     return Column(
       children: [
@@ -172,7 +124,28 @@ class _SalesRegistrationWidgetState extends State<SalesRegistrationWidget>
         const SizedBox(
           height: 18,
         ),
-        deliveryDateTextField()
+        deliveryDateTextField(),
+        const SizedBox(
+          height: 18,
+        ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            customCheckbox(
+              isCheckbox: widget.refNotifer.isEditDetails,
+              onChanged: (val){
+               widget.refNotifer.isEditDetails = val!;
+               setState(() {
+               });
+              }
+            ),
+            const SizedBox(width: 5,),
+            Flexible(
+              child: Text('Do you want to request edit to the information?',
+              ),
+            )
+          ],
+        )
        ],
     );
   }
@@ -274,15 +247,15 @@ class _SalesRegistrationWidgetState extends State<SalesRegistrationWidget>
               channelParter:widget.refState.selectedVisitType ==1 ? widget.refNotifer.channelPartnerController.text : ''
             )).then((val) {
               if (val != null) {
-                ///
-                ///
                   CustomerDetails model = val;
                       widget.refState.contactNumberList = (model.contact??[]);
-                    widget.refNotifer.shopNameController.text = model.shop;
-                    widget.refNotifer.selectedExistingCustomer = model.customer;
-                    widget.refNotifer.searchController.text = model.customerName;
+                    widget.refNotifer.shopNameController.text = model.shopName ?? '';
+                    widget.refNotifer.selectedExistingCustomer = model.name ?? '';
+                    widget.refNotifer.searchController.text = model.customerName ?? '';
+                    widget.refNotifer.selectedshop = model.shop ?? '';
+                    widget.refNotifer.selectedVerificationType = model.verificType ?? '';
                     widget.refNotifer.customerNameController.text =
-                        model.customerName;
+                        model.customerName ?? '';
                     if (widget.refState.contactNumberList.isNotEmpty) {
                       widget.refNotifer.numberController.text =
                           widget.refState.contactNumberList[0];
@@ -412,16 +385,6 @@ class _SalesRegistrationWidgetState extends State<SalesRegistrationWidget>
             ),
             suffixWidget: InkWell(
               onTap: () {
-                  if (widget.refState.contactNumberList.length >= 3) {
-                    MessageHelper.showToast(
-                        "Only 3 contact numbers are allowed.");
-                  } else if (widget
-                      .refNotifer.numberController.text.isNotEmpty) {
-                    widget.refState.contactNumberList
-                        .add(widget.refNotifer.numberController.text);
-                    setState(() {});
-                  }
-              
               },
               child: Container(
                 decoration: BoxDecoration(
@@ -443,40 +406,15 @@ class _SalesRegistrationWidgetState extends State<SalesRegistrationWidget>
                 padding: EdgeInsets.only(top: 10),
                 child: Row(
                   children: widget.refState.contactNumberList.map((e) {
-                    return Stack(
-                      children: [
-                        Container(
-                            margin: EdgeInsets.symmetric(horizontal: 6),
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 2),
-                            decoration: BoxDecoration(
-                                color: AppColors.lightEBColor,
-                                borderRadius: BorderRadius.circular(25)),
-                            alignment: Alignment.center,
-                            child: AppText(title: e)),
-                        Positioned(
-                          right: 0,
-                          top: 0,
-                          child: InkWell(
-                            onTap: () {
-                              //  widget.refState.contactNumberList.remove(e);
-                                setState(() {});
-                            },
-                            child: Container(
-                              height: 12,
-                              width: 12,
-                              decoration: BoxDecoration(
-                                  color: AppColors.cardBorder,
-                                  shape: BoxShape.circle),
-                              child: Icon(
-                                Icons.close,
-                                size: 10,
-                              ),
-                            ),
-                          ),
-                        )
-                      ],
-                    );
+                    return Container(
+                        margin: EdgeInsets.symmetric(horizontal: 6),
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                            color: AppColors.lightEBColor,
+                            borderRadius: BorderRadius.circular(25)),
+                        alignment: Alignment.center,
+                        child: AppText(title: e));
                   }).toList(),
                 ),
               )

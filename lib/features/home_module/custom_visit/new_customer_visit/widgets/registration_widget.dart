@@ -8,10 +8,10 @@ import 'package:mohan_impex/core/widget/app_search_bar.dart';
 import 'package:mohan_impex/core/widget/app_text.dart';
 import 'package:mohan_impex/core/widget/app_text_field/app_textfield.dart';
 import 'package:mohan_impex/core/widget/app_text_field/custom_search_drop_down.dart';
+import 'package:mohan_impex/core/widget/custom_checkbox.dart';
 import 'package:mohan_impex/core/widget/custom_radio_button.dart';
 import 'package:mohan_impex/core/widget/app_text_field/label_text_textfield.dart';
 import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit/model/customer_address_model.dart';
-import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit/model/unv_customer_model.dart';
 import 'package:mohan_impex/features/home_module/search/presentation/search_screen.dart';
 import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit/model/customer_info_model.dart';
 import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit/riverpod/new_customer_visit_notifier.dart';
@@ -48,15 +48,7 @@ class _RegistrationWidgetState extends State<RegistrationWidget>
       children: [
         customerTypeWidget(),
         widget.refState.selectedCustomerType == 1
-            ? Column(
-                children: [
-                  verfiyTypeDrodownWidget(),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  customerNameSearchDropdown()
-                ],
-              )
+            ? customerNameSearchDropdown()
             : SizedBox.shrink(),
         const SizedBox(
           height: 20,
@@ -355,6 +347,28 @@ class _RegistrationWidgetState extends State<RegistrationWidget>
           textInputAction: TextInputAction.done,
           validator: pincodeValidation,
         ),
+
+                 Padding(
+                   padding: const EdgeInsets.only(top: 20),
+                   child: Row(
+                             crossAxisAlignment: CrossAxisAlignment.start,
+                             children: [
+                               customCheckbox(
+                                 isCheckbox: widget.refNotifer.isEditDetails,
+                                 onChanged: (val){
+                                  widget.refNotifer.isEditDetails = val!;
+                                  setState(() {
+                                  });
+                                 }
+                               ),
+                               const SizedBox(width: 5,),
+                               Flexible(
+                                 child: Text('Do you want to request edit to the information?',
+                                 ),
+                               )
+                             ],
+                           ),
+                 )
       ],
     );
   }
@@ -386,42 +400,42 @@ class _RegistrationWidgetState extends State<RegistrationWidget>
         isReadOnly: true,
         controller: widget.refNotifer.searchController,
         onTap: () {
-          if (widget.refNotifer.verfiyTypeController.text.isEmpty) {
-            MessageHelper.showToast("Please select the verification type");
-          } else if(widget.refState.selectedCustomerType == 1 && widget.refState.selectedVisitType == 1 && widget.refNotifer.channelPartnerController.text.isEmpty){
+          if(widget.refState.selectedCustomerType == 1 && widget.refState.selectedVisitType == 1 && widget.refNotifer.channelPartnerController.text.isEmpty){
              MessageHelper.showToast("Please select the channel partner to search the customer");
           } else {
             widget.refState.customerInfoModel = null;
             widget.refState.unvCustomerModel = null;
             AppRouter.pushCupertinoNavigation(SearchScreen(
-              route: widget.refNotifer.verfiyTypeController.text.toLowerCase(),
+              route: 'verified',
               visitType: widget.refState.selectedCustomerType == 1 ? AppConstants.visitTypeList[widget.refState.selectedVisitType] : '',
-              // channelParter: widget.refState.selectedCustomerType == 1 && widget.refState.selectedVisitType == 1  ?
-              //  widget.refNotifer.channelPartnerController.text : '',
+              channelParter: widget.refState.selectedCustomerType == 1 && widget.refState.selectedVisitType == 1  ?
+               widget.refNotifer.channelPartnerController.text : '',
             )).then((val) {
               if (val != null) {
-               widget.refNotifer. selectedStateValue = null;
+               widget.refNotifer.selectedStateValue = null;
                widget.refNotifer. selectedDistrictValue = null;
-                widget.refNotifer.resetControllersWhenSwitchCustomType();
+                widget.refNotifer.resetControllersWhenSwitchCustomType(isResetChannel: false);
                 ///
-                if (widget.refNotifer.verfiyTypeController.text.toLowerCase() ==
-                    'verified') {
+                // if (widget.refNotifer.verfiyTypeController.text.toLowerCase() ==
+                //     'verified') {
                   CustomerDetails model = val;
                       widget.refState.contactNumberList = (model.contact??[]);
-                    widget.refNotifer.shopNameController.text = model.shop;
-                    widget.refNotifer.selectedExistingCustomer = model.customer;
-                    widget.refNotifer.searchController.text = model.customerName;
+                    widget.refNotifer.shopNameController.text = model.shopName ?? '';
+                    widget.refNotifer.selectedshop = model.shop ?? '';
+                    widget.refNotifer.selectedExistingCustomer = model.name ?? '';
+                    widget.refNotifer.selectedVerificationType = model.verificType ?? '';
+                    widget.refNotifer.searchController.text = model.customerName ?? '';
                     widget.refNotifer.customerNameController.text =
-                        model.customerName;
+                        model.customerName ?? '';
                     if (widget.refState.contactNumberList.isNotEmpty) {
                       widget.refNotifer.numberController.text =
                           widget.refState.contactNumberList[0];
                     }
                     /// calling address api
                   widget.refNotifer
-                      .customerAddressApiFunction(context, model.customer)
+                      .customerAddressApiFunction(context, model.name ?? '', model.verificType ?? '')
                       .then((response) {
-                        if(response!=null&& response['data'].isNotEmpty){
+                        if(response!=null&& response['data'] != null){
                     CustomerAddressModel addressModel =
                         CustomerAddressModel.fromJson(response);
                        widget.refNotifer.verifiedCustomerLocation = (addressModel.data?.name??'');
@@ -438,40 +452,41 @@ class _RegistrationWidgetState extends State<RegistrationWidget>
                     widget.refNotifer.addressTypeController.text =
                         addressModel.data?.addressTitle ?? '';
                         if((addressModel.data?.district ?? '').isEmpty && (addressModel.data?.state??'').isNotEmpty){
-                          widget.refNotifer.districtApiFunction(context, stateText: addressModel.data?.state);
+                          // widget.refNotifer.districtApiFunction(context, stateText: addressModel.data?.state);
                         }
                     
                         }
                   });
-                } else {
-                  UNVModel model = val;
-                  widget.refNotifer.customerNameController.text =
-                      model.customerName;
-                  widget.refState.contactNumberList = (model.contact??[]);
-                  widget.refNotifer.shopNameController.text = model.shopName;
-                  widget.refNotifer.selectedExistingCustomer = model.customerName;
-                   widget.refNotifer.searchController.text = model.customerName;
-                   widget.refNotifer.verifiedCustomerLocation = model.address??'';
-                   widget.refNotifer.unvName = model.name;
-                  widget.refNotifer.address1Controller.text =
-                      model.addressLine1 ?? '';
-                  widget.refNotifer.address2Controller.text =
-                      model.addressLine2 ?? '';
-                  widget.refNotifer.districtController.text =
-                      model.district ?? '';
-                  widget.refNotifer.stateController.text = model.state ?? '';
-                  widget.refNotifer.pincodeController.text =
-                      model.pincode ?? '';
-                  widget.refNotifer.addressTypeController.text =
-                      model.address ?? '';
-                       if((model.district ?? '').isEmpty && (model.state ?? '').isNotEmpty){
-                          widget.refNotifer.districtApiFunction(context, stateText: model.state);
-                        }
-                  if (widget.refState.contactNumberList.isNotEmpty) {
-                    widget.refNotifer.numberController.text =
-                        widget.refState.contactNumberList[0];
-                  }
-                }
+                // }
+                //  else {
+                //   UNVModel model = val;
+                //   widget.refNotifer.customerNameController.text =
+                //       model.customerName;
+                //   widget.refState.contactNumberList = (model.contact??[]);
+                //   widget.refNotifer.shopNameController.text = model.shopName;
+                //   widget.refNotifer.selectedExistingCustomer = model.customerName;
+                //    widget.refNotifer.searchController.text = model.customerName;
+                //    widget.refNotifer.verifiedCustomerLocation = model.address??'';
+                //    widget.refNotifer.unvName = model.name;
+                //   widget.refNotifer.address1Controller.text =
+                //       model.addressLine1 ?? '';
+                //   widget.refNotifer.address2Controller.text =
+                //       model.addressLine2 ?? '';
+                //   widget.refNotifer.districtController.text =
+                //       model.district ?? '';
+                //   widget.refNotifer.stateController.text = model.state ?? '';
+                //   widget.refNotifer.pincodeController.text =
+                //       model.pincode ?? '';
+                //   widget.refNotifer.addressTypeController.text =
+                //       model.address ?? '';
+                //        if((model.district ?? '').isEmpty && (model.state ?? '').isNotEmpty){
+                //           widget.refNotifer.districtApiFunction(context, stateText: model.state);
+                //         }
+                //   if (widget.refState.contactNumberList.isNotEmpty) {
+                //     widget.refNotifer.numberController.text =
+                //         widget.refState.contactNumberList[0];
+                //   }
+                // }
                 setState(() {});
               }
             });
@@ -499,7 +514,7 @@ class _RegistrationWidgetState extends State<RegistrationWidget>
             )).then((val) {
               if (val != null) {
                 widget.refNotifer.channelPartnerController.text = val;
-                widget.refNotifer.shopNameController.text = val;
+                // widget.refNotifer.shopNameController.text = val;
                 setState(() {});
               }
             });

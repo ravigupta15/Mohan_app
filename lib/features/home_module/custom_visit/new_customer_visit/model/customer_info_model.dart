@@ -22,25 +22,46 @@ class CustomerInfoModel {
 }
 
 class CustomerDetails {
-  dynamic customer;
-  dynamic customerName;
-  dynamic shop;
+   String? name;
+  String? customerName;
+  String? verificType;
+  String? customerLevel;
+  String? shop;
+  String? shopName;
+  String? channelPartner;
   List<String>? contact;
 
-  CustomerDetails({this.customer, this.customerName, this.shop, this.contact});
+  CustomerDetails({this.name,
+      this.customerName,
+      this.verificType,
+      this.customerLevel,
+      this.shop,
+      this.shopName,
+      this.channelPartner,
+      this.contact});
 
   CustomerDetails.fromJson(Map<String, dynamic> json) {
-    customer = json['customer']??'';
-    customerName = json['customer_name']??'';
-    shop = json['shop']??"";
-    contact = json['contact'].cast<String>();
+    name = json['name'];
+    customerName = json['customer_name'];
+    verificType = json['verific_type'];
+    customerLevel = json['customer_level'];
+    shop = json['shop'];
+    shopName = json['shop_name'];
+    channelPartner = json['channel_partner'];
+    if (json['contact'] != null) {
+      contact = List<String>.from(json['contact']);
+    } 
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data =  Map<String, dynamic>();
-    data['customer'] = customer;
+     data['name'] = name;
     data['customer_name'] = customerName;
+    data['verific_type'] = verificType;
+    data['customer_level'] = customerLevel;
     data['shop'] = shop;
+    data['shop_name'] = shopName;
+    data['channel_partner'] = channelPartner;
     data['contact'] = contact;
     return data;
   }

@@ -67,7 +67,7 @@ class _ComplaintScreenState extends ConsumerState<ComplaintScreen> {
                       ),
                        InkWell(
                         onTap: (){
-                          filterBottomSheet(context,refstate);
+                          // filterBottomSheet(context,refstate);
                         },
                         child: SvgPicture.asset(AppAssetPaths.filterIcon)),
                      
@@ -99,7 +99,12 @@ class _ComplaintScreenState extends ConsumerState<ComplaintScreen> {
         ),
       ),
       floatingActionButton: floatingActionButtonWidget(onTap: (){
-        AppRouter.pushCupertinoNavigation(const AddComplaintScreen());
+        AppRouter.pushCupertinoNavigation(const AddComplaintScreen()).then((val){
+         if((val??false)==true){
+            refNotifier.updateTabBarIndex(0);
+            refNotifier.complaintListApiFunction();
+          }
+        });
       }),
     );
   }

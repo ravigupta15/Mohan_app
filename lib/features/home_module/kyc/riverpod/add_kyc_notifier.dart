@@ -85,7 +85,7 @@ resetControllers(){
   selectedState = null;
   state = state.copyWith(isSameBillingAddress: false,addKycTabBarIndex: 0,billingDistrictModel: null,
   segmentModel: null,shippingDistrictModel: null,selectedBusinessType: 0,districtModel: null,
-  billingStateModel: null,stateModel: null,shippingStateModel: null
+  billingStateModel: null,stateModel: null,shippingStateModel: null, cdImageList: [], clImageList: []
   );
   customerNameController.clear();
  contactNumberController.clear();
@@ -130,8 +130,13 @@ saveBillingAddressIfSelectOption(BuildContext context){
   if(selectedShippingDistrict!=null){
     selectedBillingDistrict = null;
     state.billingDistrictModel =null;
-  state = state.copyWith(billingDistrictModel: state.districtModel); 
-  selectedBillingDistrict = selectedShippingDistrict;
+    // districtApiFunction(context, stateText: selectedShippingState!);
+
+  Future.delayed(Duration(milliseconds: 300),(){
+    state = state.copyWith(billingDistrictModel: state.shippingDistrictModel); 
+selectedBillingDistrict = selectedShippingDistrict;
+print("fdg....$selectedBillingDistrict");
+  });
   }
   }
 }
@@ -175,6 +180,7 @@ MessageHelper.showToast("Please upload customer license image");
   addKycTabBarIndex(2);
  }
 }
+
 
 
 saveCDImge(value){

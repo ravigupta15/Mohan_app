@@ -27,8 +27,10 @@ class AddSalesOrderNotifier extends StateNotifier<AddSalesOrderState> {
 
 
   String selectedUNVCustomer = '';
-  String? selectedVerificationType;
+  String selectedVerificationType = '';
+  String selectedshop = '';
   String selectedExistingCustomer = '';
+ bool isEditDetails = false;
  bool isReadOnlyFields = false;
 
  
@@ -59,8 +61,8 @@ updateLoading(bool isLoading){
   state = state.copyWith(selectedCustomerType: 0,selectedVisitType: 0,tabBarIndex: 0,captureImageList: [1],addQuantity: 0,customerName: '',isLoading: false,shopName: '',productTrial: 0,selectedProductList: [],channelList: [],itemTemplateModel: null,
   itemVariantModel: null,
   uploadedImageList: [],contactNumberList: [],channelParterName: ''
-  
   );
+  isEditDetails = false;
   resetControllers();
   selectedUNVCustomer = '';
   verifiedCustomerLocation = '';
@@ -84,6 +86,8 @@ updateLoading(bool isLoading){
  resetControllersWhenSwitchCustomType(){
   state = state.copyWith(customerInfoModel: null,contactNumberList: [],);
   selectedProductCategoryIndex = 0;
+  selectedshop = '';
+  selectedVerificationType = '';
   customerNameController.clear();
   shopNameController.clear();
   numberController.clear();
@@ -91,13 +95,6 @@ updateLoading(bool isLoading){
   channelPartnerController.clear();
  }
 
- updateCustomerType(int index){
-  if(index ==0 && state.selectedCustomerType ==1){
-    selectedVerificationType = null;
-    resetControllersWhenSwitchCustomType();
-  }
-  state = state.copyWith(selectedCustomerType: index); 
- }
 
  updateVisitType(int index){
   if(state.tabBarIndex !=index){
@@ -147,7 +144,8 @@ convertInSelectproductedListFromResume(ViewSalesItem model){
        item.itemTemplate??'',
        item.itemCategory ?? '',
        item.competitor,
-       []
+       [],
+       item.uom
       );
     }).toList(),
   );
@@ -244,12 +242,6 @@ channelListApiFunction(String searchText,)async{
   }
 }
 
-// customerInfoApiFunction({required String searchText, String channelPartern = '', String visitType = ''})async{ 
-//   final response = await ApiService().makeRequest(apiUrl: "${ApiUrls.getCustomerurl}?search_text=$searchText", method: ApiMethod.get.name);
-//   if(response!=null){
-//     state = state.copyWith(customerInfoModel: CustomerInfoModel.fromJson(response.data));
-//   }
-// }
 
 itemTemplateApiFunction(String searchText)async{
   state = state.copyWith(itemTemplateModel: null);
@@ -299,6 +291,8 @@ final body = {
     "customer_name": customerNameController.text,
     "deal_type":state.dealTypeValue, //1 to 5
     "shop_name": shopNameController.text,
+    "shop": selectedshop,
+     "cust_edit_needed": isEditDetails ? 1 : 0,
     "contact": numberController.text,
     "remarksnotes": remarksController.text,
     "items": formattedData,

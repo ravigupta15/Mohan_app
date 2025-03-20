@@ -286,6 +286,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     if (val.isNotEmpty) {
       ref.read(newCustomVisitProvider.notifier).customerInfoApiFunction(searchText: val,channelPartern: widget.channelParter, visitType: widget.visitType);
     } else {
+        ref.read(newCustomVisitProvider.notifier).customerInfoApiFunction(searchText: '',channelPartern: widget.channelParter, visitType: widget.visitType);
       // ref.read(newCustomVisitProvider.notifier).customerInfoApiFunction('');
     }
   }
@@ -295,7 +296,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     if (val.isNotEmpty) {
       ref.read(addSalesOrderProvider.notifier).itemTemplateApiFunction(val);
     } else {
-      // ref.read(newCustomVisitProvider.notifier).customerInfoApiFunction('');
+      ref.read(addSalesOrderProvider.notifier).itemTemplateApiFunction('');
     }
   }
 
@@ -304,6 +305,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     if (val.isNotEmpty) {
       ref.read(newCustomVisitProvider.notifier).unvCustomerApiFunction(val);
     } else {
+          ref.read(newCustomVisitProvider.notifier).unvCustomerApiFunction('');
       // ref.read(newCustomVisitProvider.notifier).unvCustomerApiFunction('');
     }
   }

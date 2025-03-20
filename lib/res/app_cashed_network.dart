@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:mohan_impex/data/datasources/local_share_preference.dart';
+import 'package:mohan_impex/res/app_colors.dart';
 import 'package:mohan_impex/utils/validation_helper.dart';
 
 class AppNetworkImage extends StatefulWidget {
@@ -149,9 +150,11 @@ class _ImageProgressIndicatorBuilder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    return  Center(
       child: RepaintBoundary(
-        child: CircularProgressIndicator(),
+        child: CircularProgressIndicator(
+          color: AppColors.greenColor,
+        ),
       ),
     );
   }

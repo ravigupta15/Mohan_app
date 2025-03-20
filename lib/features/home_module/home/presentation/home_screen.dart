@@ -228,7 +228,7 @@ dashboardWidget(List<Dashboard>? scoreDashboard){
     itemCount: scoreDashboard?.length??0,
     shrinkWrap: true,
     physics: const NeverScrollableScrollPhysics(),
-    padding: const EdgeInsets.only(left: 18, right: 18),
+    padding: const EdgeInsets.only(left: 15, right: 15),
     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2,
     crossAxisSpacing: 15,
     childAspectRatio: 16/9
@@ -237,7 +237,7 @@ dashboardWidget(List<Dashboard>? scoreDashboard){
     return otherUserCustomContainer(
                           title: model?.name??"",
                           img: model?.imgUrl ??'',
-                          isBoxShadow: true,
+                          isBoxShadow: index ==0 ||index ==1? true : false,
                           onTap: (){
                             _onClick(model?.name??'');
                           });
@@ -308,17 +308,16 @@ sliderWidget(HomeState refState){
         height: 70,
         margin: EdgeInsets.symmetric(vertical: 10),
         width: double.infinity,
-        
         alignment: Alignment.center,
         decoration: BoxDecoration(
             color: AppColors.whiteColor,
             borderRadius: BorderRadius.circular(10),
             border: Border.all(color: AppColors.e2Color, width: 2),
-            boxShadow: isBoxShadow
+            boxShadow: isBoxShadow == true
                 ? [
                     BoxShadow(
                         offset: Offset(32, -12),
-                        color: Colors.yellow.withOpacity(.2),
+                        color: Colors.yellow.withValues(alpha:  .2),
                         blurRadius: 86)
                   ]
                 : []),

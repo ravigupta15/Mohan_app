@@ -2,19 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mohan_impex/core/constant/app_constants.dart';
 import 'package:mohan_impex/core/services/image_picker_service.dart';
 import 'package:mohan_impex/core/widget/app_button.dart';
 import 'package:mohan_impex/core/widget/app_date_widget.dart';
 import 'package:mohan_impex/core/widget/app_text.dart';
 import 'package:mohan_impex/core/widget/app_text_field/app_textfield.dart';
+import 'package:mohan_impex/core/widget/app_text_field/custom_search_drop_down.dart';
 import 'package:mohan_impex/core/widget/app_text_field/label_text_textfield.dart';
 import 'package:mohan_impex/core/widget/custom_app_bar.dart';
 import 'package:mohan_impex/core/widget/custom_radio_button.dart';
+import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit/model/customer_address_model.dart';
+import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit/model/customer_info_model.dart';
 import 'package:mohan_impex/features/home_module/kyc/widgets/documents_widget.dart';
+import 'package:mohan_impex/features/home_module/search/presentation/search_screen.dart';
 import 'package:mohan_impex/res/app_asset_paths.dart';
 import 'package:mohan_impex/res/app_cashed_network.dart';
 import 'package:mohan_impex/res/app_colors.dart';
+import 'package:mohan_impex/res/app_router.dart';
 import 'package:mohan_impex/res/empty_widget.dart';
+import 'package:mohan_impex/utils/message_helper.dart';
 
 import '../../../../../core/services/date_picker_service.dart';
 import '../../../../../core/widget/app_text_field/custom_drop_down.dart';
@@ -37,6 +44,8 @@ class _AddComplaintScreenState extends ConsumerState<AddComplaintScreen>
   DateTime? expiryDate;
   DateTime? mfdDate;
   DateTime? endDate;
+ String  itemSelectedValue = '';
+ final searchController = TextEditingController();
 
   @override
   void initState() {
@@ -73,7 +82,7 @@ class _AddComplaintScreenState extends ConsumerState<AddComplaintScreen>
                     addComplaintNotifier: addComplaintNotifier,
                     addComplaintState: addComplaintState),
                 
-                addComplaintState.selectedCustomerType == 0 ? EmptyWidget():
+                addComplaintState.selectedVisitType == 0 ? EmptyWidget():
                  Padding(
                    padding: const EdgeInsets.only(top: 15),
                    child: Column(
@@ -83,14 +92,14 @@ class _AddComplaintScreenState extends ConsumerState<AddComplaintScreen>
                                    CustomDropDown(
                     hintText: "Select channel partner",
                     items: companyNameDropDownItem(addComplaintState.channerPartnerList),
-                    onChanged: addComplaintNotifier.onChangedCompanyName,
+                    onChanged: addComplaintNotifier.onChangedChannelPartner,
                     validator: (val) {
                       if ((val ?? "").isEmpty) {
                         return "Select partner channel";
                       }
                       return null;
                     },
-                                   ),
+                    ),
                                   
                      ],
                    ),
@@ -169,6 +178,10 @@ class _AddComplaintScreenState extends ConsumerState<AddComplaintScreen>
                   title: "Contact Person Name",
                   controller: addComplaintNotifier.contactPersonNameController,
                   textInputAction: TextInputAction.next,
+                  isReadOnly: true,
+                  onTap: (){
+                    _handleCustomerName(refNotifer: addComplaintNotifier, refState: addComplaintState);
+                  },
                   validator: (val) {
                     if (val!.isEmpty) {
                       return "Enter contact person name";
@@ -184,6 +197,7 @@ class _AddComplaintScreenState extends ConsumerState<AddComplaintScreen>
                     controller: addComplaintNotifier.contactController,
                     textInputAction: TextInputAction.next,
                     textInputType: TextInputType.number,
+                    isReadOnly: true,
                     inputFormatters: [
                       FilteringTextInputFormatter.digitsOnly,
                       LengthLimitingTextInputFormatter(10)
@@ -206,6 +220,7 @@ class _AddComplaintScreenState extends ConsumerState<AddComplaintScreen>
                   title: "State",
                   controller: addComplaintNotifier.stateNameController,
                   textInputAction: TextInputAction.next,
+                  isReadOnly: true,
                   validator: (val) {
                     if (val!.isEmpty) {
                       return "Enter State";
@@ -220,6 +235,7 @@ class _AddComplaintScreenState extends ConsumerState<AddComplaintScreen>
                   title: "Town",
                   controller: addComplaintNotifier.townTypeController,
                   textInputAction: TextInputAction.next,
+                  isReadOnly: true,
                   validator: (val) {
                     if (val!.isEmpty) {
                       return "Enter Town";
@@ -233,6 +249,7 @@ class _AddComplaintScreenState extends ConsumerState<AddComplaintScreen>
                 textfieldWithTitleWidget(
                   title: "Pincode",
                   controller: addComplaintNotifier.pincodeController,
+                  isReadOnly: true,
                   textInputAction: TextInputAction.next,
                   textInputType: TextInputType.number,
                   inputFormatters: [
@@ -254,7 +271,9 @@ class _AddComplaintScreenState extends ConsumerState<AddComplaintScreen>
                 ),
                 LabelTextTextfield(title: 'Item', isRequiredStar: true),
                 const SizedBox(height: 15),
-                CustomDropDown(
+                CustomSearchDropDown(
+                  selectedValues: itemSelectedValue,
+                  searchController: searchController,
                   hintText: "Select item",
                   items: dropDownMenuItems(addComplaintState.itemList),
                   onChanged: addComplaintNotifier.onChangedCustomType,
@@ -680,24 +699,24 @@ viewUploadedImage({required String url, Function()? removeImg}){
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        LabelTextTextfield(title: "Customer Type", isRequiredStar: false),
+        LabelTextTextfield(title: "Visit Type", isRequiredStar: false),
         const SizedBox(
           height: 15,
         ),
         Row(
           children: [
             customRadioButton(
-                isSelected: addComplaintState.selectedCustomerType == 0 ? true : false,
+                isSelected: addComplaintState.selectedVisitType == 0 ? true : false,
                 title: 'Primary',
                 onTap: () {
-                  addComplaintNotifier.updateCustomerType(0);
+                  addComplaintNotifier.updateVisitType(0);
                 }),
             const Spacer(),
             customRadioButton(
-                isSelected: addComplaintState.selectedCustomerType == 1 ? true : false,
+                isSelected: addComplaintState.selectedVisitType == 1 ? true : false,
                 title: 'Secondary',
                 onTap: () {
-                  addComplaintNotifier.updateCustomerType(1);
+                  addComplaintNotifier.updateVisitType(1);
                 }),
             const Spacer(),
           ],
@@ -737,15 +756,66 @@ viewUploadedImage({required String url, Function()? removeImg}){
   }
 
 
+_handleCustomerName({required AddComplaintNotifier refNotifer, required AddComplaintState refState,}){
+            refState.customerInfoModel = null;
+            AppRouter.pushCupertinoNavigation(SearchScreen(
+              route: 'verified',
+              visitType: AppConstants.visitTypeList[refState.selectedVisitType],
+            )).then((val) {
+              if (val != null) {
+                refNotifer.resetOnChangedVerfiyType();
+                ///
+                  CustomerDetails model = val;
+                      refNotifer.contactNumberList = (model.contact??[]);
+                    // refNotifer.businessNameController.text = model.shopName ?? '';
+                    // refNotifer.customer = model.name ?? '';
+                    refNotifer.contactPersonNameController.text = model.customerName ?? '';
+                    // refNotifer.selectedVerifyType = model.verificType ?? '';
+                    // refNotifer.selectedShop = model.shop ?? '';
+                    if (refNotifer.contactNumberList.isNotEmpty) {
+                      refNotifer.contactController.text =
+                          refNotifer.contactNumberList[0];
+                    }
+                    /// calling address api
+                  refNotifer
+                      .customerAddressApiFunction(context, model.name ?? '', model.verificType ?? '')
+                      .then((response) {
+                        if(response!=null&& response['data'].isNotEmpty){
+                    CustomerAddressModel addressModel =
+                        CustomerAddressModel.fromJson(response);
+                      //  refNotifer.verifiedCustomerLocation = (addressModel.data?.name??'');
+                    // refNotifer.address1Controller.text = addressModel.data?.addressLine1 ?? '';
+                    // refNotifer.address2Controller.text = addressModel.data?.addressLine2 ?? '';
+                    // refNotifer.districtController.text = addressModel.data?.district ?? '';
+                    refNotifer.stateNameController.text = addressModel.data?.state ?? '';
+                    refNotifer.pincodeController.text = addressModel.data?.pincode ?? '';
+                    refNotifer.townTypeController.text = addressModel.data?.district ?? '';
+                    // refNotifer.addressTypeController.text = addressModel.data?.addressTitle ?? '';
+                    // refNotifer.selectedStateValue = addressModel.data?.state;
+                        // if((addressModel.data?.state??'').isNotEmpty){
+                        //   refNotifer.districtApiFunction(context, stateText: addressModel.data?.state);
+                        //   refNotifer.selectedDistrictValue = addressModel.data?.district;
+                        // }
+                    
+                        }
+                  });
+                
+                setState(() {});
+              }
+            });
+          
+}
+
+
   List<DropdownMenuItem<String>> dropDownMenuItems(List list) {
     final List<DropdownMenuItem<String>> menuItems = [];
     for (final item in list) {
       menuItems.addAll(
         [
           DropdownMenuItem(
-            value: item['name'],
+            value: item['item_name'],
             child: Text(
-              item['name'],
+              item['item_name'],
             ),
           ),
           if (item != list.last)

@@ -2,7 +2,6 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:mohan_impex/res/app_colors.dart';
 import 'package:mohan_impex/res/app_fontfamily.dart';
-import 'package:mohan_impex/res/app_router.dart';
 
 
 // ignore: must_be_immutable
@@ -103,6 +102,7 @@ class _CustomSearchDropDownState extends State<CustomSearchDropDown> {
         },
         buttonStyleData: const ButtonStyleData(
           width: double.infinity,
+          height: 15,
           elevation: 0,
         ),
         iconStyleData: const IconStyleData(
@@ -115,17 +115,17 @@ class _CustomSearchDropDownState extends State<CustomSearchDropDown> {
         dropdownStyleData: DropdownStyleData(
           elevation: 4,
           maxHeight: widget.height,
-          width: MediaQuery.sizeOf(navigatorKey.currentContext!).width - 30,
+          // width: MediaQuery.sizeOf(navigatorKey.currentContext!).width - 30,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
             color: Colors.white,
           ),
-          offset: const Offset(-8, 0),
-          scrollbarTheme: ScrollbarThemeData(
-            radius: const Radius.circular(20),
-            thickness: MaterialStateProperty.all(2),
-            thumbVisibility: MaterialStateProperty.all(true),
-          ),
+          // offset: const Offset(-8, 0),
+          // scrollbarTheme: ScrollbarThemeData(
+          //   radius: const Radius.circular(20),
+          //   thickness: MaterialStateProperty.all(2),
+          //   thumbVisibility: MaterialStateProperty.all(true),
+          // ),
         ),
         menuItemStyleData: const MenuItemStyleData(
           height: 25,

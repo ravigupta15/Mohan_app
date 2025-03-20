@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:mohan_impex/api_config/api_urls.dart';
+import 'package:mohan_impex/core/constant/app_constants.dart';
 import 'package:mohan_impex/core/services/internet_connectivity.dart';
 import 'package:mohan_impex/data/datasources/local_share_preference.dart';
 import 'package:mohan_impex/features/home_module/complaint_claim/model/compalint_model.dart';
@@ -20,20 +21,18 @@ import 'add_complaint_state.dart';
 class AddComplaintNotifier extends StateNotifier<AddComplaintState> {
 
   AddComplaintNotifier() : super(
-      AddComplaintState(isLoading: false,selectedCustomerType: 0, selectedClaimTypeIndex: 0,imgList: [],itemList: [], channerPartnerList:[]));
+      AddComplaintState(isLoading: false,selectedVisitType: 0, selectedClaimTypeIndex: 0,imgList: [],itemList: [], channerPartnerList:[]));
 
   updateLoading(bool value){
     state= state.copyWith(isLoading: value);
   }
 
-  List list = ["New", "Existing"];
 
-
-
+ List contactNumberList = [];
   final formKey = GlobalKey<FormState>();
 
 final subjectController = TextEditingController();
-  final companyNameController = TextEditingController();
+  final channelPartnerController = TextEditingController();
   final contactPersonNameController = TextEditingController();
   final addressController = TextEditingController();
   final contactController = TextEditingController();
@@ -55,8 +54,8 @@ final subjectController = TextEditingController();
 
 
   void resetValues() {
-    state = state.copyWith(isLoading: false,selectedCustomerType: 0,channerPartnerList: [],imgList: [],itemList: [],selectedClaimTypeIndex: 0,selectedRadio: 0,);
-    companyNameController.clear();
+    state = state.copyWith(isLoading: false,selectedVisitType: 0,channerPartnerList: [],imgList: [],itemList: [],selectedClaimTypeIndex: 0,selectedRadio: 0,);
+    channelPartnerController.clear();
     contactPersonNameController.clear();
     addressController.clear();
     contactController.clear();
@@ -76,17 +75,27 @@ final subjectController = TextEditingController();
     dateController.clear();
     invoiceDateController.clear();
     subjectController.clear();
+    contactNumberList =[];
   }
 
+
+resetOnChangedVerfiyType(){
+  contactNumberList = [];
+  contactController.clear();
+  contactPersonNameController.clear();
+  stateNameController.clear();
+  townTypeController.clear();
+  pincodeController.clear();
+}
   onChangedCustomType(val) {
     selectedItemNameController.text = val;
   }
-  onChangedCompanyName(val) {
-    companyNameController.text = val;
+  onChangedChannelPartner(val) {
+    channelPartnerController.text = val;
   }
 
-  updateCustomerType(int index){
-    state = state.copyWith(selectedCustomerType: index);
+  updateVisitType(int index){
+    state = state.copyWith(selectedVisitType: index);
   }
 
   updateClaimType(int index){
@@ -173,7 +182,7 @@ String? customerTypeTitle(int index){
 
 itemListApiFunction(BuildContext context)async{
   ShowLoader.loader(context);
-  final response = await ApiService().makeRequest(apiUrl: ApiUrls.itemListUrl, method: ApiMethod.get.name);
+  final response = await ApiService().makeRequest(apiUrl: '${ApiUrls.salesItemVariantUrl}?item_template=&item_category=', method: ApiMethod.get.name);
   ShowLoader.hideLoader();
   if(response!=null){
     state = state.copyWith(itemList: response.data['data']);
@@ -206,8 +215,8 @@ complaintListApiFunction()async{
    final data=
        {
          "claim_type": claimTypeTitle(state.selectedClaimTypeIndex), // Transit or Quality
-         "customer_type": customerTypeTitle(state.selectedCustomerType),
-         "company": companyNameController.text,
+         "customer_type": AppConstants.visitTypeList[state.selectedVisitType],
+         "company": channelPartnerController.text,
          "customer": contactPersonNameController.text,
          "contact":contactController.text,
          "state": stateNameController.text,
@@ -230,7 +239,7 @@ complaintListApiFunction()async{
    ShowLoader.hideLoader();
    if(response!=null){
     MessageHelper.showSuccessSnackBar(context, response.data['message']);
-    Navigator.pop(context);
+    Navigator.pop(context, true);
    }
  }
 
@@ -244,5 +253,16 @@ viewComplaintApiFunction(BuildContext context, String ticketId)async{
     state = state.copyWith(viewComplaintModel: ViewComplaintModel.fromJson(response.data));
   }
 }
+
+
+Future customerAddressApiFunction(BuildContext context, String searchText, String type)async{
+  ShowLoader.loader(context);
+   final response = await ApiService().makeRequest(apiUrl: "${ApiUrls.getCustomerAddressUrl}?customer=$searchText&verific_type=$type", method: ApiMethod.get.name);
+   ShowLoader.hideLoader();
+  if(response!=null){
+    return response.data;
+  }
+}
+
 
 }

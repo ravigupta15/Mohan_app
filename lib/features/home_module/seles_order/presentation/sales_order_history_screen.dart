@@ -92,53 +92,59 @@ ScrollController _scrollController = ScrollController();
     return Scaffold(
      appBar:  customAppBar(title: 'Sales Order History'),
       body: Padding(
-        padding: const EdgeInsets.only(left: 18,right: 19,top: 14),
+        padding: const EdgeInsets.only(top: 14),
         child: Column(
           children: [
-            AppSearchBar(
-              hintText: "Search by name, phone, etc.",
-              onChanged: refNotifier.onChangedSearch,
-              controller:refNotifier.searchController,
-              suffixWidget: Container(
-                alignment: Alignment.center,
-                width:  60,
-                child: Row(
-                  children: [
-                    SvgPicture.asset(AppAssetPaths.searchIcon),
-                        Container(
-                      margin: EdgeInsets.symmetric(horizontal: 4),
-                      height: 20,width: 1,color: AppColors.lightBlue62Color.withValues(alpha: .3),
-                    ),
-                     GestureDetector(
-                      onTap: (){
-                        TextfieldUtils.hideKeyboard();
-                           filterBottomSheet(context, refNotifier, refState);
-                      },
-                      child: SvgPicture.asset(AppAssetPaths.filterIcon)),
-                  ],
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 18),
+              child: AppSearchBar(
+                hintText: "Search by name, phone, etc.",
+                onChanged: refNotifier.onChangedSearch,
+                controller:refNotifier.searchController,
+                suffixWidget: Container(
+                  alignment: Alignment.center,
+                  width:  60,
+                  child: Row(
+                    children: [
+                      SvgPicture.asset(AppAssetPaths.searchIcon),
+                          Container(
+                        margin: EdgeInsets.symmetric(horizontal: 4),
+                        height: 20,width: 1,color: AppColors.lightBlue62Color.withValues(alpha: .3),
+                      ),
+                       GestureDetector(
+                        onTap: (){
+                          TextfieldUtils.hideKeyboard();
+                             filterBottomSheet(context, refNotifier, refState);
+                        },
+                        child: SvgPicture.asset(AppAssetPaths.filterIcon)),
+                    ],
+                  ),
                 ),
               ),
             ),
 
                Padding(
-                padding: const EdgeInsets.only(top: 10),
+                padding: const EdgeInsets.only(top: 10, left: 18, right: 18),
                 child: selectedFiltersWidget(refNotifier: refNotifier, refState: refState),
               ), 
             const SizedBox(height: 16,),
-            CustomTabbar(
-              currentIndex: refState.tabBarIndex,
-              title1: "My Orders",
-              title2: "Draft Order",
-              onClicked1: (){
-                refNotifier.updateTabBarIndex(0);
-                setState(() {
-                });
-              },
-              onClicked2: (){
-                refNotifier.updateTabBarIndex(1);
-                setState(() {
-                });
-              },
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 18),
+              child: CustomTabbar(
+                currentIndex: refState.tabBarIndex,
+                title1: "My Orders",
+                title2: "Draft Order",
+                onClicked1: (){
+                  refNotifier.updateTabBarIndex(0);
+                  setState(() {
+                  });
+                },
+                onClicked2: (){
+                  refNotifier.updateTabBarIndex(1);
+                  setState(() {
+                  });
+                },
+              ),
             ),
             const SizedBox(height: 10,),
             Expanded(child: 
@@ -180,7 +186,7 @@ ScrollController _scrollController = ScrollController();
         return const SizedBox(height: 15,);
       },
       itemCount: (refState.salesOrderModel?.data?[0].records?.length??0),
-      padding: EdgeInsets.only(top: 10,bottom: 20),
+      padding: EdgeInsets.only(top: 10,bottom: 20,left: 18,right: 18),
       controller: _scrollController,
       shrinkWrap: true,
       itemBuilder: (ctx,index){
@@ -213,7 +219,7 @@ Widget draftOrderWidget(SalesOrderState refState){
       },
       controller: _scrollController,
       itemCount: (refState.salesOrderModel?.data?[0].records?.length??0),
-      padding: EdgeInsets.only(top: 10,bottom: 20),
+      padding: EdgeInsets.only(top: 10,bottom: 20, left: 18, right: 18),
       shrinkWrap: true,
       itemBuilder: (ctx,index){
         return Column(

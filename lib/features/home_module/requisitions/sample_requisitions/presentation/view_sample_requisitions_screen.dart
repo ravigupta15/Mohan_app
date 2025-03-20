@@ -81,7 +81,7 @@ class _ItemRequestedWidget extends StatelessWidget {
         color:!isExpanded?null: AppColors.whiteColor,
         borderRadius: BorderRadius.circular(10),
         boxShadow:!isExpanded?[]:  [
-          BoxShadow(offset: Offset(0, 0),color: AppColors.black.withValues(alpha: .2),blurRadius: 10)
+          BoxShadow(offset: Offset(0, 0),color: AppColors.black.withValues(alpha: .1),blurRadius: 10)
         ]
       ),
       child: Row(
@@ -98,14 +98,15 @@ class _ItemRequestedWidget extends StatelessWidget {
     padding: EdgeInsets.symmetric(horizontal: 15,vertical: 10),
       decoration: BoxDecoration(
         color: AppColors.itemsBG,
+        // border: Border.all(color: AppColors.cardBorder),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Column(
         children: [
           collapsedWidget(isExpanded: isExpanded),
-           const SizedBox(height: 10,),
+           const SizedBox(height: 8,),
           dotteDivierWidget(dividerColor: AppColors.edColor,),
-            const SizedBox(height: 9,),
+            const SizedBox(height: 8,),
             headingWidget(),
             const SizedBox(height: 7,),
             ListView.separated(

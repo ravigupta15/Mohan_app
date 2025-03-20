@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mohan_impex/core/helper/dropdown_item_helper.dart';
 import 'package:mohan_impex/core/services/date_picker_service.dart';
@@ -127,7 +128,7 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
                                   refNotifier.checkDocumentValidation();
                                 }
                                 else if(refState.addKycTabBarIndex==2){
-                                  print(LocalSharePreference.token);
+                                  
                                   refNotifier.createKycApiFunction(context);
                                 }
                               },
@@ -203,7 +204,7 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
         AppTextfield(
           hintText: "Enter customer name",
           fillColor: false,
-          isReadOnly: true,
+          isReadOnly: widget.route.isEmpty? false : true,
           controller: refNotifier.customerNameController,
           textInputAction: TextInputAction.next,
           validator: (val) {
@@ -227,7 +228,7 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
         AppTextfield(
             hintText: "Enter contact number",
             fillColor: false,
-            isReadOnly: true,
+            isReadOnly:widget.route.isEmpty? false : true,
             controller: refNotifier.contactNumberController,
             textInputAction: TextInputAction.next,
             textInputType: TextInputType.number,
@@ -267,7 +268,7 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
         AppTextfield(
           hintText: "Enter business name",
           fillColor: false,
-          isReadOnly: true,
+          isReadOnly: widget.route.isEmpty? false : true,
           textInputAction: TextInputAction.next,
           controller: refNotifier.businessNameController,
           validator: (val) {
@@ -284,6 +285,7 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
         AppTextfield(
           hintText: "Enter address",
           fillColor: false,
+          isReadOnly: widget.route.isEmpty? false : true,
           controller: refNotifier.addressController,
           textInputAction: TextInputAction.next,
           inputFormatters: [
@@ -477,6 +479,9 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
                   isCheckbox: refState.isSameBillingAddress,
                   onChanged: (val) {
                     refNotifier.onChangedCheckBox(context, val!);
+                    setState(() {
+                      
+                    });
                   }),
               AppText(
                 title: "Same as billing address",
@@ -493,6 +498,7 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
         AppTextfield(
           hintText: "Enter billing address1",
           fillColor: false,
+          isReadOnly: widget.route.isEmpty? false : true,
           controller: refNotifier.billingAddress1Controller,
           textInputAction: TextInputAction.next,
           validator: (val) {
@@ -523,8 +529,13 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
         const SizedBox(height: 5),
         CustomDropDown(
           selectedValue: refNotifier.selectedBillingState,
-          items: DropdownItemHelper().stateItems((refState.billingStateModel?.data??[])),
-          hintText: "Select state",
+          items:widget.route.isEmpty? DropdownItemHelper().stateItems((refState.billingStateModel?.data??[])) : [],
+          hintText: widget.route.isNotEmpty && refNotifier.billingStateController.text.isNotEmpty
+              ? refNotifier.billingStateController.text
+              : "Select State",
+          hintColor:
+              widget.route.isNotEmpty && refNotifier.billingStateController.text.isNotEmpty ? AppColors.black : AppColors.lightTextColor,
+          
           onChanged: (val){
             refNotifier.onChangedBillingStateVal(context, val);
             setState(() {
@@ -543,8 +554,13 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
         const SizedBox(height: 5),
          CustomDropDown(
           selectedValue: refNotifier.selectedBillingDistrict,
-          items: DropdownItemHelper().districtItems((refState.billingDistrictModel?.data??[])),
-          hintText: "Select district",
+          items:widget.route.isEmpty? DropdownItemHelper().districtItems((refState.billingDistrictModel?.data??[])) : [],
+          hintText: widget.route.isNotEmpty && refNotifier.billingDistrictController.text.isNotEmpty
+              ? refNotifier.billingDistrictController.text
+              : "Select District",
+          hintColor:
+              widget.route.isNotEmpty && refNotifier.billingDistrictController.text.isNotEmpty ? AppColors.black : AppColors.lightTextColor,
+          
           onChanged: (val){
             refNotifier.billingDistrictController.text = val;
             refNotifier.selectedBillingDistrict = val;
@@ -565,6 +581,7 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
         AppTextfield(
           hintText: "Enter billing pincode",
           fillColor: false,
+          isReadOnly: widget.route.isEmpty? false : true,
           controller: refNotifier.billingPincodeController,
           textInputAction: TextInputAction.next,
           textInputType: TextInputType.number,
@@ -853,6 +870,7 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
 
   viewUploadedImage(List list){
     return  GridView.builder(
+      padding: EdgeInsets.only(top: 10),
                   itemCount: list.length,
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
@@ -920,12 +938,171 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
         const SizedBox(
           height: 24,
         ),
-        _DocumentCheckListWidget(refNotifier: refNotifier,refState: refState,),
+        _documentCheckListWidget(refNotifier: refNotifier,refState: refState,),
       ],
     );
   }
 
+Widget _documentCheckListWidget({required AddKycNotifier refNotifier, required AddKycState refState}){
+  return ExpandableWidget(
+        initExpanded: false,
+        isBorderNoShadow: true,
+        collapsedWidget: documentCheckListCollapsedWidget(
+          isExpanded: true,refNotifier: refNotifier, refState: refState
+        ),
+        expandedWidget: documentCheckListExpandedWidget(isExpanded: false, refNotifier: refNotifier, refState: refState));
+}
 
+
+  Widget documentCheckListCollapsedWidget({required bool isExpanded, required AddKycNotifier refNotifier, required AddKycState refState}) {
+    return Container(
+      padding: isExpanded
+          ? EdgeInsets.symmetric(horizontal: 10, vertical: 12)
+          : EdgeInsets.zero,
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              AppText(
+                  title: "Documents Checklist",
+                  fontFamily: AppFontfamily.poppinsSemibold),
+              Icon(!isExpanded ? Icons.expand_less : Icons.expand_more,
+                  color: AppColors.light92Color),
+            ],
+          ),
+          SizedBox(
+            height: 5,
+          ),
+          !isExpanded
+              ? Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(34, (index) {
+                    return Container(
+                      width: 8.5,
+                      height: 2,
+                      color: index % 2 == 0
+                          ? AppColors.edColor
+                          : Colors.transparent,
+                      // Alternating between black and transparent
+                      margin: EdgeInsets.symmetric(
+                          horizontal: 0), // Spacing between dashes
+                    );
+                  }),
+                )
+              : SizedBox()
+        ],
+      ),
+    );
+  }
+
+  Widget documentCheckListExpandedWidget({required bool isExpanded, required AddKycNotifier refNotifier, required AddKycState refState}) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 14),
+      decoration: BoxDecoration(
+          color: AppColors.whiteColor,
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: [
+            BoxShadow(
+                offset: Offset(0, 0),
+                color: AppColors.black.withOpacity(0.2),
+                blurRadius: 10)
+          ]),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          documentCheckListCollapsedWidget(isExpanded: isExpanded,refNotifier: refNotifier, refState: refState),
+          SizedBox(
+            height: 10,
+          ),
+          LabelTextTextfield(
+              title: "Customer Declaration (CD)", isRequiredStar: true),
+             refState.cdImageList.isNotEmpty?
+             Padding(
+               padding: const EdgeInsets.only(top: 6),
+               child: viewImage(refState.cdImageList)
+             ): EmptyWidget() ,
+             const SizedBox(height: 15,),
+             LabelTextTextfield(
+              title: "Customer License (CL)", isRequiredStar: true),
+              refState.clImageList.isNotEmpty?
+             Padding(
+               padding: const EdgeInsets.only(top: 6),
+               child: viewImage(refState.clImageList),
+             ) : EmptyWidget(),
+        ],
+      ),
+    );
+  }
+
+
+  viewImage(List list,){
+    return  ListView.separated(
+      separatorBuilder: (ctx, sb){
+        return const SizedBox(height: 10,);
+      },
+      itemCount: list.length,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemBuilder: (ctx,index){
+        return Container(
+          padding: EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: AppColors.whiteColor,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: AppColors.edColor
+            )
+          ),
+          child: Row(
+            children: [
+              SvgPicture.asset(AppAssetPaths.documentIcon,height: 20,),
+              const SizedBox(width: 7,),
+              Expanded(
+                child: Text(list[index]['file_name'],maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 10,fontWeight: FontWeight.w400,
+                  color: Color(0xff6F7482)
+                ),
+                ),
+              ),
+              const SizedBox(width: 5,),
+              list.length>1 ?
+              InkWell(
+                onTap: (){
+                  if(list.length>1){
+                    list.removeAt(index);
+                  }
+                  setState(() {
+                    
+                  });
+                },
+                child: Icon(Icons.close, size: 20,color: Color(0xff193238),)) : EmptyWidget()
+            ],
+          ),
+        );
+    });
+    // GridView.builder(
+    //               itemCount: list.length,
+    //               shrinkWrap: true,
+    //               physics: const NeverScrollableScrollPhysics(),
+    //               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+    //                   crossAxisCount: 3,
+    //                   mainAxisSpacing: 15,
+    //                   crossAxisSpacing: 15,
+    //                   childAspectRatio: 2.9 / 3),
+    //               itemBuilder: (ctx, index) {
+    //                 return    AppNetworkImage(
+    //                             imgUrl: 
+    //                             list[index]['url'],
+    //                             height: 79,
+    //                             width: 100,
+    //                             boxFit: BoxFit.cover,borderRadius:10
+    //                           );
+    //               })
+    //           ;
+  }
 
   _handleBackButton({required AddKycNotifier refNotifier, required AddKycState refState}){
       if (refState.addKycTabBarIndex == 0) {
@@ -1085,126 +1262,4 @@ class _CustomInfoWidget extends StatelessWidget {
       ],
     );
   }
-}
-
-class _DocumentCheckListWidget extends StatelessWidget {
-   final AddKycNotifier refNotifier;
-  final AddKycState refState;
- 
-  const _DocumentCheckListWidget({required this.refNotifier, required this.refState});
-
-  @override
-  Widget build(BuildContext context) {
-    return ExpandableWidget(
-        initExpanded: false,
-        collapsedWidget: collapsedWidget(
-          isExpanded: true,
-        ),
-        expandedWidget: expandedWidget(isExpanded: false));
-  }
-
-  Widget collapsedWidget({required bool isExpanded}) {
-    return Container(
-      padding: isExpanded
-          ? EdgeInsets.symmetric(horizontal: 10, vertical: 12)
-          : EdgeInsets.zero,
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              AppText(
-                  title: "Documents Checklist",
-                  fontFamily: AppFontfamily.poppinsSemibold),
-              Icon(!isExpanded ? Icons.expand_less : Icons.expand_more,
-                  color: AppColors.light92Color),
-            ],
-          ),
-          SizedBox(
-            height: 5,
-          ),
-          !isExpanded
-              ? Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(34, (index) {
-                    return Container(
-                      width: 8.5,
-                      height: 2,
-                      color: index % 2 == 0
-                          ? AppColors.edColor
-                          : Colors.transparent,
-                      // Alternating between black and transparent
-                      margin: EdgeInsets.symmetric(
-                          horizontal: 0), // Spacing between dashes
-                    );
-                  }),
-                )
-              : SizedBox()
-        ],
-      ),
-    );
-  }
-
-  Widget expandedWidget({required bool isExpanded}) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 14),
-      decoration: BoxDecoration(
-          color: AppColors.whiteColor,
-          borderRadius: BorderRadius.circular(10),
-          boxShadow: [
-            BoxShadow(
-                offset: Offset(0, 0),
-                color: AppColors.black.withOpacity(0.2),
-                blurRadius: 10)
-          ]),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          collapsedWidget(isExpanded: isExpanded),
-          SizedBox(
-            height: 10,
-          ),
-          LabelTextTextfield(
-              title: "Customer Declaration (CD)", isRequiredStar: true),
-             refState.cdImageList.isNotEmpty?
-             Padding(
-               padding: const EdgeInsets.only(top: 6),
-               child: viewImage(refState.cdImageList)
-             ): EmptyWidget() ,
-             const SizedBox(height: 15,),
-             LabelTextTextfield(
-              title: "Customer License (CL)", isRequiredStar: true),
-              refState.clImageList.isNotEmpty?
-             Padding(
-               padding: const EdgeInsets.only(top: 6),
-               child: viewImage(refState.clImageList),
-             ) : EmptyWidget(),
-        ],
-      ),
-    );
-  }
-
-
-  viewImage(List list){
-    return  GridView.builder(
-                  itemCount: list.length,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      mainAxisSpacing: 15,
-                      crossAxisSpacing: 15,
-                      childAspectRatio: 2.9 / 3),
-                  itemBuilder: (ctx, index) {
-                    return    AppNetworkImage(
-                                imgUrl: 
-                                list[index]['url'],
-                                height: 79,
-                                width: 100,
-                                boxFit: BoxFit.cover,borderRadius:10
-                              );
-                  })
-              ;
-  }
-
 }

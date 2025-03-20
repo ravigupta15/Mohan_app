@@ -62,6 +62,7 @@ class _VisitInformationWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return ExpandableWidget(
       initExpanded: true,
+      borderRadius: 10,
       collapsedWidget: collapsedWidget(isExpanded: true), expandedWidget: expandedWidget(isExpanded: false));
   }
   Widget collapsedWidget({required bool isExpanded}){
@@ -78,7 +79,7 @@ class _VisitInformationWidget extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
               AppText(title: 'Visit Information',fontFamily: AppFontfamily.poppinsSemibold,),
-              Icon(Icons.expand_less,color: AppColors.light92Color,),
+               Icon(!isExpanded? Icons.expand_less:Icons.expand_more,color: AppColors.light92Color,),
         ],
       ),
    
@@ -119,11 +120,14 @@ class _VisitInformationWidget extends StatelessWidget {
 
    Widget itemsWidget(String title, String subTitle){
     return Row(
+       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AppText(title: "$title : ",fontFamily: AppFontfamily.poppinsRegular,),
-        AppText(title: subTitle,
-        fontsize: 13,
-        fontFamily: AppFontfamily.poppinsRegular,color: AppColors.lightTextColor,),
+        Flexible(
+          child: AppText(title: subTitle,
+          fontsize: 13,
+          fontFamily: AppFontfamily.poppinsRegular,color: AppColors.lightTextColor,),
+        ),
       ],
     );
   }

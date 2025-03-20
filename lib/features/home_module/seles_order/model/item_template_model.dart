@@ -37,13 +37,15 @@ class ItemVariant {
   String itemCategory = '';
   String seletedCompetitor = '';
   List<String>? competitors;
+  dynamic uom;
 
   ItemVariant(this.itemCode, this.itemName, this.quantity, this.isSelected, this.itemTempate, this.itemCategory,  this.seletedCompetitor,
-  this.competitors);
+  this.competitors, this.uom);
 
   ItemVariant.fromJson(Map<String, dynamic> json) {
     itemCode = json['item_code'];
     itemName = json['item_name'];
+    uom = json['uom'];
       competitors = json['competitors'] != null && json['competitors'] is List
       ? List<String>.from(json['competitors']) 
       : [];
@@ -54,6 +56,7 @@ class ItemVariant {
     data['item_code'] = itemCode;
     data['item_name'] = itemName;
     data['competitors'] = competitors;
+    data['uom']  = uom;
     return data;
   }
 }

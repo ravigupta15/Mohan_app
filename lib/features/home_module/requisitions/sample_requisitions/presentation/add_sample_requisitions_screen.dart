@@ -107,11 +107,12 @@ class _AddSampleRequisitionsScreenState
       padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
       decoration: BoxDecoration(
           color: AppColors.whiteColor,
+          border: Border.all(color: AppColors.cardBorder),
           borderRadius: BorderRadius.circular(10),
           boxShadow: [
             BoxShadow(
                 offset: Offset(0, 0),
-                color: AppColors.black.withValues(alpha: .2),
+                color: AppColors.black.withValues(alpha: .1),
                 blurRadius: 10)
           ]),
       child: Column(
@@ -120,7 +121,7 @@ class _AddSampleRequisitionsScreenState
           AppText(
             title: 'Sample Required date',
             fontFamily: AppFontfamily.poppinsSemibold,
-            fontsize: 12,
+            fontsize: 14,
           ),
           const SizedBox(
             height: 12,
@@ -198,10 +199,11 @@ class _AddSampleRequisitionsScreenState
       decoration: BoxDecoration(
           color: AppColors.whiteColor,
           borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: AppColors.cardBorder),
           boxShadow: [
             BoxShadow(
                 offset: Offset(0, 0),
-                color: AppColors.black.withValues(alpha: .2),
+                color: AppColors.black.withValues(alpha: .1),
                 blurRadius: 10)
           ]),
       child: Column(
@@ -212,7 +214,7 @@ class _AddSampleRequisitionsScreenState
               AppText(
                 title: 'Selected Items',
                 fontFamily: AppFontfamily.poppinsSemibold,
-                fontsize: 12,
+                fontsize: 14,
               ),
               GestureDetector(
                 onTap: () {
@@ -221,7 +223,7 @@ class _AddSampleRequisitionsScreenState
                 child: Container(
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(5),
-                      border: Border.all(color: AppColors.edColor)),
+                      border: Border.all(color: AppColors.light92Color,width: .5),),
                   padding: EdgeInsets.symmetric(horizontal: 4, vertical: 1),
                   child: Row(
                     children: [
@@ -233,6 +235,7 @@ class _AddSampleRequisitionsScreenState
                       AppText(
                         title: "Add Items",
                         fontsize: 12,
+                        fontWeight: FontWeight.w500,
                       )
                     ],
                   ),
@@ -323,149 +326,152 @@ class _AddSampleRequisitionsScreenState
         context: context,
         builder: (context) {
           return StatefulBuilder(builder: (context, state) {
-            return Container(
-              padding: EdgeInsets.only(
-                  top: 14, bottom: MediaQuery.of(context).viewInsets.bottom),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(right: 11),
-                    child: Row(
-                      children: [
-                        const Spacer(),
-                        AppText(
-                          title: "Select Items",
-                          fontsize: 16,
-                          fontFamily: AppFontfamily.poppinsSemibold,
-                        ),
-                        const Spacer(),
-                        InkWell(
-                          onTap: () {
-                            Navigator.pop(context);
-                          },
-                          child: Container(
-                            height: 24,
-                            width: 24,
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                                color: AppColors.edColor,
-                                shape: BoxShape.circle),
-                            child: Icon(
-                              Icons.close,
-                              size: 19,
-                            ),
+            return SingleChildScrollView(
+              child: Container(
+                padding: EdgeInsets.only(
+                    top: 14, bottom: MediaQuery.of(context).viewInsets.bottom),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(right: 11),
+                      child: Row(
+                        children: [
+                          const Spacer(),
+                          AppText(
+                            title: "Select Items",
+                            fontsize: 16,
+                            fontFamily: AppFontfamily.poppinsSemibold,
                           ),
-                        )
-                      ],
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 15,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 15),
-                    child: AppTextfield(
-                      fillColor: false,
-                      suffixWidget: Container(
-                        padding: EdgeInsets.all(10),
-                        child: SvgPicture.asset(AppAssetPaths.searchIcon),
-                      ),
-                      onChanged: (val){
-                        _onChangedSearchForItem(val, state);
-                      },
-                    ),
-                  ),
-                  (itemModel?.data?.length ?? 0) > 0
-                      ? ListView.separated(
-                          separatorBuilder: (ctx, index) {
-                            return const SizedBox(
-                              height: 10,
-                            );
-                          },
-                          shrinkWrap: true,
-                          padding: EdgeInsets.only(
-                              left: 15, right: 15, top: 20, bottom: 15),
-                          itemCount: (itemModel?.data?.length ?? 0),
-                          itemBuilder: (ctx, index) {
-                            var model = itemModel?.data![index];
-                            return Container(
-                              height: 40,
-                              alignment: Alignment.centerLeft,
+                          const Spacer(),
+                          InkWell(
+                            onTap: () {
+                              Navigator.pop(context);
+                            },
+                            child: Container(
+                              height: 24,
+                              width: 24,
+                              alignment: Alignment.center,
                               decoration: BoxDecoration(
-                                  border: Border(
-                                      bottom: BorderSide(
-                                          width: 1,
-                                          color: AppColors.light92Color
-                                              .withValues(alpha: .5)))),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                      child: AppText(
-                                    title: model?.itemName ?? '',
-                                    maxLines: 1,
-                                  )),
-                                  InkWell(
-                                    onTap: () {
-                                        bool isMatchingItemFound =
-                                         refNotifier.selectedItem.any((selectedValue) {
-                                        return model?.itemCode ==
-                                            selectedValue.itemCode ? true : false;
-                                      });
-                                      if(isMatchingItemFound){
-                                      MessageHelper.showToast("Already added");
-                                      }
-                                       else{
-                                      if (model?.isSelected == false) {
-                                        model?.isSelected = true;
-                                        refNotifier.selectedItem.add(model!);
-                                      } else {
-                                        model?.isSelected = false;
-                                        for (int i = 0;
-                                            i < refNotifier.selectedItem.length;
-                                            i++) {
-                                          if (refNotifier.selectedItem[i].isSelected ==
-                                              false) {
-                                            refNotifier.selectedItem.removeAt(i);
+                                  color: AppColors.edColor,
+                                  shape: BoxShape.circle),
+                              child: Icon(
+                                Icons.close,
+                                size: 19,
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 15,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 15),
+                      child: AppTextfield(
+                        fillColor: false,
+                        suffixWidget: Container(
+                          padding: EdgeInsets.all(10),
+                          child: SvgPicture.asset(AppAssetPaths.searchIcon),
+                        ),
+                        onChanged: (val){
+                          _onChangedSearchForItem(val, state);
+                        },
+                      ),
+                    ),
+                    (itemModel?.data?.length ?? 0) > 0
+                        ? ListView.separated(
+                            separatorBuilder: (ctx, index) {
+                              return const SizedBox(
+                                height: 10,
+                              );
+                            },
+                            shrinkWrap: true,
+                            physics: const ScrollPhysics(),
+                            padding: EdgeInsets.only(
+                                left: 15, right: 15, top: 20, bottom: 15),
+                            itemCount: (itemModel?.data?.length ?? 0),
+                            itemBuilder: (ctx, index) {
+                              var model = itemModel?.data![index];
+                              return Container(
+                                height: 40,
+                                alignment: Alignment.centerLeft,
+                                decoration: BoxDecoration(
+                                    border: Border(
+                                        bottom: BorderSide(
+                                            width: 1,
+                                            color: AppColors.light92Color
+                                                .withValues(alpha: .5)))),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                        child: AppText(
+                                      title: model?.itemName ?? '',
+                                      maxLines: 1,
+                                    )),
+                                    InkWell(
+                                      onTap: () {
+                                          bool isMatchingItemFound =
+                                           refNotifier.selectedItem.any((selectedValue) {
+                                          return model?.itemCode ==
+                                              selectedValue.itemCode ? true : false;
+                                        });
+                                        if(isMatchingItemFound){
+                                        MessageHelper.showToast("Already added");
+                                        }
+                                         else{
+                                        if (model?.isSelected == false) {
+                                          model?.isSelected = true;
+                                          refNotifier.selectedItem.add(model!);
+                                        } else {
+                                          model?.isSelected = false;
+                                          for (int i = 0;
+                                              i < refNotifier.selectedItem.length;
+                                              i++) {
+                                            if (refNotifier.selectedItem[i].isSelected ==
+                                                false) {
+                                              refNotifier.selectedItem.removeAt(i);
+                                            }
                                           }
                                         }
-                                      }
-                                       }
-                                      setState(() {
-                                        
-                                      });
-                                      state(() {});
-                                    },
-                                    child: Container(
-                                      height: 20,
-                                      width: 20,
-                                      alignment: Alignment.center,
-                                      decoration: BoxDecoration(
-                                          color: AppColors.edColor,
-                                          borderRadius:
-                                              BorderRadius.circular(5)),
-                                      child: Icon(
-                                        (model?.isSelected ?? false) == false
-                                            ? Icons.add
-                                            : Icons.remove,
-                                        size: 20,
-                                        color: (model?.isSelected ?? false) ==
-                                                false
-                                            ? AppColors.greenColor
-                                            : AppColors.redColor,
+                                         }
+                                        setState(() {
+                                          
+                                        });
+                                        state(() {});
+                                      },
+                                      child: Container(
+                                        height: 20,
+                                        width: 20,
+                                        alignment: Alignment.center,
+                                        decoration: BoxDecoration(
+                                            color: AppColors.edColor,
+                                            borderRadius:
+                                                BorderRadius.circular(5)),
+                                        child: Icon(
+                                          (model?.isSelected ?? false) == false
+                                              ? Icons.add
+                                              : Icons.remove,
+                                          size: 20,
+                                          color: (model?.isSelected ?? false) ==
+                                                  false
+                                              ? AppColors.greenColor
+                                              : AppColors.redColor,
+                                        ),
                                       ),
-                                    ),
-                                  )
-                                ],
-                              ),
-                            );
-                          })
-                      : Padding(
-                        padding: const EdgeInsets.only(top: 15),
-                        child: NoDataFound(title: "No items found"),
-                      )
-                ],
+                                    )
+                                  ],
+                                ),
+                              );
+                            })
+                        : Padding(
+                          padding: const EdgeInsets.only(top: 15),
+                          child: NoDataFound(title: "No items found"),
+                        )
+                  ],
+                ),
               ),
             );
           });
@@ -493,7 +499,7 @@ class _AddSampleRequisitionsScreenState
 
 Future itemsApiFunction(BuildContext context, String searchText,)async{ 
   itemModel = null;
-  final response = await ApiService().makeRequest(apiUrl: '${ApiUrls.itemListUrl}?fields=["item_code", "item_name","item_category", "competitor"]&filters=[["item_name", "like", "%$searchText%"]]', method: ApiMethod.get.name);
+  final response = await ApiService().makeRequest(apiUrl: '${ApiUrls.salesItemVariantUrl}?item_template=$searchText&item_category=', method: ApiMethod.get.name);
   if(response!=null){
     itemModel =  ItemModel.fromJson(response.data);
     return response;

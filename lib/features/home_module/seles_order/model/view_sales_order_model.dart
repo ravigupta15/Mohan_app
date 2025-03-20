@@ -134,6 +134,7 @@ class Items {
   dynamic itemCategory;
   dynamic competitor;
   dynamic qty;
+  dynamic uom;
 
   Items(
       {this.itemTemplate,
@@ -141,7 +142,8 @@ class Items {
       this.itemName,
       this.itemCategory,
       this.competitor,
-      this.qty});
+      this.qty,
+      this.uom});
 
   Items.fromJson(Map<String, dynamic> json) {
     itemTemplate = json['item_template'];
@@ -150,6 +152,7 @@ class Items {
     itemCategory = json['item_category'];
     competitor = json['competitor'];
     qty = json['qty'];
+    uom = json['uom'];
   }
 
   Map<String, dynamic> toJson() {
@@ -160,6 +163,7 @@ class Items {
     data['item_category'] = itemCategory;
     data['competitor'] = competitor;
     data['qty'] = qty;
+    data['uom'] = uom;
     return data;
   }
 }

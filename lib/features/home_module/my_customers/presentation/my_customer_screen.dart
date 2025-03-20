@@ -150,6 +150,7 @@ class _MyCustomerScreenState extends ConsumerState<MyCustomerScreen> {
                     : (refState.myCustomerModel?.data?[0].records ?? [])
                             .isNotEmpty
                         ? ListView.separated(
+                          controller: _scrollController,
                             separatorBuilder: (ctx, sb) {
                               return const SizedBox(
                                 height: 15,
@@ -164,54 +165,70 @@ class _MyCustomerScreenState extends ConsumerState<MyCustomerScreen> {
                             itemBuilder: (context, index) {
                               var model = refState
                                   .myCustomerModel?.data?[0].records?[index];
-                              return InkWell(
-                                onTap: () {
-                                  AppRouter.pushCupertinoNavigation(
-                                      ViewCustomerScreen(
-                                    id: model?.name ?? '',
-                                  ));
-                                },
-                                child: Container(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 9, vertical: 10),
-                                  decoration: BoxDecoration(
-                                      color: AppColors.whiteColor,
-                                      borderRadius: BorderRadius.circular(5),
-                                      boxShadow: [
-                                        BoxShadow(
-                                            offset: Offset(0, 0),
-                                            color: AppColors.black
-                                                .withValues(alpha: .2),
-                                            blurRadius: 6)
-                                      ]),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      VisitItem(
-                                          title: 'Customer name',
-                                          subTitle: model?.customerName ?? ''),
-                                      const SizedBox(
-                                        height: 9,
+                              return Column(
+                                children: [
+                                  InkWell(
+                                    onTap: () {
+                                      AppRouter.pushCupertinoNavigation(
+                                          ViewCustomerScreen(
+                                        id: model?.name ?? '',
+                                      ));
+                                    },
+                                    child: Container(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 9, vertical: 10),
+                                      decoration: BoxDecoration(
+                                          color: AppColors.whiteColor,
+                                          borderRadius: BorderRadius.circular(5),
+                                          boxShadow: [
+                                            BoxShadow(
+                                                offset: Offset(0, 0),
+                                                color: AppColors.black
+                                                    .withValues(alpha: .2),
+                                                blurRadius: 6)
+                                          ]),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          VisitItem(
+                                              title: 'Customer name',
+                                              subTitle: model?.customerName ?? ''),
+                                          const SizedBox(
+                                            height: 9,
+                                          ),
+                                          VisitItem(
+                                              title: 'Shop name',
+                                              subTitle: model?.customShop ?? ""),
+                                          const SizedBox(
+                                            height: 9,
+                                          ),
+                                          VisitItem(
+                                              title: "Contact",
+                                              subTitle: model?.contact ?? ''),
+                                          const SizedBox(
+                                            height: 9,
+                                          ),
+                                          VisitItem(
+                                              title: "Location",
+                                              subTitle: model?.location ?? ''),
+                                        ],
                                       ),
-                                      VisitItem(
-                                          title: 'Shop name',
-                                          subTitle: model?.customShop ?? ""),
-                                      const SizedBox(
-                                        height: 9,
-                                      ),
-                                      VisitItem(
-                                          title: "Contact",
-                                          subTitle: model?.contact ?? ''),
-                                      const SizedBox(
-                                        height: 9,
-                                      ),
-                                      VisitItem(
-                                          title: "Location",
-                                          subTitle: model?.location ?? ''),
-                                    ],
+                                    ),
                                   ),
-                                ),
+                                   index == (refState.myCustomerModel?.data?[0].records?.length??0) - 1 &&
+                              refState.isLoadingMore
+                          ? Container(
+                              padding: const EdgeInsets.all(4),
+                              width: 37,
+                              height: 37,
+                              child: const CircularProgressIndicator(
+                                strokeWidth: 3,
+                              ),
+                            )
+                          : SizedBox.fromSize()
+          
+                                ],
                               );
                             })
                         : NoDataFound(title: "No data found"))

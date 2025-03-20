@@ -52,14 +52,15 @@ static const imageUploadUrl = "${baseUrl}method/mohan_impex.api.cvm.capture_imag
  static const viewComplaintUrl = "${baseUrl}method/mohan_impex.api.complaints.complaints_form";
 
  /// master 
- static const itemListUrl = "${baseUrl}resource/Item";
+//  static const itemListUrl = "${baseUrl}resource/Item";
  static const channelPartnerurl = "${baseUrl}method/mohan_impex.api.get_channel_partner";
  static const shopUrl = "${baseUrl}method/mohan_impex.api.get_shops";
  static const competitorUrl = "${baseUrl}resource/Competitor";
  static const productUrl = "${baseUrl}method/mohan_impex.api.master.get_products";
  static const productItemUrl = "${baseUrl}method/mohan_impex.api.get_items";
  static const productCategoryUrl = "${baseUrl}resource/Product Category";
- static const getCustomerurl = "${baseUrl}method/mohan_impex.api.get_customer_info";
+//  static const getCustomerurl = "${baseUrl}method/mohan_impex.api.get_customer_info";
+ static const customerUrl = "${baseUrl}method/mohan_impex.api.get_customer_list";
 
  // journey
  static const createJourneyUrl = "${baseUrl}method/mohan_impex.api.journey_plan.create_journey_plan";

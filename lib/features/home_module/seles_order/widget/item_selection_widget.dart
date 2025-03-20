@@ -493,7 +493,7 @@ return ListView.separated(
             }),
             Container(
               margin: EdgeInsets.symmetric(horizontal: 4),
-              height: 18,width: 45,
+              height: 18,width: 43,
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(5),
@@ -509,12 +509,12 @@ return ListView.separated(
               });
             }),
             const SizedBox(width: 5,),
-            AppText(title: "kg",fontsize: 10,)
+            AppText(title: model?.uom ?? '',fontsize: 10,)
           ],
         ),
       ),
       Container(
-        width: 45,
+        width: 40,
         padding: EdgeInsets.only(),
       child: customCheckbox(
         isCheckbox: (model?.isSelected??false),

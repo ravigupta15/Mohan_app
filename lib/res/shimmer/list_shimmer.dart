@@ -18,7 +18,7 @@ class CustomerVisitShimmer extends StatelessWidget {
           return const SizedBox(height: 15,);
         },
         itemCount: 6,
-        padding: EdgeInsets.only(top: 10,bottom: 20),
+        padding: EdgeInsets.only(top: 10,bottom: 20,left: 13,right: 13),
         shrinkWrap: true,
         itemBuilder: (ctx,index){
           return Container(

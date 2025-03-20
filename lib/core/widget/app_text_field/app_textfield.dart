@@ -56,7 +56,7 @@ class AppTextfield extends StatelessWidget {
           hintText: hintText,
           suffixIcon: suffixWidget,
           prefixIcon: prefixWidget,
-          // isDense: true,
+          isDense: true,
           // contentPadding: EdgeInsets.symmetric(vertical: 14,horizontal: 10),
           // isCollapsed: true,
           // isDense: true,

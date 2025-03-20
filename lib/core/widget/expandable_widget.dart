@@ -1,6 +1,7 @@
 
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
+import 'package:mohan_impex/res/app_colors.dart';
 
 class ExpandableWidget extends StatelessWidget {
   final Widget collapsedWidget;
@@ -8,25 +9,27 @@ class ExpandableWidget extends StatelessWidget {
   final bool initExpanded;
   final double borderRadius;
   final EdgeInsetsGeometry? padding;
+  final bool isBorderNoShadow;
   const ExpandableWidget(
       {super.key,
       required this.collapsedWidget,
       required this.expandedWidget,
       this.padding,
-      this.borderRadius = 0,
-      this.initExpanded = false, });
+      this.borderRadius = 8,
+      this.initExpanded = false,this.isBorderNoShadow = false });
 
   @override
   Widget build(BuildContext context) {
     return Container(
     decoration: BoxDecoration(
       color: Colors.white, 
-      borderRadius: BorderRadius.circular(8),
-      boxShadow: [
+      borderRadius: BorderRadius.circular(borderRadius),
+      border:Border.all(color: AppColors.e2Color),
+      boxShadow:isBorderNoShadow?[]: [
         BoxShadow(
           offset: Offset(0, 0),
-          color: Colors.black.withOpacity(0.2),
-          blurRadius: 10, // Shadow blur
+          color: Colors.black.withValues(alpha:  0.1),
+          blurRadius: 5, // Shadow blur
         ),
       ],
     ),

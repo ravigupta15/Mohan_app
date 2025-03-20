@@ -11,7 +11,6 @@ import 'package:mohan_impex/features/home_module/requisitions/marketing_collater
 import 'package:mohan_impex/features/home_module/requisitions/marketing_collaterals/widget/marking_approved_widget.dart';
 import 'package:mohan_impex/features/home_module/requisitions/marketing_collaterals/widget/marking_pending_widget.dart';
 import 'package:mohan_impex/res/app_asset_paths.dart';
-import 'package:mohan_impex/res/app_colors.dart';
 import 'package:mohan_impex/res/app_router.dart';
 
 class MarketingCollateralsScreen extends ConsumerStatefulWidget {

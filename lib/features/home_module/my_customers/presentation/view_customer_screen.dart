@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:mohan_impex/core/services/date_picker_service.dart';
 import 'package:mohan_impex/core/widget/app_date_widget.dart';
 import 'package:mohan_impex/core/widget/app_search_bar.dart';
 import 'package:mohan_impex/core/widget/app_text.dart';
@@ -14,6 +15,8 @@ import 'package:mohan_impex/res/app_asset_paths.dart';
 import 'package:mohan_impex/res/app_colors.dart';
 import 'package:mohan_impex/res/app_fontfamily.dart';
 import 'package:mohan_impex/res/empty_widget.dart';
+import 'package:mohan_impex/res/no_data_found_widget.dart';
+import 'package:mohan_impex/utils/message_helper.dart';
 
 class ViewCustomerScreen extends ConsumerStatefulWidget {
   final String id;
@@ -24,76 +27,134 @@ class ViewCustomerScreen extends ConsumerStatefulWidget {
 }
 
 class _ViewCustomerScreenState extends ConsumerState<ViewCustomerScreen> {
+  DateTime? selectedToDate;
+  String filterToDate = '';
+  // bool isFilterEnable = false;
+
+  DateTime? selectedFromDate;
+  String filterFromDate = '';
 
   @override
   void initState() {
-    Future.microtask((){
+    Future.microtask(() {
+      _scrollController.addListener(_scrollListener);
       callInitFunction();
     });
     super.initState();
   }
 
-  callInitFunction(){
+  final ScrollController _scrollController = ScrollController();
+
+  callInitFunction() {
     final refNotifier = ref.read(myCustomerProvider.notifier);
-    // final refWatch = ref.watch(myCustomerProvider);
+    refNotifier.resetLedger();
     refNotifier.viewCustomerApiFunction(context, widget.id);
+
     refNotifier.ledgerApiFunction(context, widget.id);
   }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_scrollListener);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _scrollListener() {
+    final state = ref.watch(myCustomerProvider);
+    final notifier = ref.read(myCustomerProvider.notifier);
+    if (_scrollController.position.pixels ==
+        _scrollController.position.maxScrollExtent) {
+      // Trigger the API to fetch the next page of data
+      if ((state.ledgerModel?.data?[0].records?.length ?? 0) <
+          int.parse((state.ledgerModel?.data?[0].totalCount ?? 0).toString())) {
+        notifier.ledgerApiFunction(context, widget.id, isLoadMore: true);
+      }
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
-      final refState = ref.watch(myCustomerProvider);
+    final refState = ref.watch(myCustomerProvider);
     final refNotifier = ref.read(myCustomerProvider.notifier);
     return Scaffold(
       appBar: customAppBar(title: 'My Customers'),
-      body: (refState.viewMyCustomerModel?.data?[0])!=null? SingleChildScrollView(
-        padding: EdgeInsets.only(top: 12,left: 18,right: 18,bottom: 25),
-        child: Column(
-          children: [
-            _CustomInfoWidget(refState: refState,),
-            const SizedBox(height: 15,),
-            ledgerWidget(refNotifier: refNotifier,refState: refState)
-          ],
-        ),
-      ): EmptyWidget(),
-    );
-  }
-
-  Widget ledgerWidget({required MyCustomerState refState, required MyCustomerNotifier refNotifier}){
-    return ExpandableWidget(
-      initExpanded: true,
-      collapsedWidget: collpasedWidget(context, isExpanded: true,refNotifier: refNotifier,refState: refState), expandedWidget: expandedWidget(context,isExpanded: false,refNotifier: refNotifier,refState: refState));
-  }
-
-
-  collpasedWidget(BuildContext context,{required bool isExpanded,required MyCustomerState refState, required MyCustomerNotifier refNotifier}){
-    return Container(
-      padding:!isExpanded?EdgeInsets.zero: EdgeInsets.symmetric(horizontal: 15,vertical: 10),
-      decoration: BoxDecoration(
-        color:!isExpanded?null: AppColors.whiteColor,
-        borderRadius: BorderRadius.circular(10),
-        boxShadow:!isExpanded?[]: [
-          BoxShadow(
-            offset: Offset(0, 0),
-            color: AppColors.black.withValues(alpha: .2),
-            blurRadius: 10
-          )
-        ]
-      ),
-      child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              AppText(title: 'Ledger History',fontFamily: AppFontfamily.poppinsSemibold,
+      body: (refState.viewMyCustomerModel?.data?[0]) != null
+          ? SingleChildScrollView(
+              controller: _scrollController,
+              padding:
+                  EdgeInsets.only(top: 12, left: 18, right: 18, bottom: 25),
+              child: Column(
+                children: [
+                  _CustomInfoWidget(
+                    refState: refState,
+                  ),
+                  const SizedBox(
+                    height: 15,
+                  ),
+                  ledgerWidget(refNotifier: refNotifier, refState: refState)
+                ],
               ),
-            Icon(!isExpanded ? Icons.expand_less : Icons.expand_more,color: AppColors.light92Color,),
-            ],
-          ),
+            )
+          : EmptyWidget(),
     );
   }
 
-  expandedWidget(BuildContext context, {required bool isExpanded,required MyCustomerState refState, required MyCustomerNotifier refNotifier}){
+  Widget ledgerWidget(
+      {required MyCustomerState refState,
+      required MyCustomerNotifier refNotifier}) {
+    return ExpandableWidget(
+        initExpanded: true,
+        isBorderNoShadow: true,
+        collapsedWidget: collpasedWidget(context,
+            isExpanded: true, refNotifier: refNotifier, refState: refState),
+        expandedWidget: expandedWidget(context,
+            isExpanded: false, refNotifier: refNotifier, refState: refState));
+  }
+
+  collpasedWidget(BuildContext context,
+      {required bool isExpanded,
+      required MyCustomerState refState,
+      required MyCustomerNotifier refNotifier}) {
+    return Container(
+      padding: !isExpanded
+          ? EdgeInsets.zero
+          : EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+      decoration: BoxDecoration(
+          color: !isExpanded ? null : AppColors.whiteColor,
+          borderRadius: BorderRadius.circular(9),
+          boxShadow: !isExpanded
+              ? []
+              : [
+                  // BoxShadow(
+                  //     offset: Offset(0, 0),
+                  //     color: AppColors.black.withValues(alpha: .2),
+                  //     blurRadius: 10)
+                ]),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          AppText(
+            title: 'Ledger History',
+            fontFamily: AppFontfamily.poppinsSemibold,
+          ),
+          Icon(
+            !isExpanded ? Icons.expand_less : Icons.expand_more,
+            color: AppColors.light92Color,
+          ),
+        ],
+      ),
+    );
+  }
+
+  expandedWidget(BuildContext context,
+      {required bool isExpanded,
+      required MyCustomerState refState,
+      required MyCustomerNotifier refNotifier}) {
     var model = refState.viewMyCustomerModel?.data?[0];
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 15,vertical: 10),
+      padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
       decoration: BoxDecoration(
         color: AppColors.itemsBG,
         borderRadius: BorderRadius.circular(10),
@@ -101,278 +162,428 @@ class _ViewCustomerScreenState extends ConsumerState<ViewCustomerScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          collpasedWidget(context, isExpanded: isExpanded,refNotifier: refNotifier,refState: refState),
-            const SizedBox(height: 9,),
-          dotteDivierWidget(dividerColor: AppColors.edColor,),
-            const SizedBox(height: 15,),
-           Row(
+          collpasedWidget(context,
+              isExpanded: isExpanded,
+              refNotifier: refNotifier,
+              refState: refState),
+          const SizedBox(
+            height: 5,
+          ),
+          dotteDivierWidget(
+            dividerColor: AppColors.edColor,
+            thickness: 1.7
+          ),
+          const SizedBox(
+            height: 15,
+          ),
+          Row(
             children: [
-              customBalanceContainer("Outstanding Balance", (model?.outstandingAmt??'').toString()),
-              const SizedBox(width: 10,),
-              customBalanceContainer("Last Billing rate", (model?.lastBillingRate??'').toString()),
+              customBalanceContainer("Outstanding Balance",
+                  (model?.outstandingAmt ?? '').toString()),
+              const SizedBox(
+                width: 10,
+              ),
+              customBalanceContainer("Last Billing rate",
+                  (model?.lastBillingRate ?? '').toString()),
             ],
-           ),
-            const SizedBox(height: 15,),
-          dotteDivierWidget(dividerColor: AppColors.edColor,),
-          const SizedBox(height: 15,),
+          ),
+          const SizedBox(
+            height: 15,
+          ),
+          dotteDivierWidget(
+            dividerColor: AppColors.edColor,
+          ),
+          const SizedBox(
+            height: 15,
+          ),
           AppSearchBar(
-                hintText: "Search",
-                suffixWidget: Padding(
-                  padding: const EdgeInsets.only(right: 10),
-                  child: SvgPicture.asset(AppAssetPaths.searchIcon),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 10),
-                child: Row(
-                  children: [
-                    filtersWidget("Filters",context, isFilterIcon: true),
-                    const SizedBox(width: 5,),
-                    filtersWidget('Date',context,),
-                  ],
-                ),
-              ),
-              tableWidget()
+            hintText: "Search",
+            suffixWidget: Padding(
+              padding: const EdgeInsets.only(right: 10),
+              child: SvgPicture.asset(AppAssetPaths.searchIcon),
+            ),
+            onChanged: (val) {
+              
+              refNotifier.onChangedLedgerSearch(val, widget.id, context);
+            },
+          ),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.only(top: 10),
+            child: Row(
+              children: [
+                filtersWidget("Filters", context, refNotifier, onTap: () {
+                  filterBottomSheet(context, refNotifier);
+                }, isFilterIcon: true),
+                refNotifier.ledgerFromDate.isNotEmpty
+                    ? Padding(
+                        padding: EdgeInsets.only(
+                          left: 5,
+                        ),
+                        child: filtersWidget(
+                            refNotifier.ledgerFromDate, context, refNotifier,
+                            onTap: () {
+                          refNotifier.ledgerFromDate = '';
+                          filterFromDate = '';
+                          refNotifier.ledgerApiFunction(context, widget.id);
+                          setState(() {});
+                        }),
+                      )
+                    : EmptyWidget(),
+
+                refNotifier.ledgerToDate.isNotEmpty
+                    ? Padding(
+                        padding: EdgeInsets.only(left: 5),
+                        child: filtersWidget(
+                            refNotifier.ledgerToDate, context, refNotifier,
+                            onTap: () {
+                          refNotifier.ledgerToDate = '';
+                          filterToDate = '';
+                          refNotifier.ledgerApiFunction(context, widget.id);
+                          setState(() {});
+                        }),
+                      )
+                    : EmptyWidget(),
+              ],
+            ),
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          (refState.ledgerModel?.data?[0].records??[]).isEmpty ?
+          NoDataFound(title: "No ledger data found"):
+          tableWidget(refNotifier: refNotifier, refState: refState)
         ],
       ),
     );
   }
 
-filtersWidget(String title, BuildContext context, {bool isFilterIcon=false}){
-  return InkWell(
-    onTap: (){
-      if(isFilterIcon){
-        filterBottomSheet(context);
-      }
-    },
-    child: Container(
-      decoration: BoxDecoration(
-        color: AppColors.whiteColor,
-          border: Border.all(color: AppColors.greenColor),
-          borderRadius: BorderRadius.circular(15)
-        ),
-          padding: EdgeInsets.symmetric(horizontal: 8,vertical: 2),
+  filtersWidget(
+    String title,
+    BuildContext context,
+    MyCustomerNotifier refNotifier, {
+    bool isFilterIcon = false,
+    Function()? onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+            color: AppColors.whiteColor,
+            border: Border.all(color: AppColors.greenColor),
+            borderRadius: BorderRadius.circular(15)),
+        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
         // alignment: Alignment.center,
         child: Row(
           children: [
-            isFilterIcon?
-            SvgPicture.asset(AppAssetPaths.filterIcon,height: 14,):SizedBox.shrink(),
-            const SizedBox(width: 4,),
-            AppText(title: title,fontFamily: AppFontfamily.poppinsSemibold,fontsize: 11,),
+            isFilterIcon
+                ? SvgPicture.asset(
+                    AppAssetPaths.filterIcon,
+                    height: 14,
+                  )
+                : SizedBox.shrink(),
+            const SizedBox(
+              width: 4,
+            ),
+            AppText(
+              title: title,
+              fontFamily: AppFontfamily.poppinsRegular,
+              fontsize: 11,
+            ),
+            isFilterIcon
+                ? EmptyWidget():
+              Padding(
+                padding: const EdgeInsets.only(left: 5),
+                child: Icon(Icons.close,size: 15,),
+              )
           ],
         ),
-    ),
-  );
-}
-
-  tableWidget(){
-    return Padding(
-      padding: const EdgeInsets.only(top: 14),
-      child: Table(
-              border: TableBorder.all(color: AppColors.e2Color),  // Adds borders to the table
-              children: [
-                TableRow(
-                  children: [
-                    _buildTableCell('Date'),
-                    _buildTableCell('Description'),
-                    _buildTableCell('Amount'),
-                    _buildTableCell('Balance'),
-                  ],
-                ),
-                TableRow(
-                  children: [
-                    _buildTableCell('12-10-2025',fontSize: 10,isBGColor: false),
-                    _buildTableCell('#445',fontSize: 10,isBGColor: false),
-                    _buildTableCell('1200.00',fontSize: 10,isBGColor: false),
-                    _buildTableCell('800.00',fontSize: 10,isBGColor: false),
-                  ],
-                ),
-                TableRow(
-                  children: [
-                    _buildTableCell('12-10-2025',fontSize: 10,isBGColor: false),
-                    _buildTableCell('#445',fontSize: 10,isBGColor: false),
-                    _buildTableCell('1200.00',fontSize: 10,isBGColor: false),
-                    _buildTableCell('800.00',fontSize: 10,isBGColor: false),
-                  ],
-                ),
-      
-                TableRow(
-                  children: [
-                    _buildTableCell('12-10-2025',fontSize: 10,isBGColor: false),
-                    _buildTableCell('#445',fontSize: 10,isBGColor: false),
-                    _buildTableCell('1200.00',fontSize: 10,isBGColor: false),
-                    _buildTableCell('800.00',fontSize: 10,isBGColor: false),
-                  ],
-                ),
-      
-                TableRow(
-                  children: [
-                    _buildTableCell('12-10-2025',fontSize: 10,isBGColor: false),
-                    _buildTableCell('#445',fontSize: 10,isBGColor: false),
-                    _buildTableCell('1200.00',fontSize: 10,isBGColor: false),
-                    _buildTableCell('800.00',fontSize: 10,isBGColor: false),
-                  ],
-                ),
-      
-                TableRow(
-                  children: [
-                    _buildTableCell('12-10-2025',fontSize: 10,isBGColor: false),
-                    _buildTableCell('#445',fontSize: 10,isBGColor: false),
-                    _buildTableCell('1200.00',fontSize: 10,isBGColor: false),
-                    _buildTableCell('800.00',fontSize: 10,isBGColor: false),
-                  ],
-                ),
-              ],
-            ),
-    );
-  }
-
-
-Widget _buildTableCell(String text,{bool isBGColor = true,double fontSize =11}) {
-    return TableCell(
-      child: Container(
-        height: 30,
-        color:isBGColor? AppColors.edColor:null,
-        child: Center(child: AppText(title: text,fontsize:fontSize,fontFamily: AppFontfamily.poppinsMedium,)),
       ),
     );
   }
 
-  customBalanceContainer(String title, String subTitle){
+  tableWidget(
+      {required MyCustomerState refState,
+      required MyCustomerNotifier refNotifier}) {
+    return Table(
+      border: TableBorder.all(
+          color: AppColors.e2Color), // Adds borders to the table
+      children: [
+        TableRow(
+          children: [
+            _buildTableCell('Date'),
+            _buildTableCell('Description'),
+            _buildTableCell('Amount'),
+            _buildTableCell('Balance'),
+          ],
+        ),
+        ...List.generate((refState.ledgerModel?.data?[0].records?.length ?? 0),
+            (val) {
+          var model = refState.ledgerModel?.data?[0].records?[val];
+          return TableRow(
+            children: [
+              _buildTableCell(model?.date ?? '',
+                  fontSize: 10, isBGColor: false),
+              _buildTableCell(model?.name ?? "",
+                  fontSize: 10, isBGColor: false),
+              _buildTableCell(
+                  double.parse(model!.amount.toString()).toStringAsFixed(2),
+                  fontSize: 10,
+                  isBGColor: false),
+              _buildTableCell((model.balance ?? '').toString(),
+                  fontSize: 10, isBGColor: false),
+            ],
+          );
+        }).toList(),
+      ],
+    );
+  }
+
+  Widget _buildTableCell(String text,
+      {bool isBGColor = true, double fontSize = 11}) {
+    return TableCell(
+      child: Container(
+        height: 30,
+        padding: EdgeInsets.symmetric(horizontal: 2),
+        color: isBGColor ? AppColors.edColor : null,
+        child: Center(
+            child: AppText(
+          title: text,
+          fontsize: fontSize,
+          fontFamily: AppFontfamily.poppinsMedium,
+          maxLines: 1,
+        )),
+      ),
+    );
+  }
+
+  customBalanceContainer(String title, String subTitle) {
     return Expanded(
       child: Container(
         // alignment: Alignment.center,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
-          color: AppColors.whiteColor,
-          boxShadow: [
-            BoxShadow(color: AppColors.black.withValues(alpha: .2),
-            blurRadius: 10,offset: Offset(0, 0))
-          ]
-        ),
-        padding: EdgeInsets.symmetric(vertical: 10,horizontal: 5),
+            borderRadius: BorderRadius.circular(8),
+            color: AppColors.whiteColor,
+            boxShadow: [
+              BoxShadow(
+                  color: AppColors.black.withValues(alpha: .2),
+                  blurRadius: 10,
+                  offset: Offset(0, 0))
+            ]),
+        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 11),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            AppText(title: title,fontsize: 10,fontFamily: AppFontfamily.poppinsMedium,),
-            const SizedBox(height: 8,),
-             AppText(title: subTitle,fontsize: 16,fontFamily: AppFontfamily.poppinsSemibold,),
+            AppText(
+              title: title,
+              fontsize: 10,
+              fontFamily: AppFontfamily.poppinsRegular,
+            ),
+            const SizedBox(
+              height: 8,
+            ),
+            AppText(
+              title: subTitle,
+              fontsize: 16,
+              fontFamily: AppFontfamily.poppinsSemibold,
+            ),
           ],
         ),
       ),
     );
   }
 
-filterBottomSheet(BuildContext context){
-  showModalBottomSheet(
-    backgroundColor: AppColors.whiteColor,
-    context: context, builder: (context){
-    return Container(
-       padding: EdgeInsets.only(top: 14,bottom: 20),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-         Padding(
-              padding: const EdgeInsets.only(right: 11),
-              child: Row(
+  filterBottomSheet(BuildContext context, MyCustomerNotifier refNotifier) {
+    showModalBottomSheet(
+        backgroundColor: AppColors.whiteColor,
+        context: context,
+        builder: (context) {
+          return StatefulBuilder(builder: (context, state) {
+            return Container(
+              padding: EdgeInsets.only(top: 14, bottom: 20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Spacer(),
-                  AppText(title: "Filter",fontsize: 16,fontFamily: AppFontfamily.poppinsSemibold,),
-                  const Spacer(),
-                  InkWell(
-                    onTap: (){
-                      Navigator.pop(context);
-                    },
-                    child: Container(
-                      height: 24,width: 24,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: AppColors.edColor,
-                        shape: BoxShape.circle
-                      ),
-                      child: Icon(Icons.close,size: 19,),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 11),
+                    child: Row(
+                      children: [
+                        const Spacer(),
+                        AppText(
+                          title: "Filter",
+                          fontsize: 16,
+                          fontFamily: AppFontfamily.poppinsSemibold,
+                        ),
+                        const Spacer(),
+                        InkWell(
+                          onTap: () {
+                            Navigator.pop(context);
+                          },
+                          child: Container(
+                            height: 24,
+                            width: 24,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                                color: AppColors.edColor,
+                                shape: BoxShape.circle),
+                            child: Icon(
+                              Icons.close,
+                              size: 19,
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 35,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 25),
+                    child: AppText(
+                      title: "Select Date",
+                      fontFamily: AppFontfamily.poppinsSemibold,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 25, top: 15),
+                    child: Row(
+                      children: [
+                        AppDateWidget(
+                          title: filterFromDate,
+                          onTap: () {
+                            DatePickerService.datePicker(context,
+                                    selectedDate: selectedToDate)
+                                .then((picked) {
+                              if (picked != null) {
+                                state(() {
+                                  var day = picked.day < 10
+                                      ? '0${picked.day}'
+                                      : picked.day;
+                                  var month = picked.month < 10
+                                      ? '0${picked.month}'
+                                      : picked.month;
+                                  filterFromDate = "${picked.year}-$month-$day";
+                                  setState(() {
+                                    selectedToDate = picked;
+                                  });
+                                });
+                              }
+                            });
+                          },
+                        ),
+                        Container(
+                          margin: EdgeInsets.symmetric(horizontal: 15),
+                          width: 8,
+                          height: 2,
+                          color: AppColors.black,
+                        ),
+                        AppDateWidget(
+                          title: filterToDate,
+                          onTap: () {
+                            DatePickerService.datePicker(context,
+                                    selectedDate: selectedToDate)
+                                .then((picked) {
+                              if (picked != null) {
+                                state(() {
+                                  var day = picked.day < 10
+                                      ? '0${picked.day}'
+                                      : picked.day;
+                                  var month = picked.month < 10
+                                      ? '0${picked.month}'
+                                      : picked.month;
+                                  filterToDate = "${picked.year}-$month-$day";
+                                  setState(() {
+                                    selectedToDate = picked;
+                                  });
+                                });
+                              }
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 70,
+                  ),
+                  Align(
+                    alignment: Alignment.center,
+                    child: AppTextButton(
+                      title: "Apply",
+                      height: 35,
+                      width: 150,
+                      color: AppColors.arcticBreeze,
+                      onTap: () {
+                        if (filterFromDate.isEmpty && filterToDate.isEmpty) {
+                          MessageHelper.showToast("Select any filter");
+                        } else {
+                          Navigator.pop(context);
+                          refNotifier.updateLedgerFilterValues(
+                              fromDate: filterFromDate, toDate: filterToDate);
+                          setState(() {});
+                          refNotifier.ledgerApiFunction(context, widget.id);
+                        }
+                      },
                     ),
                   )
                 ],
               ),
-            ),
-            const SizedBox(height: 35,),
-            Padding(
-              padding: const EdgeInsets.only(left: 25),
-              child: AppText(title: "Select Date",fontFamily: AppFontfamily.poppinsSemibold,),
-            ),
-             Padding(
-               padding: const EdgeInsets.only(left: 25,top: 15),
-               child: Row(
-                children: [
-                  AppDateWidget(),
-                  Container(
-                    margin: EdgeInsets.symmetric(horizontal: 15),
-                    width: 8,height: 2,
-                    color: AppColors.black,
-                  ),
-                   AppDateWidget(),
-                ],
-             ),
-             ),
-             const SizedBox(height: 70,),
-             Align(
-              alignment: Alignment.center,
-              child: AppTextButton(title: "Apply",height: 35,width: 150,color: AppColors.arcticBreeze,),
-             )
-        ],
-      ),
-    );
-  });
+            );
+          });
+        });
+  }
 }
-
-
-}
-
 
 class _CustomInfoWidget extends StatelessWidget {
   final MyCustomerState refState;
-   _CustomInfoWidget({required this.refState});
+  _CustomInfoWidget({required this.refState});
 
   @override
   Widget build(BuildContext context) {
     return ExpandableWidget(
-      initExpanded: true,
-      collapsedWidget: collapsedWidget(isExpanded: true),
-     expandedWidget: expandedWidget(isExpanded: false));
+        initExpanded: true,
+        collapsedWidget: collapsedWidget(isExpanded: true),
+        expandedWidget: expandedWidget(isExpanded: false));
   }
-  
 
-  collapsedWidget({required bool isExpanded}){
+  collapsedWidget({required bool isExpanded}) {
     return Container(
-      padding:!isExpanded?EdgeInsets.zero: EdgeInsets.symmetric(horizontal: 15,vertical: 10),
+      padding: !isExpanded
+          ? EdgeInsets.zero
+          : EdgeInsets.symmetric(horizontal: 15, vertical: 10),
       decoration: BoxDecoration(
-        color:!isExpanded?null: AppColors.whiteColor,
-        borderRadius: BorderRadius.circular(10),
-        boxShadow:!isExpanded?[]: [
-          BoxShadow(
-            offset: Offset(0, 0),
-            color: AppColors.black.withValues(alpha: .2),
-            blurRadius: 10
-          )
-        ]
-      ),
+          color: !isExpanded ? null : AppColors.whiteColor,
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: !isExpanded
+              ? []
+              : [
+                  BoxShadow(
+                      offset: Offset(0, 0),
+                      color: AppColors.black.withValues(alpha: .2),
+                      blurRadius: 10)
+                ]),
       child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              AppText(title: 'Customer Information',fontFamily: AppFontfamily.poppinsSemibold,
-              ),
-            Icon(!isExpanded ? Icons.expand_less : Icons.expand_more,color: AppColors.light92Color,),
-            ],
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          AppText(
+            title: 'Customer Information',
+            fontFamily: AppFontfamily.poppinsSemibold,
           ),
+          Icon(
+            !isExpanded ? Icons.expand_less : Icons.expand_more,
+            color: AppColors.light92Color,
+          ),
+        ],
+      ),
     );
   }
 
-   expandedWidget({required bool isExpanded}){
+  expandedWidget({required bool isExpanded}) {
     var model = refState.viewMyCustomerModel?.data?[0];
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 15,vertical: 10),
+      padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
       decoration: BoxDecoration(
         color: AppColors.itemsBG,
         borderRadius: BorderRadius.circular(10),
@@ -381,31 +592,47 @@ class _CustomInfoWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           collapsedWidget(isExpanded: isExpanded),
-          const SizedBox(height: 9,),
-          dotteDivierWidget(dividerColor: AppColors.edColor,),
-            const SizedBox(height: 6,),
-            itemsWidget("Customer Name", model?.customerName??''),
-            const SizedBox(height: 10,),
-            itemsWidget("Shop Name", model?.shopName??''),
-            const SizedBox(height: 10,),
-            itemsWidget("Contact", model?.contact??''),
-            const SizedBox(height: 10,),
-            itemsWidget("Location",model?.location??''),
+          const SizedBox(
+            height: 6,
+          ),
+          dotteDivierWidget(
+            dividerColor: AppColors.edColor,
+          ),
+          const SizedBox(
+            height: 8,
+          ),
+          itemsWidget("Customer Name", model?.customerName ?? ''),
+          const SizedBox(
+            height: 10,
+          ),
+          itemsWidget("Shop Name", model?.shopName ?? ''),
+          const SizedBox(
+            height: 10,
+          ),
+          itemsWidget("Contact", model?.contact ?? ''),
+          const SizedBox(
+            height: 10,
+          ),
+          itemsWidget("Location", model?.location ?? ''),
         ],
       ),
     );
   }
 
-
-
-
-  Widget itemsWidget(String title, String subTitle){
+  Widget itemsWidget(String title, String subTitle) {
     return Row(
       children: [
-        AppText(title: "$title : ",fontFamily: AppFontfamily.poppinsMedium,),
-        AppText(title: subTitle,
-        fontsize: 13,
-        fontFamily: AppFontfamily.poppinsRegular,color: AppColors.lightTextColor,),
+        AppText(
+          title: "$title : ",
+          fontFamily: AppFontfamily.poppinsRegular,
+          fontsize: 13,
+        ),
+        AppText(
+          title: subTitle,
+          fontsize: 13,
+          fontFamily: AppFontfamily.poppinsRegular,
+          color: AppColors.lightTextColor,
+        ),
       ],
     );
   }

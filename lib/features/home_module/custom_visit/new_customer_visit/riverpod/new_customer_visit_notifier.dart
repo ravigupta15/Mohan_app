@@ -43,11 +43,11 @@ List trailItems = [];
 Timer? timer;
  String? selectedDistrictValue;
   String? selectedStateValue;
-  String selectedUNVCustomer = '';
-  String? selectedVerificationType;
+  String selectedVerificationType = '';
   String selectedExistingCustomer = '';
+  String selectedshop = '';
  bool isReadOnlyFields = false;
-
+ bool isEditDetails = false;
  
   int selectedProductCategoryIndex= 0;
 
@@ -58,12 +58,12 @@ final channelPartnerController = TextEditingController();
 final remarksController  = TextEditingController();
  final searchController = TextEditingController();
  final bookAppointmentController = TextEditingController();
- final verfiyTypeController = TextEditingController();
+//  final verfiyTypeController = TextEditingController();
 
  String verifiedCustomerLocation = '';
 
  ///
- String unvName = '';
+//  String unvName = '';   
  final addressTypeController = TextEditingController();
  final address1Controller = TextEditingController();
  final address2Controller = TextEditingController();
@@ -82,14 +82,17 @@ updateLoading(bool isLoading){
  resetValues(){
   timer?.cancel();
   state = state.copyWith(currentTimer: 0,selectedCustomerType: 0,selectedVisitType: 0,tabBarIndex: 0,captureImageList: [1],addQuantity: 0,customerName: '',isLoading: false,shopName: '',productTrial: 0,selectedProductList: [],channelList: [],competitorModel: null,customerInfoModel: null,itemModel: null,uploadedImageList: [],contactNumberList: [],channelParterName: '',productModel: null,
-  visitEndLatitude: '',visitEndLetitude: '',visitStartLatitude: '',visitStartLetitude: ''
+  visitEndLatitude: '',visitEndLetitude: '',visitStartLatitude: '',visitStartLetitude: '',
+  dealTypeValue: 1
   
   );
+  isEditDetails = false;
   resetControllers();
   selectedDistrictValue =null;
   selectedStateValue= null;
   isReadOnlyFields=false;
-  selectedUNVCustomer = '';
+  selectedshop = '';
+  // selectedUNVCustomer = '';
   verifiedCustomerLocation = '';
  selectedExistingCustomer = '';
  trailItems = [];
@@ -100,12 +103,12 @@ updateLoading(bool isLoading){
  resetControllers(){
   state = state.copyWith(customerInfoModel: null,unvCustomerModel: null);
   verifiedCustomerLocation = '';
-  unvName = '';
-  selectedVerificationType = null;
+  selectedshop ='';
+  selectedVerificationType = '';
   customerNameController.clear();
   shopNameController.clear();
   numberController.clear();
-  verfiyTypeController.clear();
+  // verfiyTypeController.clear();
   searchController.clear();
   channelPartnerController.clear();
   bookAppointmentController.clear();
@@ -116,18 +119,20 @@ updateLoading(bool isLoading){
   addressTypeController.clear();
   pincodeController.clear();
   addressTypeController.clear();
-  verfiyTypeController.clear();
+  // verfiyTypeController.clear();
   remarksController.clear();
  }
 
- resetControllersWhenSwitchCustomType(){
+ resetControllersWhenSwitchCustomType({bool isResetChannel = true}){
   state = state.copyWith(customerInfoModel: null,unvCustomerModel: null,contactNumberList: [],);
   selectedProductCategoryIndex = 0;
   customerNameController.clear();
   shopNameController.clear();
   numberController.clear();
   searchController.clear();
-  // channelPartnerController.clear();
+  if(isResetChannel){
+channelPartnerController.clear();
+  }
   bookAppointmentController.clear();
   address1Controller.clear();
   address2Controller.clear();
@@ -136,17 +141,21 @@ updateLoading(bool isLoading){
   addressTypeController.clear();
   pincodeController.clear();
   addressTypeController.clear();
+  selectedDistrictValue = null;
+  selectedStateValue = null;
  }
 
  updateCustomerType(int index){
-  if(index ==0 && state.selectedCustomerType ==1){
-    selectedVerificationType = null;
+    if(state.selectedCustomerType != index){
     resetControllersWhenSwitchCustomType();
   }
   state = state.copyWith(selectedCustomerType: index); 
  }
 
  updateVisitType(int index){
+  if(state.selectedVisitType != index){
+    resetControllersWhenSwitchCustomType();
+  }
   state = state.copyWith(selectedVisitType: index);
  }
 
@@ -177,7 +186,7 @@ timer = Timer.periodic(Duration(seconds: 1), (val){
   }
 
   onChangedVerificationType(val){ 
-    verfiyTypeController.text = val;
+    // verfiyTypeController.text = val;
     selectedVerificationType = val;
     resetControllersWhenSwitchCustomType();
     if(val.toString().toLowerCase()=="verified"){
@@ -293,7 +302,6 @@ setResumeData(BuildContext context, VisitItemsModel model){
     address2Controller.text = model.addressLine2 ?? '';
     pincodeController.text = model.pincode ?? '';
     channelPartnerController.text = model.channelPartner ?? '';
-    verfiyTypeController.text = model.verificType ?? '';
 
     remarksController.text = model.remarksnotes ?? '';
     bookAppointmentController.text = model.appointmentDate ?? '';
@@ -348,7 +356,7 @@ channelListApiFunction(String searchText,)async{
 }
 
 customerInfoApiFunction({required String searchText, String channelPartern = '', String visitType = ''})async{ 
-  final response = await ApiService().makeRequest(apiUrl: "${ApiUrls.getCustomerurl}?search_text=$searchText&customer_level=$visitType&channel_partner=$channelPartern", method: ApiMethod.get.name);
+  final response = await ApiService().makeRequest(apiUrl: "${ApiUrls.customerUrl}?search_text=$searchText&customer_level=$visitType&channel_partner=$channelPartern", method: ApiMethod.get.name);
   if(response!=null){
     state = state.copyWith(customerInfoModel: CustomerInfoModel.fromJson(response.data));
   }
@@ -362,9 +370,9 @@ unvCustomerApiFunction(String searchText)async{
   }
 }
 
-Future customerAddressApiFunction(BuildContext context, String searchText)async{
+Future customerAddressApiFunction(BuildContext context, String searchText, String type)async{
   ShowLoader.loader(context);
-   final response = await ApiService().makeRequest(apiUrl: "${ApiUrls.getCustomerAddressUrl}?customer=$searchText", method: ApiMethod.get.name);
+   final response = await ApiService().makeRequest(apiUrl: "${ApiUrls.getCustomerAddressUrl}?customer=$searchText&verific_type=$type", method: ApiMethod.get.name);
    ShowLoader.hideLoader();
   if(response!=null){
     return response.data;
@@ -404,7 +412,7 @@ competitorApiFunction(BuildContext context)async{
 Future itemsApiFunction(BuildContext context, String searchText)async{ 
   ShowLoader.loader(context);
   state = state.copyWith(itemModel: null);
-  final response = await ApiService().makeRequest(apiUrl: '${ApiUrls.itemListUrl}?fields=["item_code", "item_name","item_category", "competitor"]&filters=[["item_name", "like", "%$searchText%"]]', method: ApiMethod.get.name);
+  final response = await ApiService().makeRequest(apiUrl: '${ApiUrls.salesItemVariantUrl}?item_template=$searchText&item_category=', method: ApiMethod.get.name);
   ShowLoader.hideLoader();
   if(response!=null){
     state = state.copyWith(itemModel: ItemModel.fromJson(response.data));
@@ -442,22 +450,34 @@ createProductApiFunction(BuildContext context, {required String actionType})asyn
     };
   }).toList(); 
 }).expand((x) => x).toList(); 
+
+String unvCustomer  = state.selectedCustomerType ==0 ? customerNameController.text :
+      selectedVerificationType.toLowerCase() =='verified'? '' : selectedExistingCustomer;
+
+String unvCustomerName = state.selectedCustomerType ==0 ? customerNameController.text : selectedVerificationType.toLowerCase() =='verified'? '' : customerNameController.text;
+
+String customer = state.selectedCustomerType ==0 ? '': selectedVerificationType.toLowerCase() =='verified'? selectedExistingCustomer : '';
+
+String customerName = state.selectedCustomerType ==0 ? '': selectedVerificationType.toLowerCase() =='verified'? customerNameController.text : '';
+
 final body = {
    "action": actionType, //Draft or Submit
     "customer_type": state.selectedCustomerType ==0 ? "New":"Existing",
     "customer_level": state.selectedVisitType==0? "Primary":"Secondary",
-    "verific_type": verfiyTypeController.text.isEmpty? "Unverified":verfiyTypeController.text,
-    "channel_partner":state.channelParterName,
-    "unv_customer_name": state.selectedCustomerType ==0? customerNameController.text : "",
-    "customer": selectedExistingCustomer,
-    "customer_name": customerNameController.text,
-    "deal_type":state.dealTypeValue, //1 to 5
+    "verific_type": selectedVerificationType.isEmpty ? 'Unverified':selectedVerificationType,
+    "channel_partner":state.selectedVisitType==1? channelPartnerController.text : '',
+    "unv_customer": unvCustomer,
+    "unv_customer_name":unvCustomerName,
+    "customer": customer,
+    "customer_name":customerName,
+    "deal_type":state.dealTypeValue == 0 ? 1 : state.dealTypeValue, //1 to 5
     "has_product_trial": state.productTrial == 1? state.hasProductTrial : 0, //1 or 0
     "shop_name": shopNameController.text,
+    "shop": selectedshop,
     "contact": state.contactNumberList.map((e){
       return {"contact": e.toString()};
     }).toList(),
-    "location": verfiyTypeController.text.toLowerCase() =='verified'?verifiedCustomerLocation: LocalSharePreference.currentAddress ,
+    "location": state.selectedCustomerType ==1 ?verifiedCustomerLocation: LocalSharePreference.currentAddress ,
     "address_title": addressTypeController.text,
     "address_line1": address1Controller.text,
     "address_line2": address2Controller.text,
@@ -476,7 +496,8 @@ final body = {
     "conduct_by":state.productTrial == 1 ? trialConductType : '', // if trial plan,
     "trial_type": state.productTrial == 1 ? trialType : '', // if trial plan,
     "product_pitching": formattedData,
-    "captured_images": state.uploadedImageList
+    "captured_images": state.uploadedImageList,
+    "cust_edit_needed": isEditDetails ? 1 :0
 };
 // print(body);
 log(json.encode(body));

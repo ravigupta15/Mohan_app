@@ -6,6 +6,7 @@ import 'package:mohan_impex/core/widget/app_text.dart';
 import 'package:mohan_impex/core/widget/app_text_button.dart';
 import 'package:mohan_impex/core/widget/custom_app_bar.dart';
 import 'package:mohan_impex/core/widget/custom_radio_button.dart';
+import 'package:mohan_impex/core/widget/expandable_widget.dart';
 import 'package:mohan_impex/features/home_module/schemes_management/model/scheme_model.dart';
 import 'package:mohan_impex/features/home_module/schemes_management/riverpod/schemes_notifier.dart';
 import 'package:mohan_impex/features/home_module/schemes_management/riverpod/schemes_state.dart';
@@ -239,52 +240,126 @@ ScrollController _scrollController = ScrollController();
 }
 
 Widget schemeWidget(SchemeRecord model){
+  return ExpandableWidget(
+      initExpanded: false,
+      collapsedWidget: collapsedWidget(model, isExpanded: true), expandedWidget: expandedWidget(model, isExpanded: false));
+  // Container(
+  //      padding: EdgeInsets.only(bottom: 15),
+  //         decoration: BoxDecoration(
+  //           color: AppColors.whiteColor,
+  //           borderRadius: BorderRadius.circular(5),
+  //           boxShadow: [
+  //             BoxShadow(
+  //               offset: Offset(0, 0),
+  //               color: AppColors.black.withValues(alpha: .2),
+  //               blurRadius: 3
+  //             )
+  //           ]
+  //         ),
+  //       child: Column(
+  //         crossAxisAlignment: CrossAxisAlignment.start,
+  //         children: [
+  //           Padding(
+  //             padding: const EdgeInsets.only(left: 17,right: 5),
+  //             child: Row(
+  //               mainAxisAlignment: MainAxisAlignment.center,
+  //               children: [
+  //                 Expanded(
+  //                   child: Column(
+  //                     crossAxisAlignment: CrossAxisAlignment.start,
+  //                     children: [
+  //                       AppText(title: model.title??'',fontsize: 20,fontFamily: AppFontfamily.poppinsMedium,),
+  //                       const SizedBox(height: 10,),
+  //                       AppText(title: model.description??'',fontsize: 10,fontWeight: FontWeight.w300,)
+  //                     ],
+  //                   ),
+  //                 ),
+  //                 AppText(title: "${(model.discountPercentage??'')}%".toString(),color: AppColors.greenColor,fontsize: 48,fontFamily: AppFontfamily.poppinsMedium,)
+  //               ],
+  //             ),
+  //           ),
+  //           Divider(
+  //                 color: AppColors.edColor,
+  //               ),
+  //               const SizedBox(height: 5,),
+  //               validWidget(model),
+  //               termsConditionWidget(model)
+  //         ],
+  //       ),
+  //   );
+
+}
+
+
+
+Widget collapsedWidget(SchemeRecord model,{required bool isExpanded}){
   return Container(
-       padding: EdgeInsets.only(bottom: 15),
-          decoration: BoxDecoration(
-            color: AppColors.whiteColor,
-            borderRadius: BorderRadius.circular(5),
-            boxShadow: [
-              BoxShadow(
-                offset: Offset(0, 0),
-                color: AppColors.black.withValues(alpha: .2),
-                blurRadius: 3
-              )
-            ]
-          ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(left: 17,right: 5),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+      padding:isExpanded? EdgeInsets.only(left: 10,right: 10,bottom: 12,top: 6):EdgeInsets.zero,
+    child:    Padding(
+              padding: const EdgeInsets.only(left: 15,right: 5),
+              child: Column(
                 children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        AppText(title: model.title??'',fontsize: 20,fontFamily: AppFontfamily.poppinsMedium,),
-                        const SizedBox(height: 10,),
-                        AppText(title: model.description??'',fontsize: 10,fontWeight: FontWeight.w300,)
-                      ],
-                    ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Icon(!isExpanded? Icons.expand_less:Icons.expand_more,color: AppColors.light92Color,)),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            AppText(title: model.title??'',fontsize: 19,fontFamily: AppFontfamily.poppinsMedium,),
+                            const SizedBox(height: 10,),
+                            AppText(title: model.description??'',fontsize: 10,fontWeight: FontWeight.w300,)
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 4,),
+                      AppText(title: "${(model.discountPercentage??'')}%".toString(),color: AppColors.greenColor,fontsize: 46,fontFamily: AppFontfamily.poppinsMedium,),
+                    ],
                   ),
-                  AppText(title: "${(model.discountPercentage??'')}%".toString(),color: AppColors.greenColor,fontsize: 48,fontFamily: AppFontfamily.poppinsMedium,)
+                  
                 ],
               ),
             ),
-            Divider(
+  
+  );
+}
+
+Widget expandedWidget(SchemeRecord model,{required bool isExpanded}){
+  return  Container(
+       padding: EdgeInsets.symmetric(horizontal: 10,vertical: 14),
+      decoration: BoxDecoration(
+        color: AppColors.whiteColor,
+        borderRadius: BorderRadius.circular(10),
+        // boxShadow: [
+        //   BoxShadow(
+        //     offset: Offset(0, 0),
+        //     color: AppColors.black.withValues(alpha: .2),
+        //     blurRadius: 10
+        //   )
+        // ]
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+       collapsedWidget(model, isExpanded: isExpanded),
+                     Divider(
                   color: AppColors.edColor,
                 ),
                 const SizedBox(height: 5,),
                 validWidget(model),
                 termsConditionWidget(model)
-          ],
-        ),
+  
+            
+        ],
+      ),
     );
-
 }
+
+
+
 
 
   validWidget(SchemeRecord model){

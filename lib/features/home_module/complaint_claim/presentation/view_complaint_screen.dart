@@ -6,6 +6,7 @@ import 'package:mohan_impex/core/widget/custom_app_bar.dart';
 import 'package:mohan_impex/core/widget/dotted_divider.dart';
 import 'package:mohan_impex/core/widget/expandable_widget.dart';
 import 'package:mohan_impex/core/widget/view_img.dart';
+import 'package:mohan_impex/features/common_widgets/status_activity.dart';
 import 'package:mohan_impex/features/home_module/complaint_claim/model/view_complaint_model.dart';
 import 'package:mohan_impex/features/home_module/complaint_claim/riverpod/add_complaint_state.dart';
 import 'package:mohan_impex/res/app_asset_paths.dart';
@@ -45,7 +46,8 @@ callInitFunction(){
           padding: EdgeInsets.only(left: 17,right: 17,top: 7,bottom: 30),
           child: Column(
             children: [
-              _StatusWidget(),
+              StatusWidget(activities: []),
+              // _StatusWidget(),
               const SizedBox(height: 15,),
               _ComplaintDetailsWidget(model: refState.viewComplaintModel?.data?[0],)
             ],
@@ -80,7 +82,10 @@ class _StatusWidget extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
               AppText(title: 'Status',fontFamily: AppFontfamily.poppinsSemibold,),
-              Icon(Icons.expand_less,color: AppColors.light92Color,),
+               Icon(
+            !isExpanded ? Icons.expand_less : Icons.expand_more,
+            color: AppColors.light92Color,
+          ),
         ],
       ),
     );
@@ -232,7 +237,10 @@ return Container(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
               AppText(title: 'Complaint Details',fontFamily: AppFontfamily.poppinsSemibold,),
-              Icon(Icons.expand_less,color: AppColors.light92Color,),
+             Icon(
+            !isExpanded ? Icons.expand_less : Icons.expand_more,
+            color: AppColors.light92Color,
+          ),
         ],
       ),
    

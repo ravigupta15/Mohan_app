@@ -151,14 +151,17 @@ String downloadStatus = '';
                               ),
                               ),
                               Container(
-                                padding: EdgeInsets.symmetric(horizontal: 10,vertical: 2),
+                                height: 17,width: 40,
+                                alignment: Alignment.center,
                                 decoration: BoxDecoration(
                                   border: Border.all(
                                     color: AppColors.greenColor,width: .5
                                   ),
                                   borderRadius: BorderRadius.circular(15)
                                 ),
-                                child: Text(model?.fileType??''),
+                                child: Text(model?.fileType??'',style: TextStyle(
+                                  fontFamily: AppFontfamily.poppinsMedium, fontSize: 10
+                                ),),
                               )
                             ],
                           ),
@@ -273,10 +276,10 @@ String downloadStatus = '';
     return        Row(
                           children: [
                             Expanded(child:
-                            AppTextButton(title: "Download",color: AppColors.arcticBreeze, height: 40,width: double.infinity,onTap: downloadTap,)),
+                            AppTextButton(title: "Download",color: AppColors.arcticBreeze, height: 28,width: double.infinity,onTap: downloadTap,)),
                             const SizedBox(width: 6,),
                             AppTextButton(title: "Share",color: AppColors.arcticBreeze,
-                            width: 100,onTap: shareTap,height: 40,
+                            width: 90,onTap: shareTap,height: 28,
                             )
                           ],
                         );

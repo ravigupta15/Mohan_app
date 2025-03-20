@@ -100,62 +100,68 @@ ScrollController _scrollController = ScrollController();
     return Scaffold(
       appBar: customAppBar(title: 'KYC'),
       body: Padding(
-        padding: const EdgeInsets.only(left: 18,right: 18,top: 14),
+        padding: const EdgeInsets.only(top: 14),
         child: Column(
           children: [
-            AppSearchBar(
-              hintText: "Search by ticket number",
-              onChanged: refNotifier.onChangedSearch,
-              controller: refNotifier.searchController,
-              suffixWidget: Container(
-                alignment: Alignment.center,
-                width: refState.tabBarIndex==0?60: 60,
-                child: Row(
-                  children: [
-                    SvgPicture.asset(AppAssetPaths.searchIcon,width: 24,height: 24,),
-                    Row(
-                      children: [
-                        Container(
-                      margin: EdgeInsets.symmetric(horizontal: 4),
-                      height: 20,width: 1,color: AppColors.lightBlue62Color.withValues(alpha: .3),
-                    ),
-                     GestureDetector(
-                      onTap: (){
-                        TextfieldUtils.hideKeyboard();
-                        filterBottomSheet(context, refNotifier, refState);
-                      },
-                      child: SvgPicture.asset(AppAssetPaths.filterIcon)),
-                      ],
-                    )
-                  ],
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 18),
+              child: AppSearchBar(
+                hintText: "Search by ticket number",
+                onChanged: refNotifier.onChangedSearch,
+                controller: refNotifier.searchController,
+                suffixWidget: Container(
+                  alignment: Alignment.center,
+                  width: refState.tabBarIndex==0?60: 60,
+                  child: Row(
+                    children: [
+                      SvgPicture.asset(AppAssetPaths.searchIcon,width: 24,height: 24,),
+                      Row(
+                        children: [
+                          Container(
+                        margin: EdgeInsets.symmetric(horizontal: 4),
+                        height: 20,width: 1,color: AppColors.lightBlue62Color.withValues(alpha: .3),
+                      ),
+                       GestureDetector(
+                        onTap: (){
+                          TextfieldUtils.hideKeyboard();
+                          filterBottomSheet(context, refNotifier, refState);
+                        },
+                        child: SvgPicture.asset(AppAssetPaths.filterIcon)),
+                        ],
+                      )
+                    ],
+                  ),
                 ),
               ),
             ),
              Padding(
-                padding: const EdgeInsets.only(top: 10),
+                padding: const EdgeInsets.only(top: 10,left: 18, right: 18),
                 child: selectedFiltersWidget(refNotifier: refNotifier, refState: refState),
               ),           
             const SizedBox(height: 16,),
-            CustomTabbar(
-              currentIndex: refState.tabBarIndex,
-              title1: "Approved",
-              title2: "Pending",
-              onClicked1: (){
-                if(refState.tabBarIndex !=0){
-                  resetValue();
-                }
-                refNotifier.updateTabBarIndex(0);
-                setState(() {
-                });
-              },
-              onClicked2: (){
-                if(refState.tabBarIndex !=1){
-                  resetValue();
-                }
-                refNotifier.updateTabBarIndex(1);
-                setState(() {
-                });
-              },
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: CustomTabbar(
+                currentIndex: refState.tabBarIndex,
+                title1: "Approved",
+                title2: "Pending",
+                onClicked1: (){
+                  if(refState.tabBarIndex !=0){
+                    resetValue();
+                  }
+                  refNotifier.updateTabBarIndex(0);
+                  setState(() {
+                  });
+                },
+                onClicked2: (){
+                  if(refState.tabBarIndex !=1){
+                    resetValue();
+                  }
+                  refNotifier.updateTabBarIndex(1);
+                  setState(() {
+                  });
+                },
+              ),
             ),
             const SizedBox(height: 10,),
             Expanded(child: 
@@ -181,7 +187,7 @@ Widget approvedKycWidget({required KycState refState, required KycNotifier refNo
       },
       controller: _scrollController,
       itemCount: (refState.kycModel?.data?[0].records?.length ?? 0),
-      padding: EdgeInsets.only(top: 10,bottom: 20),
+      padding: EdgeInsets.only(top: 10,bottom: 20,left: 18,right: 18),
       shrinkWrap: true,
       itemBuilder: (ctx,index){
         var model = refState.kycModel?.data?[0].records?[index];

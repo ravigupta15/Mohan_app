@@ -7,8 +7,6 @@ import 'package:mohan_impex/api_config/api_urls.dart';
 import 'package:mohan_impex/core/constant/app_constants.dart';
 import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit/model/item_model.dart';
 import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit/model/product_model.dart';
-import 'package:mohan_impex/features/home_module/requisitions/journey_plan/model/district_model.dart';
-import 'package:mohan_impex/features/home_module/requisitions/journey_plan/model/state_model.dart';
 import 'package:mohan_impex/features/home_module/requisitions/trial_plan/riverpod/add_trial_plan_state.dart';
 import 'package:mohan_impex/features/success_screen.dart';
 import 'package:mohan_impex/res/app_router.dart';
@@ -21,12 +19,14 @@ class AddTrialPlanNotifier extends StateNotifier<AddTrialPlanState> {
   updateLoading(bool value) {
     state = state.copyWith(isLoading: value);
   }
+  String unvName = '';
 String? selectedStateValue;
 String? selectedDistrictValue;
 String? selectedVisitType;
 String? selectedVerifyType;
 String channelPartner = '';
 
+bool isEditDetails = false;
 List<Items> selectedItem = [];
 List<ProductItems> selectedProduct = [];
 
@@ -34,6 +34,7 @@ List<ProductItems> selectedProduct = [];
   List contactNumberList = [];
 
 String customer = '';
+String selectedShop = '';
 String verifiedCustomerLocation = '';
   final remarksController = TextEditingController();
   final dateController = TextEditingController();
@@ -57,7 +58,10 @@ String verifiedCustomerLocation = '';
   resetAddTrialValues() {
     state =state.copyWith(selectedConductType: 0,verifiedCustomerLocation: '',unvName: '',selectedExistingCustomer: '');
     customer = '';
+    unvName = '';
     channelPartner = '';
+    selectedShop ='';
+    isEditDetails = false;
     selectedItem.clear();
     selectedProduct.clear();
     selectedVisitType = null;
@@ -89,6 +93,7 @@ String verifiedCustomerLocation = '';
      state =state.copyWith(verifiedCustomerLocation: '',unvName: '',selectedExistingCustomer: '');
     selectedDistrictValue = null;
     customer = '';
+    selectedShop = '';
     selectedStateValue = null;
      businessNameController.clear();
    contactNumberController.clear();
@@ -128,24 +133,24 @@ resetPageCount(){
 }
 
   
-onChangedStateVal(BuildContext context, String val){
-  districtController.clear();
-  selectedDistrictValue = null;
-  selectedStateValue = val;
-  state = state.copyWith(districtModel: null);
-  districtApiFunction(context, stateText: val).then((val){
-    if(val!=null){
-      state = state.copyWith(districtModel: DistrictModel.fromJson(val));
-    }
-  });
-}
+// onChangedStateVal(BuildContext context, String val){
+//   districtController.clear();
+//   selectedDistrictValue = null;
+//   selectedStateValue = val;
+//   state = state.copyWith(districtModel: null);
+//   districtApiFunction(context, stateText: val).then((val){
+//     if(val!=null){
+//       state = state.copyWith(districtModel: DistrictModel.fromJson(val));
+//     }
+//   });
+// }
 
 
 increasePageCount(){
   state = state.copyWith(currentPage: state.currentPage+1);}
 
 
-  checkvalidation(BuildContext context,Function(List)?detailsBack) {
+  checkvalidation(BuildContext context,String route, Function(List)?detailsBack) {
     if (formKey.currentState!.validate()) {
       if(dateController.text.isEmpty){
         MessageHelper.showToast("Please select date");
@@ -160,14 +165,14 @@ increasePageCount(){
         if(contactNumberList.isEmpty){
           contactNumberList.add(int.parse(contactNumberController.text));
         }
-      createTrialPlanApiFunction(context,detailsBack);
+      createTrialPlanApiFunction(context,route, detailsBack);
       }
     }
   }
 
 
   Future createTrialPlanApiFunction(
-    BuildContext context,
+    BuildContext context, String route, 
     Function(List)?detailsBack,) async {
       List itemFormatted = selectedItem.map((e) {
         return {"item_name": e.itemName, "item_code": e.itemCode};
@@ -181,15 +186,16 @@ increasePageCount(){
    "conduct_by": AppConstants.conductByList[state.selectedConductType] ,
       "trial_type": trailTypeController.text,
       "trial_location": trialLocationController.text,
-      "verific_type": verifyTypeController.text,
+      "verific_type": selectedVerifyType,
       "customer_level": visitTypeController.text,
-      "unv_customer_name": verifyTypeController.text == 'Unverified'
+      "unv_customer_name": selectedVerifyType == 'Unverified'
           ? customerNameController.text
           : "",
-        "unv_customer":  verifyTypeController.text == 'Unverified'? state.unvName:'',
-      "customer": verifyTypeController.text == 'Unverified'? '':customer,
-      "customer_name":verifyTypeController.text == 'Unverified'? "": customerNameController.text,
+        "unv_customer":  selectedVerifyType == 'Unverified'? customer:'',
+      "customer": selectedVerifyType == 'Unverified'? '':customer,
+      "customer_name":selectedVerifyType == 'Unverified'? "": customerNameController.text,
       "shop_name": businessNameController.text,
+      "shop": selectedShop,
       "contact": contactNumberList.map((e) {
         return {"contact": e.toString()};
       }).toList(),
@@ -207,6 +213,7 @@ increasePageCount(){
       "time": timeController.text,
       "item_trial_table": itemFormatted,
       "product_trial_table":productFormatted,
+      "cust_edit_needed": isEditDetails ? 1 :0
     };
     log(json.encode(data));
     ShowLoader.loader(context);
@@ -221,45 +228,24 @@ increasePageCount(){
           des: "You have successfully Submitted",
           btnTitle: "Track",
           onTap: () {
+            print("dfg..$response");
             Navigator.pop(context,true);
             Navigator.pop(context,true);
             ///
-            detailsBack!([trailTypeController.text,
+            if((route ?? '').isNotEmpty){
+        detailsBack!([trailTypeController.text,
             AppConstants.conductByList[state.selectedConductType],
             trailTypeController.text.toString().toLowerCase() == "product"? productFormatted: itemFormatted
             ],);
+            }
+
           }));
     }
   }
 
- Future stateApiFunction(BuildContext context, { String searchText =''})async{
-  state = state.copyWith(stateModel: null);
-    ShowLoader.loader(context);
-    final response =await ApiService().makeRequest(apiUrl: '${ApiUrls.stateUrl}/?filters=[["state", "like", "%$searchText%"]]&limit=100', method: ApiMethod.get.name);
-    ShowLoader.hideLoader();
-    if(response!=null){
-      var model =  StateModel.fromJson(response.data);
-    state = state.copyWith(stateModel:model);
-    return response.data;
-    }
-  }
-
- Future districtApiFunction(BuildContext context,{required String stateText})async{
-    state = state.copyWith(districtModel: null);
+Future customerAddressApiFunction(BuildContext context, String searchText, String type)async{
   ShowLoader.loader(context);
-    final response =await ApiService().makeRequest(apiUrl: '${ApiUrls.districtUrl}/?fields=["district", "state"]&filters=[["district", "like", "%%"], ["state", "=", "$stateText"]]&limit=100', method: ApiMethod.get.name);
-    ShowLoader.hideLoader();
-    if(response!=null){
-     state = state.copyWith(districtModel: DistrictModel.fromJson(response.data));
-     return response.data;
-    }
-    
-  }
-
-
-Future customerAddressApiFunction(BuildContext context, String searchText)async{
-  ShowLoader.loader(context);
-   final response = await ApiService().makeRequest(apiUrl: "${ApiUrls.getCustomerAddressUrl}?customer=$searchText", method: ApiMethod.get.name);
+   final response = await ApiService().makeRequest(apiUrl: "${ApiUrls.getCustomerAddressUrl}?customer=$searchText&verific_type=$type", method: ApiMethod.get.name);
    ShowLoader.hideLoader();
   if(response!=null){
     return response.data;

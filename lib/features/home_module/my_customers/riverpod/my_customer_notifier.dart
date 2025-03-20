@@ -2,6 +2,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:mohan_impex/api_config/api_service.dart';
 import 'package:mohan_impex/api_config/api_urls.dart';
+import 'package:mohan_impex/features/home_module/my_customers/model/ledger_model.dart';
 import 'package:mohan_impex/features/home_module/my_customers/model/my_customer_modle.dart';
 import 'package:mohan_impex/features/home_module/my_customers/model/view_my_custom_model.dart';
 import 'package:mohan_impex/features/home_module/my_customers/riverpod/my_customer_state.dart';
@@ -30,6 +31,10 @@ String zeroBillingFilter ='';
 
 String searchText = '';
 
+String ledgerSearchText = '';
+String ledgerFromDate = '';
+String ledgerToDate = '';
+
 
 String selectedTabbar = "Submitted";
 
@@ -43,15 +48,32 @@ String selectedTabbar = "Submitted";
  zeroBillingFilter ='';
  }
 
-
-
 updateLoadingMore(bool value){
   state = state.copyWith(isLoadingMore: value);
   }
 
+resetLedger(){
+  state = state.copyWith(ledgerPageIndex: 1, isLoadingMore: false);
+  ledgerSearchText = '';
+  ledgerFromDate = '';
+  ledgerToDate  = '';
+}
+
 resetPageCount(){
   state = state.copyWith(currentPage: 1);
 }
+
+resetLegerPageCount(){
+  state = state.copyWith(ledgerPageIndex: 1);
+}
+
+ledgerPageCount(){
+  state = state.copyWith(ledgerPageIndex: 1);
+}
+
+
+increaseLedgerPageCount(){
+  state = state.copyWith(ledgerPageIndex: state.ledgerPageIndex+1);}
 
   updateTabBarIndex(val){
     selectedTabbar = val==0?"Submitted":"Draft";
@@ -80,6 +102,11 @@ updateFilterValues({required String stateType, required String districtType, req
  '';
 }
 
+updateLedgerFilterValues({required String fromDate, required String toDate,}){
+  ledgerFromDate = fromDate;
+  ledgerToDate = toDate;
+}
+
 onChangedSearch(String val){
   if(val.isEmpty){
     searchText = '';
@@ -91,6 +118,21 @@ onChangedSearch(String val){
     searchText = val;
      resetPageCount();
     customerApiFunction();
+  }
+}
+
+
+onChangedLedgerSearch(String val, String id, BuildContext context){
+  if(val.isEmpty){
+    ledgerSearchText = '';
+     resetLegerPageCount();
+     ledgerApiFunction(context, id);
+  }
+  else{
+    print('sdfd..$val');
+    ledgerSearchText = val;
+     resetLegerPageCount();
+    ledgerApiFunction(context, id);
   }
 }
 customerApiFunction({bool isLoadMore = false,bool isShowLoading = true})async{
@@ -108,7 +150,6 @@ customerApiFunction({bool isLoadMore = false,bool isShowLoading = true})async{
    
   final response = await ApiService().makeRequest(apiUrl: "${ApiUrls.myCustomerListUrl}?search_text=$searchText&limit=10&current_page=${state.currentPage}&district=$districtStringFilter&state=$stateStringFilter&business_type=$businessTypeFilter&zero_billing=$zeroBillingFilter&from_date=$fromDateFilter&to_date=$toDateFilter", method: ApiMethod.get.name);
  updateLoading(false);
-   updateLoading(false);
     if (!isLoadMore) {
     } else {
       updateLoadingMore(false);
@@ -147,16 +188,46 @@ customerApiFunction({bool isLoadMore = false,bool isShowLoading = true})async{
   }
  }
 
- ledgerApiFunction(BuildContext context, String id)async{
-  // state = state.copyWith(viewMyCustomerModel: null);
-  final resonse = await ApiService().makeRequest(apiUrl: "${ApiUrls.ledgerUrl}?name=$id&search_text=&from_date=&to_date=&limit=15&current_page=1", method: ApiMethod.get.name);
-  if(resonse!=null){
-  // state = state.copyWith(viewMyCustomerModel: ViewMyCustomerModel.fromJson(resonse.data));
+ ledgerApiFunction(BuildContext context, String id, {bool isLoadMore = false,bool isShowLoading = true})async{
+  ShowLoader.loader(context);
+  if (isLoadMore) {
+      updateLoadingMore(true);
+    }
+     else {
+      if(isShowLoading){
+        updateLoading(isShowLoading);
+      }
+      else{
+        state = state.copyWith(ledgerPageIndex: 1);
+      }
+    }
+   
+  final response = await ApiService().makeRequest(apiUrl: "${ApiUrls.ledgerUrl}?name=$id&search_text=$ledgerSearchText&from_date=$ledgerFromDate&to_date=$ledgerToDate&limit=100&current_page=${state.ledgerPageIndex}", method: ApiMethod.get.name);
+  ShowLoader.hideLoader();
+ updateLoading(false);
+    if (!isLoadMore) {
+    } else {
+      updateLoadingMore(false);
+    }
+  if (response != null) {
+      var newModel = LedgerModel.fromJson(response.data);
+      if (isLoadMore) {
+         List<LedgerRecords> updatedData = [
+            ...(state.ledgerModel?.data?[0].records ?? []), 
+            ...?newModel.data![0].records,
+          ];
+          state.ledgerModel?.data?[0].records = updatedData;
+      } else {
+      state =  state.copyWith(ledgerModel: newModel);
+      }
+      if (newModel.data!.isEmpty || newModel.data!.length < state.ledgerPageIndex) {
+      } else {
+        if(isLoadMore){
+          increaseLedgerPageCount();
+        }
+      }
+      }
   }
-  else{
-    // state = state.copyWith(viewMyCustomerModel:null);
-  }
- }
 
 
   stateApiFunction({ String searchText =''})async{

@@ -238,42 +238,70 @@ ScrollController _scrollController = ScrollController();
     return SingleChildScrollView(
       padding: EdgeInsets.only(left: 15,right:15,bottom: 20),
        controller: _scrollController,
-      child: Table(
-              border: TableBorder.all(color: AppColors.e2Color),  // Adds borders to the table
-              children: [
-                TableRow(
+      child: Column(
+        children: [
+          headerWidget(),
+          Table(
+                  border: TableBorder(
+                 bottom: BorderSide(color: Color(0xff929292).withValues(alpha: .7)),
+                 left: BorderSide(color: Color(0xff929292).withValues(alpha: .7)),
+                 right: BorderSide(color: Color(0xff929292).withValues(alpha: .7)),
+                 horizontalInside: BorderSide(color: Color(0xff929292).withValues(alpha: .7)),
+                 verticalInside: BorderSide(color: Color(0xff929292).withValues(alpha: .7))
+                  ),  // Adds borders to the table
                   children: [
-                    _buildTableCell('SKU'),
-                    _buildTableCell('Product Name'),
-                    _buildTableCell('Unit Price'),
-                    _buildTableCell('Type'),
-                  ],
+                      ...List.generate((refState.priceListModel?.data?[0].records?.length ?? 0), (val){
+                      var model = refState.priceListModel?.data?[0].records?[val];
+                      return   TableRow(
+                      children: [
+                        _buildTableCell(model?.itemCode??'',fontSize: 10,isBGColor: false),
+                        _buildTableCell(model?.itemName ?? "",fontSize: 10,isBGColor: false),
+                        _buildTableCell(double.parse(model!.priceListRate.toString()).toStringAsFixed(2) ,fontSize: 10,isBGColor: false),
+                        _buildTableCell(model.itemCategory ?? '',fontSize: 10,isBGColor: false),
+                      ],
+                    );
+                    }).toList(),
+                   
+                                 ],
                 ),
-                ...List.generate((refState.priceListModel?.data?[0].records?.length ?? 0), (val){
-                  var model = refState.priceListModel?.data?[0].records?[val];
-                  return   TableRow(
-                  children: [
-                    _buildTableCell(model?.itemCode??'',fontSize: 10,isBGColor: false),
-                    _buildTableCell(model?.itemName ?? "",fontSize: 10,isBGColor: false),
-                    _buildTableCell(double.parse(model!.priceListRate.toString()).toStringAsFixed(2) ,fontSize: 10,isBGColor: false),
-                    _buildTableCell(model.itemCategory ?? '',fontSize: 10,isBGColor: false),
-                  ],
-                );
-                }).toList(),
-               
-                             ],
-            ),
+        ],
+      ),
     );
   }
 
-
+headerWidget(){
+  return Container(
+    height: 34,
+                  decoration: BoxDecoration(
+                    color: AppColors.greenColor,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(6),
+                      topRight: Radius.circular(6)
+                    ),
+                    border: Border(left: BorderSide(
+                      color: Color(0xff929292).withValues(alpha: .7)
+                    ),right: BorderSide(
+                      color: Color(0xff929292).withValues(alpha: .7)
+                    ))
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                        AppText(title: 'SKU',fontsize:11,fontFamily: AppFontfamily.poppinsSemibold,),
+                    AppText(title: 'Product Name',fontsize:11,fontFamily: AppFontfamily.poppinsSemibold,),
+                    AppText(title: "Unit Price",fontsize:11,fontFamily: AppFontfamily.poppinsSemibold,),
+                    AppText(title: "Type",fontsize:11,fontFamily: AppFontfamily.poppinsSemibold,)
+                    ],
+                  ),
+                );
+}
 
 Widget _buildTableCell(String text,{bool isBGColor = true,double fontSize =11}) {
     return TableCell(
       child: Container(
-        height: 30,
-        color:isBGColor? AppColors.greenColor:null,
-        child: Center(child: AppText(title: text,fontsize:fontSize,fontFamily: AppFontfamily.poppinsMedium,)),
+        height: 34,
+        padding: EdgeInsets.symmetric(horizontal: 4),
+        child:  Center(child: AppText(title: text,fontsize:10,fontFamily: AppFontfamily.poppinsRegular,)),
       ),
     );
   }

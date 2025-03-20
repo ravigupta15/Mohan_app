@@ -14,7 +14,10 @@ class RemarksWidget extends StatelessWidget {
   final String remarks;
   String? Function(String?)? validator;
   final bool isRequired;
-   RemarksWidget({this.isEditable=true, this.controller, this.remarks = '',this.validator, this.isRequired=false});
+  final double horizontalPadding;
+   RemarksWidget({this.isEditable=true, this.controller, this.remarks = '',this.validator, this.isRequired=false,
+   this.horizontalPadding = 10
+   });
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +29,7 @@ class RemarksWidget extends StatelessWidget {
 
   remarkesCollapsedWidget({required bool isExpanded}){
     return Container(
-        padding:!isExpanded?null: EdgeInsets.symmetric(horizontal: 10,vertical: 12),
+        padding:!isExpanded?null: EdgeInsets.symmetric(horizontal: horizontalPadding,vertical: 12),
       child: Row(
        children: [
          AppText(title: "Remarks",fontFamily:AppFontfamily.poppinsSemibold,),
@@ -41,10 +44,10 @@ class RemarksWidget extends StatelessWidget {
 
   remarkesExpandedWidget({required bool isExpanded}){
     return Container(
-        padding: EdgeInsets.symmetric(horizontal: 10,vertical: 14),
+        padding: EdgeInsets.symmetric(horizontal: horizontalPadding,vertical: 14),
       decoration: BoxDecoration(
         color: AppColors.itemsBG,
-        border: Border.all(color: Color(0xffE2E2E2)),
+        // border: Border.all(color: Color(0xffE2E2E2)),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Column(

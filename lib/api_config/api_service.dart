@@ -41,6 +41,7 @@ Future<Response?> makeRequest({
       log(json.encode(response.data));
     return _handleResponse(response, isErrorMessageShow);
   } on DioException catch (e) {
+    print(e.response?.statusCode);
     print(e.response);
     _handleResponse(e.response!, isErrorMessageShow);
   }
