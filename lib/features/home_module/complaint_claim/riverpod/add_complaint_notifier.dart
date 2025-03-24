@@ -137,7 +137,7 @@ resetOnChangedVerfiyType(){
     state = state.copyWith(selectedClaimTypeIndex: index);
   }
 saveImge(value){
-  state = state.copyWith(imgList: [value]);
+  state = state.copyWith(imgList: [...state.imgList, value]);
 }
 
 onChangedInvoiceNo(BuildContext context, searchVal){
@@ -392,6 +392,7 @@ complaintListApiFunction({bool isLoadMore = false, String search = '',bool isSho
     "invoice_no": invoiceNoController.text,
     "invoice_date": invoiceDateController.text,
     "complaint_item": formattedData,
+    "ref_attachments": state.imgList
        };
    print(data);
    final response = await ApiService().makeRequest(apiUrl: ApiUrls.createComplaintUrl, method: ApiMethod.post.name,data:data);

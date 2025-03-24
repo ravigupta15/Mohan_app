@@ -268,6 +268,7 @@ convertInSelectproductedListFromResume(VisitItemsModel model){
         item.product ?? '',
         item.name,
         item.itemCode,
+        item.uom
       );
     }).toList(),
   );
@@ -405,9 +406,9 @@ Future productItemApiFunction(BuildContext context, {required String productTitl
   } 
 }
 
-competitorApiFunction(BuildContext context)async{ 
+competitorApiFunction(BuildContext context, String searchText)async{ 
   ShowLoader.loader(context);
-  final response = await ApiService().makeRequest(apiUrl: ApiUrls.competitorUrl, method: ApiMethod.get.name);
+  final response = await ApiService().makeRequest(apiUrl: "${ApiUrls.competitorUrl}?search_text=$searchText", method: ApiMethod.get.name);
   ShowLoader.hideLoader();
   if(response!=null){
     state = state.copyWith(competitorModel: CompetitorModel.fromJson(response.data));

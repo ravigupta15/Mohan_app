@@ -636,7 +636,7 @@ class _SalesPatchWidgetState extends ConsumerState<SalesPatchWidget> {
                       width: 3,
                     ),
                     AppText(
-                      title: "kg",
+                      title: model?.uom??'',
                       fontsize: 10,
                     )
                   ],
@@ -704,7 +704,7 @@ class _SalesPatchWidgetState extends ConsumerState<SalesPatchWidget> {
                         child: SvgPicture.asset(AppAssetPaths.searchIcon),
                       ),
                       onChanged: (val) {
-                        refNotifier.competitorApiFunction(context);
+                        refNotifier.competitorApiFunction(context, val);
                       },
                     ),
                   ),

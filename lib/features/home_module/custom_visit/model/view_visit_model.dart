@@ -283,11 +283,12 @@ dynamic product;
   dynamic itemCategory;
   dynamic qty;
   dynamic competitor;
+  dynamic uom;
 
 
   Item({
     this.name,this.product,
-    this.itemCode, this.itemName, this.itemCategory,this.qty,this.competitor});
+    this.itemCode, this.itemName, this.itemCategory,this.qty,this.competitor, this.uom});
 
   Item.fromJson(Map<String, dynamic> json) {
     itemCode = json['item_code'];
@@ -296,6 +297,7 @@ dynamic product;
     name = json['name'];
     competitor = json['competitor'];
     qty = json['qty'];
+    uom = json['uom'];
   }
 
   Map<String, dynamic> toJson() {
@@ -304,6 +306,7 @@ dynamic product;
     data['item_name'] = itemName;
     data['item_category'] = itemCategory;
     data['qty'] = qty;
+    data['uom'] = uom;
     return data;
   }
 }

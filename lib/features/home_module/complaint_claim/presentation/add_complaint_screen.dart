@@ -302,7 +302,7 @@ class _AddComplaintScreenState extends ConsumerState<AddComplaintScreen>
                       addComplaintNotifier.onChangedInvoiceNo(context, val);
                      },
                      validator: (val){
-                      if (val!.isEmpty) {
+                      if ((val ?? '').isEmpty) {
                         return "Select Invoice no";
                          }
                        return null;
@@ -709,41 +709,86 @@ expandedWidget({required AddComplaintNotifier refNotifer, required AddComplaintS
           ],
         ),
           refState.imgList.isNotEmpty?
-        viewUploadedImage(url: refState.imgList[0]['url'],removeImg: (){
-                    refState.imgList.clear();
-                    setState(() {
-                    });
-                  }): EmptyWidget(),
+        viewUploadedImage( refState.imgList,): EmptyWidget(),
       
       ],
     );
   }
 
-viewUploadedImage({required String url, Function()? removeImg}){
-  return   Container(
-          padding: const EdgeInsets.only(top: 6),
-          height: 80,width: 80,
-          child: Stack(
-            children: [
-              ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                child: AppNetworkImage(imgUrl: url,height: 80,width: 80,)),
-               Align(
-                alignment: Alignment.topRight,
-                child: GestureDetector(
-                  onTap: removeImg,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: AppColors.redColor
-                    ),
-                    child: Icon(Icons.close,color: AppColors.whiteColor,size: 15,),
-                  ),
-                ))
-            ],
-          ),
-  );
-}
+// viewUploadedImage({required String url, Function()? removeImg}){
+//   return   Container(
+//           padding: const EdgeInsets.only(top: 6),
+//           height: 80,width: 80,
+//           child: Stack(
+//             children: [
+//               ClipRRect(
+//                   borderRadius: BorderRadius.circular(10),
+//                 child: AppNetworkImage(imgUrl: url,height: 80,width: 80,boxFit: BoxFit.cover,borderRadius: 10,)),
+//                Align(
+//                 alignment: Alignment.topRight,
+//                 child: GestureDetector(
+//                   onTap: removeImg,
+//                   child: Container(
+//                     decoration: BoxDecoration(
+//                       shape: BoxShape.circle,
+//                       color: AppColors.redColor
+//                     ),
+//                     child: Icon(Icons.close,color: AppColors.whiteColor,size: 15,),
+//                   ),
+//                 ))
+//             ],
+//           ),
+//   );
+// }
+
+  viewUploadedImage(List list){
+    return  GridView.builder(
+      padding: EdgeInsets.only(top: 10),
+                  itemCount: list.length,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      mainAxisSpacing: 15,
+                      crossAxisSpacing: 15,
+                      childAspectRatio: 2.99 / 3),
+                  itemBuilder: (ctx, index) {
+                    return Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              AppNetworkImage(
+                                imgUrl: 
+                                list[index]['url'],
+                                height: 79,
+                                width: 80,
+                                boxFit: BoxFit.cover,borderRadius:10
+                              ),
+                              Align(
+                                  alignment: Alignment.topRight,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      list.removeAt(index);
+                                      setState(() {
+                                        
+                                      });
+                                    },
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: AppColors.redColor),
+                                      child: Icon(
+                                        Icons.close,
+                                        color: AppColors.whiteColor,
+                                        size: 15,
+                                      ),
+                                    ),
+                                  ))
+                            ],
+                          );
+                  })
+              ;
+  }
+
 
 
   customerTypeWidget(

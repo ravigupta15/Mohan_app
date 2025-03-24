@@ -46,7 +46,7 @@ class _NewCustomerVisitScreenState
     final refState = ref.watch(newCustomVisitProvider);
     refNotifier.resetValues();
     refNotifier.startTimer();
-    refNotifier.competitorApiFunction(context);
+    refNotifier.competitorApiFunction(context,'');
     refNotifier.stateApiFunction(context);
     refState.visitStartDate =
         DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now()).toString();
@@ -61,7 +61,7 @@ class _NewCustomerVisitScreenState
     final refNotifier = ref.read(newCustomVisitProvider.notifier);
     // final refState = ref.watch(newCustomVisitProvider);
     refNotifier.resetValues();
-    refNotifier.competitorApiFunction(context);
+    refNotifier.competitorApiFunction(context,'');
     // refNotifier.stateApiFunction(context);
     // refState.visitStartDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now()).toString();
     // LocationService().startLocationUpdates().then((val){

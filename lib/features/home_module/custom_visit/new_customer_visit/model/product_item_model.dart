@@ -24,6 +24,7 @@ class ProductItemModel {
 class ProductItem {
   dynamic name;
   dynamic itemCode;
+  dynamic uom;
   String seletedCompetitor = '';
   int quantity =0;
   bool isSelected=false;
@@ -33,6 +34,7 @@ class ProductItem {
   ProductItem(
     this.seletedCompetitor,
     this.quantity,
+    this.uom,
     this.isSelected,
     this.productCategory,
     this.productType,
@@ -42,12 +44,14 @@ class ProductItem {
   ProductItem.fromJson(Map<String, dynamic> json) {
     name = json['item_name'];
     itemCode = json['item_code'];
+    uom = json['uom'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['name'] = name;
     data['item_code'] = itemCode;
+    data['uom'] = uom;
     return data;
   }
 }
