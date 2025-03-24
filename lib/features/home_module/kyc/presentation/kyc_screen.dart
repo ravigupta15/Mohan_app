@@ -102,6 +102,7 @@ ScrollController _scrollController = ScrollController();
       body: Padding(
         padding: const EdgeInsets.only(top: 14),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 18),
@@ -171,7 +172,13 @@ ScrollController _scrollController = ScrollController();
       ),
       floatingActionButton: floatingActionButtonWidget(
         onTap: (){
-          AppRouter.pushCupertinoNavigation( AddKycScreen());
+          AppRouter.pushCupertinoNavigation( AddKycScreen()).then((val){
+            if(val == true){
+              refNotifier.resetPageCount();
+              refNotifier.updateTabBarIndex(1);
+              refNotifier.kyclistApiFunction();
+            }
+          });
         }
       ),
     );
@@ -233,7 +240,7 @@ Widget approvedKycWidget({required KycState refState, required KycNotifier refNo
                         color: AppColors.edColor,
                       ),
                     ),
-                     kycWidget(refState)
+                     kycWidget(refState, model?.workflowState ??'')
                   ],
                 ),
               ),
@@ -255,7 +262,7 @@ Widget approvedKycWidget({required KycState refState, required KycNotifier refNo
  
 }
 
-kycWidget(KycState refState){
+kycWidget(KycState refState, String status){
   return Padding(
     padding: const EdgeInsets.only(left: 10),
     child: Row(
@@ -268,7 +275,7 @@ kycWidget(KycState refState){
         ),
         const SizedBox(width: 4,),
         AppText(title: "${refState.tabBarIndex ==0 ? "Completed" :"Pending"} : ",fontsize: 10,fontFamily: AppFontfamily.poppinsSemibold,color: AppColors.visitItem,),
-        AppText(title: "",fontsize: 10,fontFamily: AppFontfamily.poppinsRegular,color: AppColors.visitItem,),
+        AppText(title: status,fontsize: 10,fontFamily: AppFontfamily.poppinsRegular,color: AppColors.visitItem,),
       ],
     ),
   );
@@ -447,7 +454,7 @@ kycWidget(KycState refState){
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        // crossAxisAlignment: CrossAxisAlignment.start,
         children: [
          refNotifier.customerTypeFilter.isNotEmpty? customFiltersUI(refNotifier.customerTypeFilter,
          (){

@@ -454,7 +454,7 @@ class _ViewCustomerScreenState extends ConsumerState<ViewCustomerScreen> {
                           title: filterFromDate,
                           onTap: () {
                             DatePickerService.datePicker(context,
-                                    selectedDate: selectedToDate)
+                                    selectedDate: selectedFromDate)
                                 .then((picked) {
                               if (picked != null) {
                                 state(() {
@@ -466,7 +466,12 @@ class _ViewCustomerScreenState extends ConsumerState<ViewCustomerScreen> {
                                       : picked.month;
                                   filterFromDate = "${picked.year}-$month-$day";
                                   setState(() {
-                                    selectedToDate = picked;
+                                    selectedFromDate = picked;
+                                      if (selectedToDate != null &&
+                                          selectedFromDate!.isAfter(selectedToDate!)) {
+                                        selectedToDate = null;
+                                        filterToDate = "";
+                                      } 
                                   });
                                 });
                               }
@@ -482,8 +487,11 @@ class _ViewCustomerScreenState extends ConsumerState<ViewCustomerScreen> {
                         AppDateWidget(
                           title: filterToDate,
                           onTap: () {
+                             DateTime firstDate = selectedFromDate ?? DateTime.now();
                             DatePickerService.datePicker(context,
-                                    selectedDate: selectedToDate)
+                                    selectedDate: selectedToDate,
+                                    firstDate: firstDate
+                                    )
                                 .then((picked) {
                               if (picked != null) {
                                 state(() {

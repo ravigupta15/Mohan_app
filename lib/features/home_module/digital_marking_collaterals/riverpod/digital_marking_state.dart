@@ -6,12 +6,19 @@ import 'package:riverpod/riverpod.dart';
 class DigitalMarkingState {
   final bool isLoading;
   DigitalMarkingModel? digitalMarkingModel;
-  DigitalMarkingState({required this.isLoading, this.digitalMarkingModel});
+  int currentPage;
+   bool isLoadingMore;
+  DigitalMarkingState({required this.isLoading, this.digitalMarkingModel,
+  this.currentPage = 1, this.isLoadingMore =false
+  });
 
-  DigitalMarkingState copyWith({  bool? isLoading, DigitalMarkingModel? digitalMarkingModel}) {
+  DigitalMarkingState copyWith({  bool? isLoading, DigitalMarkingModel? digitalMarkingModel,
+  int? currentPage, bool? isLoadingMore}) {
     return DigitalMarkingState(
       isLoading: isLoading??this.isLoading,
-      digitalMarkingModel: digitalMarkingModel??this.digitalMarkingModel
+      digitalMarkingModel: digitalMarkingModel??this.digitalMarkingModel,
+      currentPage: currentPage ?? this.currentPage,
+      isLoadingMore: isLoadingMore ??  this.isLoadingMore
     );
   }
 }

@@ -59,8 +59,8 @@ class JourneyPendingWidget extends StatelessWidget {
                     children: [
                       JourneyPlanItemsWidget(
                       title:"Ticket #${model?.name??''}",
-                      status: model?.status??'',
-                      statusDes: model?.approvedDate??'',
+                      status: 'Pending',
+                      statusDes: model?.status??'',
                       ),
                     ],
                   ),

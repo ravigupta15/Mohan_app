@@ -72,7 +72,9 @@ callApiFunction({bool isLoadMore =false, bool isShowLoading = true})async{
         state = state.copyWith(currentPage: 1);
       }
     }
-   
+   if(isLoadMore){
+    increasePageCount();
+  }
   state = state.copyWith(schemeModel: null);
   final response = await ApiService().makeRequest(apiUrl: "${ApiUrls.schemeListUrl}?limit=10&current_page=${state.currentPage}&search_text=$searchText&scheme_type=$filterSchemeType", method: ApiMethod.get.name);
   updateLoading(false);
@@ -91,12 +93,12 @@ callApiFunction({bool isLoadMore =false, bool isShowLoading = true})async{
       } else {
       state =  state.copyWith(schemeModel: newModel);
       }
-      if (newModel.data!.isEmpty || newModel.data!.length < state.currentPage) {
-      } else {
-        if(isLoadMore){
-          increasePageCount();
-        }
-      }
+      // if (newModel.data!.isEmpty || newModel.data!.length < state.currentPage) {
+      // } else {
+      //   // if(isLoadMore){
+      //     increasePageCount();
+      //   // }
+      // }
       }
 } 
 

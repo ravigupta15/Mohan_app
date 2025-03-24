@@ -55,7 +55,7 @@ class JourneyApprovedWidget extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 9),
                   child:JourneyPlanItemsWidget(
                          title:"Ticket #${model?.name??''}",
-                        status: model?.status??'',
+                        status: 'Approved',
                         statusDes: model?.approvedDate??'',
                         ),
                 ),

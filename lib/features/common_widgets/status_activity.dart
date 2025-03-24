@@ -31,11 +31,11 @@ class StatusWidget extends StatelessWidget {
 
  Widget collpasedWidget({required bool isExpanded}){
     return Container(
-     padding:!isExpanded?EdgeInsets.zero: EdgeInsets.symmetric(horizontal: 10,vertical: 11),
+     padding:!isExpanded?EdgeInsets.zero: EdgeInsets.symmetric(horizontal: 15,vertical: 10),
           decoration: BoxDecoration(
         color:!isExpanded?null: AppColors.whiteColor,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.cardBorder),
+        // border: Border.all(color: AppColors.cardBorder),
         boxShadow:!isExpanded?[]:  [
           BoxShadow(offset: Offset(0, 0),color: AppColors.black.withValues(alpha: .1),blurRadius: 10)
         ]
@@ -44,7 +44,10 @@ class StatusWidget extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
               AppText(title: 'Status',fontFamily: AppFontfamily.poppinsSemibold,),
-              Icon(Icons.expand_less,color: AppColors.light92Color,),
+               Icon(
+            !isExpanded ? Icons.expand_less : Icons.expand_more,
+            color: AppColors.light92Color,
+          ),
         ],
       ),
     );

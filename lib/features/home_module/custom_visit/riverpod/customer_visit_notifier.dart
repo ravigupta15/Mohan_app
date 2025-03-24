@@ -30,6 +30,11 @@ class CustomerVisitNotifier extends StateNotifier<CustomerVisitState> {
 
 String selectedTabbar = "Submitted";
 
+resetValues(){
+  state = state.copyWith(isLoadingMore: false,tabBarIndex: 0);
+  resetPageCount();
+  resetFilter();
+}
 
   resetFilter(){
   customerTypeFilter = '';
@@ -52,17 +57,20 @@ resetPageCount(){
     selectedTabbar = val==0?"Submitted":"Draft";
     if(state.tabBarIndex !=val){
       resetFilter();
+      resetPageCount();
       customVisitApiFunction();
     }
     state = state.copyWith(tabBarIndex: val);
-    state = state.copyWith(currentPage: 1);
+    // state = state.copyWith(currentPage: 1);
     selectedTabbar = val==0?"Submitted":"Draft";
     
   }
 
 
 increasePageCount(){
-  state = state.copyWith(currentPage: state.currentPage+1);}
+  state = state.copyWith(currentPage: state.currentPage+1);
+  print("dfgh....${state.currentPage}");
+  }
 
 
 updateFilterValues({required String customerType, required String visitType, required String kycStatus, required productTrial}){
@@ -96,6 +104,9 @@ customVisitApiFunction({bool isLoadMore = false, String search = '',bool isShowL
         state = state.copyWith(currentPage: 1);
       }
     }
+    if(isLoadMore){
+    increasePageCount();
+  }
    
   final response = await ApiService().makeRequest(apiUrl: "${ApiUrls.customVisitListUrl}?tab=$selectedTabbar&limit=10&current_page=${state.currentPage}&search_text=$searchText&customer_type=$customerTypeFilter&visit_type=$visitTypFilter&kyc_status=$kycStatusFilter&has_trial_plan=$hasProductTrialFilter", method: ApiMethod.get.name);
  updateLoading(false);
@@ -115,18 +126,18 @@ customVisitApiFunction({bool isLoadMore = false, String search = '',bool isShowL
       } else {
       state =  state.copyWith(customerVisitModel: newModel);
       }
-      if (newModel.data!.isEmpty || newModel.data!.length < state.currentPage) {
-      } else {
-        if(isLoadMore){
-          increasePageCount();
-        }
-      }
+      // if (newModel.data!.isEmpty || newModel.data!.length < state.currentPage) {
+      // } else {
+      //   // if(isLoadMore){
+      //     increasePageCount();
+      //   // }
+      // }
       }
   
  } 
 
  viewCustomerVisitApiFunction(BuildContext context, String id)async{
-  state = state.copyWith(visitModel: null);
+  state = state.copyWith(visitModel: ViewVisitModel.fromJson({}));
   ShowLoader.loader(context);
   final resonse = await ApiService().makeRequest(apiUrl: "${ApiUrls.viewCustomerVisitUrl}?name=$id", method: ApiMethod.get.name);
   ShowLoader.hideLoader();

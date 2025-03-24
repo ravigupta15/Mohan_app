@@ -5,7 +5,6 @@ import 'package:mohan_impex/core/widget/app_search_bar.dart';
 import 'package:mohan_impex/core/widget/custom_app_bar.dart';
 import 'package:mohan_impex/core/widget/custom_tabbar.dart';
 import 'package:mohan_impex/core/widget/floating_action_button_widget.dart';
-import 'package:mohan_impex/data/datasources/local_share_preference.dart';
 import 'package:mohan_impex/features/home_module/requisitions/marketing_collaterals/presentation/add_marketing_collaterals_screen.dart';
 import 'package:mohan_impex/features/home_module/requisitions/marketing_collaterals/riverpod/collaterals_request_state.dart';
 import 'package:mohan_impex/features/home_module/requisitions/marketing_collaterals/widget/marking_approved_widget.dart';
@@ -64,7 +63,6 @@ ScrollController _scrollController = ScrollController();
   Widget build(BuildContext context) {
     final refNotifier = ref.read(collateralRequestProvider.notifier);
     final refState= ref.watch(collateralRequestProvider);
-    print(LocalSharePreference.token);
     return Scaffold(
       appBar: customAppBar(title: "Marketing Collaterals"),
       body: Padding(

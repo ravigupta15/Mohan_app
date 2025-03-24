@@ -47,7 +47,13 @@ resetValues(){
         MessageHelper.showToast("Please add items");
       }
       else{
+      bool value = selectedItem.any((val) => val.quantity == 0);
+      if(value){
+        MessageHelper.showErrorSnackBar(context, "Quantity should not be empty");
+      }
+      else{
       createSampleApiFunction(context);
+      }
       }
     }
   }
@@ -78,10 +84,12 @@ onChangedSearch(String val){
 }
 
  updateTabBarIndex(val){
+  selectedTabbar = val==0?"Approved":"Pending";
+   if(state.tabBarIndex !=val){
     state = state.copyWith(tabBarIndex: val);
-    state = state.copyWith(page: 1);
-    selectedTabbar = val==0?"Approved":"Pending";
+    resetPageCount();
     sampleRequisitionsListApiFunction();
+   }
   }
 
 updateLoadingMore(bool value){
@@ -104,11 +112,12 @@ increasePageCount(){
     "remarks":remarksController.text,
     "samp_req_item": selectedItem.map((e){
       return {
-        "item":e.itemName??'',
+        "item":e.itemCode??'',
         "qty":e.quantity
       };
     }).toList()
     };
+    print(data);
     ShowLoader.loader(context);
     final response = await ApiService().makeRequest(
         apiUrl: ApiUrls.createSampleRequisitionsUrl,
@@ -139,12 +148,16 @@ increasePageCount(){
         state = state.copyWith(page: 1);
       }
     }
+    if(isLoadMore){
+    increasePageCount();
+  }
     final response = await ApiService().makeRequest(apiUrl: "${ApiUrls.sampleReuisitionsListUrl}?reqd_date=$filterDateValue&status=$filterStatusValue&search_text=$searchText&tab=$selectedTabbar&limit=10&current_page=${state.page}", method: ApiMethod.get.name);
    updateLoading(false);
     if (!isLoadMore) {
     } else {
       updateLoadingMore(false);
     }
+
   if (response != null) {
       var newModel = CollateralsRequestModel.fromJson(response.data);
       if (isLoadMore) {
@@ -156,12 +169,12 @@ increasePageCount(){
       } else {
       state =  state.copyWith(collateralsReqestModel: newModel);
       }
-      if (newModel.data!.isEmpty || newModel.data!.length < state.page) {
-      } else {
-        if(isLoadMore){
-          increasePageCount();
-        }
-      }
+      // if (newModel.data!.isEmpty || newModel.data!.length < state.page) {
+      // } else {
+      //   // if(isLoadMore){
+      //     increasePageCount();
+      //   // }
+      // }
       }
   }
 

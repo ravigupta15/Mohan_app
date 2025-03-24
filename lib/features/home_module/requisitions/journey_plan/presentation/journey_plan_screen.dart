@@ -32,7 +32,9 @@ class JourneyPlanScreen extends ConsumerStatefulWidget {
 class _JourneyPlanScreenState extends ConsumerState<JourneyPlanScreen> {
 
   int selectedRadio = -1;
+  int selectedModeTravelindex = -1;
 DateTime? seleceDate;
+String filterModeTravel = '';
 String filterDate = '';
 String filterTravel = '';
 ScrollController _scrollController = ScrollController();
@@ -53,6 +55,15 @@ ScrollController _scrollController = ScrollController();
     setState(() {      
     });
   
+  }
+
+  resetValues(){
+   filterDate = '';
+   filterModeTravel = '';
+   selectedRadio = -1;
+   selectedModeTravelindex = -1;
+   filterTravel = ''; 
+   seleceDate = null;
   }
 
 @override
@@ -126,12 +137,18 @@ ScrollController _scrollController = ScrollController();
                 title1: "Approved",
                 title2: "Pending",
                 onClicked1: (){
+                  if(refState.tabBarIndex !=0){
+                    resetValues();
+                  }
                    refNotifier.updateTabBarIndex(0);
                   
                   setState(() {
                   });
                 },
                 onClicked2: (){
+                  if(refState.tabBarIndex !=1){
+                    resetValues();
+                  }
                   refNotifier.updateTabBarIndex(1);
                   setState(() {
                   });
@@ -222,7 +239,30 @@ ScrollController _scrollController = ScrollController();
                 });
                         },
                       ),
-                      const SizedBox(height: 15,),
+                        const SizedBox(height: 25,),
+                      AppText(title: "Mode of Travel",fontFamily: AppFontfamily.poppinsSemibold,),
+                      const SizedBox(height: 10,),
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: List.generate(refNotifier.modelTravelList.length, (val){
+                            return  Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 12),
+                              child: customRadioButton(isSelected:selectedModeTravelindex==val? true:false, title: refNotifier.modelTravelList[val],
+                              onTap: (){
+                                setState(() {
+                                  state(() {
+                                  selectedModeTravelindex=val;
+                               filterModeTravel =   refNotifier.modelTravelList[val];
+                                });
+                                });
+                              }
+                              ),
+                            );
+                          }).toList() 
+                        ),
+                      ),
+                      const SizedBox(height: 25,),
                       AppText(title: "Nature of Travel",fontFamily: AppFontfamily.poppinsSemibold,),
                       const SizedBox(height: 10,),
                       SingleChildScrollView(
@@ -250,12 +290,12 @@ ScrollController _scrollController = ScrollController();
                   alignment: Alignment.center,
                   child: AppTextButton(title: "Apply",height: 35,width: 150,color: AppColors.arcticBreeze,
                   onTap: (){
-                    if(filterDate.isEmpty && filterTravel.isEmpty){
+                    if(filterDate.isEmpty && filterTravel.isEmpty && filterModeTravel.isEmpty){
                        MessageHelper.showToast("Select any filter");
                     }
                     else{
                         Navigator.pop(context);
-                    refNotifier.updateFilterValues(date: filterDate, type: filterTravel);
+                    refNotifier.updateFilterValues(date: filterDate, type: filterTravel, modeTravel: filterModeTravel);
                     setState(() {
                     });
                     refNotifier.journeyPlanListApiFunction();
@@ -276,7 +316,7 @@ ScrollController _scrollController = ScrollController();
 
  Widget selectedFiltersWidget({required JourneyNotifier refNotifier,required JourneyState refState}){
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 25),
+      padding: const EdgeInsets.symmetric(horizontal: 5),
       child: Row(
         children: [
          refNotifier.filterDateValue.isNotEmpty? customFiltersUI(refNotifier.filterDateValue,
@@ -289,7 +329,17 @@ ScrollController _scrollController = ScrollController();
           });
          }
          ): EmptyWidget(),
-          const SizedBox(width: 15,),
+         refNotifier.filterModeTravelValue.isNotEmpty? customFiltersUI(refNotifier.filterModeTravelValue,
+         (){
+          refNotifier.filterModeTravelValue='';
+          filterModeTravel = '';
+          selectedModeTravelindex = -1;
+          refNotifier.journeyPlanListApiFunction();
+          setState(() {
+            
+          });
+         }
+         ): EmptyWidget(),
           refNotifier.filterNatureOfTravelValue.isNotEmpty? customFiltersUI(refNotifier.filterNatureOfTravelValue,
           (){
             refNotifier.filterNatureOfTravelValue='';
@@ -308,18 +358,21 @@ ScrollController _scrollController = ScrollController();
   customFiltersUI(String title, Function()?onTap){
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border.all(color: AppColors.greenColor),
-          borderRadius: BorderRadius.circular(15)
-        ),
-        padding: EdgeInsets.symmetric(horizontal: 9,vertical: 2),
-        child: Row(
-          children: [
-            AppText(title: title,fontFamily: AppFontfamily.poppinsSemibold,fontsize: 13,),
-            const SizedBox(width: 5,),
-            Icon(Icons.close,size: 15,)
-          ],
+      child: Padding(
+        padding: const EdgeInsets.only(left: 15),
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: AppColors.greenColor),
+            borderRadius: BorderRadius.circular(15)
+          ),
+          padding: EdgeInsets.symmetric(horizontal: 9,vertical: 2),
+          child: Row(
+            children: [
+              AppText(title: title,fontFamily: AppFontfamily.poppinsSemibold,fontsize: 13,),
+              const SizedBox(width: 5,),
+              Icon(Icons.close,size: 15,)
+            ],
+          ),
         ),
       ),
     );

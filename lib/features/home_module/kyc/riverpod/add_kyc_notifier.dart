@@ -26,11 +26,14 @@ updateLoading(bool value){
   state= state.copyWith(isLoading: value);
 }
 String searchText = '';
+String selectedShop = '';
+String unvCustomerId = '';
 String? selectedVisitTypeValue;
   String? selectedSegmentTypeValue;
  String selectedTabbar = "KYC Completed";
  List list = ["Primary", "Secondary"];
 
+List contactList = [];
 String? selectedShippingState;
 String? selectedBillingState;
 
@@ -48,7 +51,6 @@ final contactNumberController = TextEditingController();
 final addressController = TextEditingController();
 final emailController = TextEditingController();
 final businessNameController = TextEditingController();
-final shopNameController = TextEditingController();
 final visitTypeController = TextEditingController();
 final segmentController = TextEditingController();
 
@@ -83,6 +85,9 @@ resetControllers(){
   selectedVisitTypeValue = null;
   selectedDistrict = null;
   selectedState = null;
+  unvCustomerId = '';
+  selectedShop = '';
+  contactList.clear();
   state = state.copyWith(isSameBillingAddress: false,addKycTabBarIndex: 0,billingDistrictModel: null,
   segmentModel: null,shippingDistrictModel: null,selectedBusinessType: 0,districtModel: null,
   billingStateModel: null,stateModel: null,shippingStateModel: null, cdImageList: [], clImageList: []
@@ -93,7 +98,6 @@ resetControllers(){
  districtController.clear();
  stateController.clear();
  emailController.clear();
- shopNameController.clear();
  businessNameController.clear();
  visitTypeController.clear();
  segmentController.clear();
@@ -121,23 +125,26 @@ saveBillingAddressIfSelectOption(context);
 
 saveBillingAddressIfSelectOption(BuildContext context){
   if(state.isSameBillingAddress){
-   billingAddress1Controller.text = shippingAddress1Controller.text;
-  billingAddress2Controller.text = shippingAddress2Controller.text;
-  billingDistrictController.text = shippingDistrictController.text;
-  billingStateController.text = shippingStateController.text;
-  billingPincodeController.text = shippingPincodeController.text; 
-  selectedBillingState = selectedShippingState; 
-  if(selectedShippingDistrict!=null){
-    selectedBillingDistrict = null;
-    state.billingDistrictModel =null;
-    // districtApiFunction(context, stateText: selectedShippingState!);
-
+    shippingAddress1Controller.text = billingAddress1Controller.text;
+    shippingAddress2Controller.text = billingAddress2Controller.text;
+    shippingDistrictController.text = billingDistrictController.text;
+    shippingStateController.text = billingStateController.text;
+    shippingPincodeController.text = billingPincodeController.text;
+     selectedShippingState = billingStateController.text;
+     print("dfgh....$selectedShippingState");
+  if(billingStateController.text.isNotEmpty){
+    selectedShippingDistrict = null;
+    state.shippingDistrictModel =null;
+    districtApiFunction(context, stateText: billingStateController.text).then((val){
+      if(val !=null){
   Future.delayed(Duration(milliseconds: 300),(){
-    state = state.copyWith(billingDistrictModel: state.shippingDistrictModel); 
-selectedBillingDistrict = selectedShippingDistrict;
-print("fdg....$selectedBillingDistrict");
+state = state.copyWith(shippingDistrictModel:  DistrictModel.fromJson(val)); 
+selectedShippingDistrict = billingDistrictController.text;
   });
+      }
+    });
   }
+  
   }
 }
 
@@ -162,7 +169,6 @@ checkValidation(BuildContext context){
       MessageHelper.showErrorSnackBar(context, "Select start date and end date");
     }
     else{
-      saveBillingAddressIfSelectOption(context);
     addKycTabBarIndex(1);
     }
 
@@ -252,6 +258,8 @@ String businessTypeTitle(index){
 
  setVisitValues(BuildContext context, VisitItemsModel? visitItemsModel){
  customerNameController.text = visitItemsModel?.customerName ?? '';
+ unvCustomerId = visitItemsModel?.unvCustomer ?? '';
+ selectedShop = visitItemsModel?.shop ?? '';
  contactNumberController.text = visitItemsModel?.contact?[0].contact ?? '';
  addressController.text = visitItemsModel?.location ?? '';
  businessNameController.text  =visitItemsModel?.shopName  ??"";
@@ -318,11 +326,13 @@ imageUploadApiFunction(BuildContext context, File imgFile, {required bool isCLIm
 createKycApiFunction(BuildContext context)async{
   ShowLoader.loader(context);
   var body = {
+    "unv_customer": unvCustomerId,
      "customer_name": customerNameController.text,
     "customer_level": visitTypeController.text.isEmpty?"Primary":visitTypeController.text,
     "business_type": businessTypeTitle(state.selectedBusinessType),
     "contact": contactNumberController.text,
-    "shop": businessNameController.text,
+    "shop": selectedShop,
+    "shop_name":businessNameController.text,
     "segment": segmentController.text,
     "address": addressController.text,
     "district": districtController.text,
@@ -337,7 +347,7 @@ createKycApiFunction(BuildContext context)async{
     },
     "billing_address": {
         "title":"BILLING ADDRESS",
-        "address_line1": billingAddress2Controller.text,
+        "address_line1": billingAddress1Controller.text,
         "address_line2": billingAddress2Controller.text,
        "city": billingDistrictController.text,
         "state": billingStateController.text,
@@ -393,6 +403,14 @@ log(json.encode(body));
     }
     
   }
+Future customerAddressApiFunction(BuildContext context, String searchText, String type)async{
+  ShowLoader.loader(context);
+   final response = await ApiService().makeRequest(apiUrl: "${ApiUrls.getCustomerAddressUrl}?customer=$searchText&verific_type=$type", method: ApiMethod.get.name);
+   ShowLoader.hideLoader();
+  if(response!=null){
+    return response.data;
+  }
+}
 
   
 

@@ -35,6 +35,7 @@ class _DigitalMarkingCollateralsScreenState extends ConsumerState<DigitalMarking
   PdfDocument? pdfDocument;
   // String fileUrl = "";
   ImageProvider? pdfImage;
+   ScrollController _scrollController = ScrollController();
 @override
   void initState() {
     Future.microtask((){
@@ -45,9 +46,32 @@ class _DigitalMarkingCollateralsScreenState extends ConsumerState<DigitalMarking
 
   callInitFunction(){
     final refNotifier = ref.read(digitalMarkingProvider.notifier);
+    refNotifier.resetValues();
+       _scrollController.addListener(_scrollListener);
     refNotifier.digitalMarkingApiFunction();
   }
  
+ @override
+  void dispose() {
+    _scrollController.removeListener(_scrollListener);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _scrollListener() {
+    final state = ref.watch(digitalMarkingProvider);
+    final notifier = ref.read(digitalMarkingProvider.notifier);
+    if (_scrollController.position.pixels ==
+        _scrollController.position.maxScrollExtent) {
+      // Trigger the API to fetch the next page of data
+      if ((state.digitalMarkingModel?.data?[0].records?.length ?? 0) <
+          int.parse(
+              (state.digitalMarkingModel?.data?[0].totalCount ?? 0).toString())) {
+        notifier.digitalMarkingApiFunction(isLoadMore: true);
+      }
+    }
+  }
+
 ReceivePort port = ReceivePort();
 String downloadStatus = '';
    callDownloaderFunction() {
@@ -107,102 +131,122 @@ String downloadStatus = '';
                   separatorBuilder: (ctx,sb){
                     return const SizedBox(height: 15,);
                   },
+                   controller: _scrollController,
                 itemCount: (refState.digitalMarkingModel?.data?[0].records?.length??0),
                 padding: EdgeInsets.all(16),
                 shrinkWrap: true,
                 itemBuilder: (context,index){
                   var model =refState.digitalMarkingModel?.data?[0].records?[index];
-                  return Container(
-                    decoration: BoxDecoration(
-                      color: AppColors.whiteColor,
-                      borderRadius: BorderRadius.circular(5),
-                      boxShadow: [
-                        BoxShadow(
-                          offset: const Offset(0, 0),
-                          color: AppColors.black.withValues(alpha: .2),
-                          blurRadius: 2
-                        )
-                      ]
-                    ),
-                    // padding: EdgeInsets.all(15),
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(left: 15,top: 15,right: 15),
-                          child: 
-                          AppNetworkImage(imgUrl:model?.thumbnailImage??'',
-                          boxFit: BoxFit.cover,borderRadius: 10,
-                          ),),
-                        const SizedBox(height: 12,),
-                        Container(
-                          height: 1,
-                          width: double.infinity,
-                          color: AppColors.edColor,
+                  return Column(
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.whiteColor,
+                          borderRadius: BorderRadius.circular(5),
+                          boxShadow: [
+                            BoxShadow(
+                              offset: const Offset(0, 0),
+                              color: AppColors.black.withValues(alpha: .2),
+                              blurRadius: 2
+                            )
+                          ]
                         ),
-                        const SizedBox(height: 7,),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 15),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(model?.name??"",
-                              style: TextStyle(
-                                fontSize: 14,fontFamily: AppFontfamily.poppinsMedium,
-                              ),
-                              ),
-                              Container(
-                                height: 17,width: 40,
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: AppColors.greenColor,width: .5
+                        // padding: EdgeInsets.all(15),
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(left: 15,top: 15,right: 15),
+                              child: 
+                              AppNetworkImage(imgUrl:model?.thumbnailImage??'',
+                              boxFit: BoxFit.cover,borderRadius: 10,
+                              ),),
+                            const SizedBox(height: 12,),
+                            Container(
+                              height: 1,
+                              width: double.infinity,
+                              color: AppColors.edColor,
+                            ),
+                            const SizedBox(height: 7,),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 15),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(model?.name??"",
+                                  style: TextStyle(
+                                    fontSize: 14,fontFamily: AppFontfamily.poppinsMedium,
                                   ),
-                                  borderRadius: BorderRadius.circular(15)
-                                ),
-                                child: Text(model?.fileType??'',style: TextStyle(
-                                  fontFamily: AppFontfamily.poppinsMedium, fontSize: 10
-                                ),),
-                              )
-                            ],
-                          ),
+                                  ),
+                                  Container(
+                                    height: 17,width: 40,
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                        color: AppColors.greenColor,width: .5
+                                      ),
+                                      borderRadius: BorderRadius.circular(15)
+                                    ),
+                                    child: Text(model?.fileType??'',style: TextStyle(
+                                      fontFamily: AppFontfamily.poppinsMedium, fontSize: 10
+                                    ),),
+                                  )
+                                ],
+                              ),
+                            ),
+                            Padding(padding: EdgeInsets.all(15),
+                            child: buttonWidget(
+                              shareTap: (){
+                                print('object');
+                                downloadAndShareImage(model?.productAttachment ?? '',model?.fileType ??'').then((val){
+                                  if(val!=null){
+                                    Share.shareXFiles([XFile(val)]);
+                                  }
+                                });
+                              },
+                              downloadTap: ()async
+                            {
+                              downloadAndShareImage(model?.productAttachment ?? '', model?.fileType ??'').then((val)async{
+                                if(val!=null){
+                                  // final result = await OpenFile.open(val,);
+                                }
+                              });
+                              //  downloadAndShareImage(model?.productAttachment ?? '', model?.fileType ??'');
+                              // MessageHelper.showToast("Not implemented");
+                              //  downloadImageCount = imgIndex;
+                                // String dir = (await getApplicationDocumentsDirectory()).path;
+                                // await FlutterDownloader.enqueue(
+                                //   url: ("${model?.productAttachment??''}?token=${LocalSharePreference.token}"),
+                                //   headers: {}, // optional: header send with url (auth token etc)
+                                //   savedDir: Platform.isAndroid
+                                //       ? '/storage/emulated/0/Download/'
+                                //       : "$dir/",
+                                //   showNotification: true,
+                                //   openFileFromNotification: true,
+                                //   saveInPublicStorage: true,
+                                // );
+                               
+                      
+                            }),
+                            ),
+                          ],
                         ),
-                        Padding(padding: EdgeInsets.all(15),
-                        child: buttonWidget(
-                          shareTap: (){
-                            print('object');
-                            downloadAndShareImage(model?.productAttachment ?? '',model?.fileType ??'').then((val){
-                              if(val!=null){
-                                Share.shareXFiles([XFile(val)]);
-                              }
-                            });
-                          },
-                          downloadTap: ()async
-                        {
-                          downloadAndShareImage(model?.productAttachment ?? '', model?.fileType ??'').then((val)async{
-                            if(val!=null){
-                              // final result = await OpenFile.open(val,);
-                            }
-                          });
-                          //  downloadAndShareImage(model?.productAttachment ?? '', model?.fileType ??'');
-                          // MessageHelper.showToast("Not implemented");
-                          //  downloadImageCount = imgIndex;
-                            // String dir = (await getApplicationDocumentsDirectory()).path;
-                            // await FlutterDownloader.enqueue(
-                            //   url: ("${model?.productAttachment??''}?token=${LocalSharePreference.token}"),
-                            //   headers: {}, // optional: header send with url (auth token etc)
-                            //   savedDir: Platform.isAndroid
-                            //       ? '/storage/emulated/0/Download/'
-                            //       : "$dir/",
-                            //   showNotification: true,
-                            //   openFileFromNotification: true,
-                            //   saveInPublicStorage: true,
-                            // );
-                           
-
-                        }),
-                        ),
-                      ],
-                    ),
+                      ),
+                      index ==
+                                  (refState.digitalMarkingModel?.data?[0].records
+                                              ?.length ??
+                                          0) -
+                                      1 &&
+                              refState.isLoadingMore
+                          ? Container(
+                              padding: const EdgeInsets.all(4),
+                              width: 37,
+                              height: 37,
+                              child: const CircularProgressIndicator(
+                                strokeWidth: 3,
+                              ),
+                            )
+                          : SizedBox.fromSize()
+                    ],
                   );
               }): NoDataFound(title: "No marking collaterals found"))
       ],

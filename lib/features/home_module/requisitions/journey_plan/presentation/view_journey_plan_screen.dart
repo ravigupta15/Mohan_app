@@ -100,10 +100,16 @@ class _VisitInformationWidget extends StatelessWidget {
           dotteDivierWidget(dividerColor: AppColors.edColor,),
             const SizedBox(height: 9,),
             itemsWidget("Visit Date", "${model?.visitFromDate??''} - ${model?.visitToDate??''}"),
-            const SizedBox(height: 16,),
-            itemsWidget("Nature of Travel", model?.natureOfTravel??""),
-            const SizedBox(height: 16,),
-            itemsWidget("Night Out Location",model?.nightOutLocation??""),
+            (model?.natureOfTravel??"").isNotEmpty?
+            Padding(
+              padding: const EdgeInsets.only(top: 16),
+              child: itemsWidget("Nature of Travel", model?.natureOfTravel??""),
+            ):EmptyWidget(),
+            (model?.nightOutLocation ?? '').isNotEmpty?
+            Padding(
+              padding: const EdgeInsets.only(top: 16),
+              child: itemsWidget("Night Out Location",model?.nightOutLocation??""),
+            ): EmptyWidget(),
             const SizedBox(height: 16,),
             itemsWidget("Travel To State", model?.travelToState??""),
             const SizedBox(height: 16,),
@@ -111,7 +117,7 @@ class _VisitInformationWidget extends StatelessWidget {
             const SizedBox(height: 16,),
             itemsWidget("Mode of Travel", model?.modeOfTravel??""),
             const SizedBox(height: 16,),
-            itemsWidget("Remarks", ''),
+            itemsWidget("Remarks", model?.remarks ?? ''),
             
         ],
       )

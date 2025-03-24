@@ -278,7 +278,7 @@ return Container(
             const SizedBox(height: 18,),
             itemsWidget("State", model?.state??''),
             const SizedBox(height: 18,),
-            itemsWidget("Town", model?.town??''),
+            itemsWidget("District", model?.district??''),
             const SizedBox(height: 18,),
             itemsWidget("Pincode", model?.pincode??''),
             const SizedBox(height: 18,),
@@ -319,7 +319,9 @@ return Container(
 Widget imageVideoWidget(String img, String fileName){
   return InkWell(
     onTap: (){
+      print(img);
       AppRouter.pushCupertinoNavigation(ViewImage(image: img));
+      // AppRouter.pushCupertinoNavigation(ViewImage(image: 'img'));
     },
     child: Container(
       decoration: BoxDecoration(

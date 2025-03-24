@@ -19,168 +19,212 @@ class AddJourneyPlanScreen extends ConsumerStatefulWidget {
   const AddJourneyPlanScreen({super.key});
 
   @override
-  ConsumerState<AddJourneyPlanScreen> createState() => _AddJourneyPlanScreenState();
+  ConsumerState<AddJourneyPlanScreen> createState() =>
+      _AddJourneyPlanScreenState();
 }
 
 class _AddJourneyPlanScreenState extends ConsumerState<AddJourneyPlanScreen> {
-DateTime? fromDate;
+  DateTime? fromDate;
   DateTime? todDate;
   String? selectedDistrictValue;
   String? selectedStateValue;
   @override
   void initState() {
-    Future.microtask((){
+    Future.microtask(() {
       callInitFunction();
     });
     super.initState();
   }
 
-callInitFunction(){
-final refNotifier = ref.read(journeyProvider.notifier);
-ref.watch(journeyProvider).districtModel=null;
-setState(() {
-refNotifier.resetAddValues();
-});
+  callInitFunction() {
+    final refNotifier = ref.read(journeyProvider.notifier);
+    ref.watch(journeyProvider).districtModel = null;
+    setState(() {
+      refNotifier.resetAddValues();
+    });
 
-refNotifier.stateApiFunction(context);
-
-}
+    refNotifier.stateApiFunction(context);
+  }
 
   @override
   Widget build(BuildContext context) {
     final refNotifier = ref.read(journeyProvider.notifier);
     final refState = ref.watch(journeyProvider);
     return Scaffold(
-      appBar: customAppBar(title: "Journey Plan",),
+      appBar: customAppBar(
+        title: "Journey Plan",
+      ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.only(left: 19,right: 18,top: 12,bottom: 20),
+        padding:
+            const EdgeInsets.only(left: 19, right: 18, top: 12, bottom: 20),
         child: Form(
           key: refNotifier.formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               visitDateWidget(refNotifier),
-              const SizedBox(height: 15,),
-              LabelTextTextfield(title: "Nature of Travel", isRequiredStar: false),
-              const SizedBox(height: 8,),
-                CustomDropDown(items: naturalTravelItems(refNotifier.naturalTravelList),
-             hintText: "Select nature of travel",
-             onChanged: (val){
-              refNotifier.onChangedNaturalTravl(val);
-              setState(() {
-                
-              });
-             },
-             validator: (val) {
-                    if ((val ?? "").isEmpty) {
-                      return "Please select nature of travel";
-                    }
-                    return null;
-                  },
-             ),
-             refNotifier.naturalOfTravelController.text.toLowerCase() == "night out"?
-             Padding(
-               padding: const EdgeInsets.only(top: 15),
-               child: Column(
-                children: [
-                   LabelTextTextfield(title: "Night Out Location", isRequiredStar: false),
-                const SizedBox(height: 8,),
-                AppTextfield(
-                fillColor: false,
-                controller: refNotifier.naturalOutLocationController,
-                textInputAction: TextInputAction.next,
-                validator: (val){
-                  if((val??'').isEmpty){
-                    return "Please enter night out location";
+              const SizedBox(
+                height: 15,
+              ),
+              LabelTextTextfield(
+                  title: "Nature of Travel", isRequiredStar: false),
+              const SizedBox(
+                height: 8,
+              ),
+              CustomDropDown(
+                items: naturalTravelItems(refNotifier.naturalTravelList),
+                hintText: "Select nature of travel",
+                onChanged: (val) {
+                  refNotifier.onChangedNaturalTravl(val);
+                  setState(() {});
+                },
+                validator: (val) {
+                  if ((val ?? "").isEmpty) {
+                    return "Please select nature of travel";
                   }
                   return null;
-                }
-               ),
-                ],
-               ),
-             ) : EmptyWidget(),
-             const SizedBox(height: 15,),
-              LabelTextTextfield(title: "Travel To State", isRequiredStar: false),
-              const SizedBox(height: 8,),
-              CustomDropDown(items: stateItems((refState.stateModel?.data??[])),
-             hintText: "Select state",
-            //  selectedValue: selectedStateValue,
-             onChanged: (val){
-                selectedDistrictValue = null;
-                selectedStateValue = val;
-              refNotifier.onChangedState(context, val);
-              setState(() {
-                
-              });
-             },
-             validator: (val) {
-                    if ((val ?? "").isEmpty) {
-                      return "Please select the state";
-                    }
-                    return null;
-                  },
-             ),
-             const SizedBox(height: 15,),
-              LabelTextTextfield(title: "Travel To District", isRequiredStar: false),
-            const SizedBox(height: 8,),
-            CustomDropDown(items: districtItems((refState.districtModel?.data??[])),
-             hintText: "Select district",
-             onChanged: (val){
-              refNotifier.onChangedDistrict(val);
-              selectedDistrictValue = val;
-              setState(() {
-              });
-             },
-             selectedValue: selectedDistrictValue,
-             validator: (val) {
-                    if ((val ?? "").isEmpty) {
-                      return "Please select the district";
-                    }
-                    return null;
-                  },
-             ),
-           const SizedBox(height: 15,),
-              LabelTextTextfield(title: "Mode of travel", isRequiredStar: false),
-              const SizedBox(height: 8,),
-               CustomDropDown(items: naturalTravelItems(refNotifier.modelTravelList),
-             hintText: "Select mode of travel",
-             onChanged: refNotifier.onChangedModeTravel,
-             validator: (val) {
-                    if ((val ?? "").isEmpty) {
-                      return "Please select mode of travel";
-                    }
-                    return null;
-                  },
-             ),
-             const SizedBox(height: 15,),
+                },
+              ),
+              refNotifier.naturalOfTravelController.text.toLowerCase() ==
+                      "night out"
+                  ? Padding(
+                      padding: const EdgeInsets.only(top: 15),
+                      child: Column(
+                        children: [
+                          LabelTextTextfield(
+                              title: "Night Out Location",
+                              isRequiredStar: false),
+                          const SizedBox(
+                            height: 8,
+                          ),
+                          AppTextfield(
+                              fillColor: false,
+                              controller:
+                                  refNotifier.naturalOutLocationController,
+                              textInputAction: TextInputAction.next,
+                              validator: (val) {
+                                if ((val ?? '').isEmpty) {
+                                  return "Please enter night out location";
+                                }
+                                return null;
+                              }),
+                        ],
+                      ),
+                    )
+                  : EmptyWidget(),
+              const SizedBox(
+                height: 15,
+              ),
+              LabelTextTextfield(
+                  title: "Travel To State", isRequiredStar: false),
+              const SizedBox(
+                height: 8,
+              ),
+              CustomDropDown(
+                items: stateItems((refState.stateModel?.data ?? [])),
+                hintText: "Select state",
+                //  selectedValue: selectedStateValue,
+                onChanged: (val) {
+                  selectedDistrictValue = null;
+                  selectedStateValue = val;
+                  refNotifier.onChangedState(context, val);
+                  setState(() {});
+                },
+                validator: (val) {
+                  if ((val ?? "").isEmpty) {
+                    return "Please select the state";
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(
+                height: 15,
+              ),
+              LabelTextTextfield(
+                  title: "Travel To District", isRequiredStar: false),
+              const SizedBox(
+                height: 8,
+              ),
+              CustomDropDown(
+                items: districtItems((refState.districtModel?.data ?? [])),
+                hintText: "Select district",
+                onChanged: (val) {
+                  refNotifier.onChangedDistrict(val);
+                  selectedDistrictValue = val;
+                  setState(() {});
+                },
+                selectedValue: selectedDistrictValue,
+                validator: (val) {
+                  if ((val ?? "").isEmpty) {
+                    return "Please select the district";
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(
+                height: 15,
+              ),
+              LabelTextTextfield(
+                  title: "Mode of travel", isRequiredStar: false),
+              const SizedBox(
+                height: 8,
+              ),
+              CustomDropDown(
+                items: naturalTravelItems(refNotifier.modelTravelList),
+                hintText: "Select mode of travel",
+                onChanged: refNotifier.onChangedModeTravel,
+                validator: (val) {
+                  if ((val ?? "").isEmpty) {
+                    return "Please select mode of travel";
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(
+                height: 15,
+              ),
               LabelTextTextfield(title: "Remarks", isRequiredStar: false),
-              const SizedBox(height: 8,),
+              const SizedBox(
+                height: 8,
+              ),
               AppTextfield(
                 controller: refNotifier.remarksController,
-              fillColor: false,
-              maxLines: 3,
-              validator: (val){
-                if((val??'').isEmpty){
-                  return "Please enter remakrs";
-                }
-                return null;
-              },
-             ),
-             const SizedBox(height: 40,),
-             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                AppTextButton(title: "Cancel",color: AppColors.arcticBreeze,width: 100,height: 40,
-                onTap: (){
-                  Navigator.pop(context);
+                fillColor: false,
+                maxLines: 3,
+                validator: (val) {
+                  if ((val ?? '').isEmpty) {
+                    return "Please enter remakrs";
+                  }
+                  return null;
                 },
-                ),
-                AppTextButton(title: "Next",color: AppColors.arcticBreeze,width: 100,height: 40,onTap: (){
-                  print(refState.districtModel?.data);
-                  refNotifier.checkvalidation(context);
-                },),
-              ],
-             )
+              ),
+              const SizedBox(
+                height: 40,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  AppTextButton(
+                    title: "Cancel",
+                    color: AppColors.arcticBreeze,
+                    width: 100,
+                    height: 40,
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                  AppTextButton(
+                    title: "Next",
+                    color: AppColors.arcticBreeze,
+                    width: 100,
+                    height: 40,
+                    onTap: () {
+                      print(refState.districtModel?.data);
+                      refNotifier.checkvalidation(context);
+                    },
+                  ),
+                ],
+              )
             ],
           ),
         ),
@@ -188,15 +232,17 @@ refNotifier.stateApiFunction(context);
     );
   }
 
-  Widget visitDateWidget(JourneyNotifier refNotifier){
+  Widget visitDateWidget(JourneyNotifier refNotifier) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AppText(title: "Visit Date",color: AppColors.lightTextColor),
-            const SizedBox(height: 10,),
-             Row(
-                children: [
-                       AppDateWidget(
+        AppText(title: "Visit Date", color: AppColors.lightTextColor),
+        const SizedBox(
+          height: 10,
+        ),
+        Row(
+          children: [
+            AppDateWidget(
               onTap: () {
                 DatePickerService.datePicker(context, selectedDate: fromDate)
                     .then((picked) {
@@ -208,20 +254,27 @@ refNotifier.stateApiFunction(context);
                         "${picked.year}-$month-$day";
                     setState(() {
                       fromDate = picked;
+                      if (todDate != null && fromDate!.isAfter(todDate!)) {
+                        todDate = null;
+                        refNotifier.toController.clear();
+                      }
                     });
                   }
                 });
               },
               title: refNotifier.fromDateController.text,
             ),
-                  Container(
-                    margin: EdgeInsets.symmetric(horizontal: 15),
-                    width: 8,height: 2,
-                    color: AppColors.black,
-                  ),
-                           AppDateWidget(
+            Container(
+              margin: EdgeInsets.symmetric(horizontal: 15),
+              width: 8,
+              height: 2,
+              color: AppColors.black,
+            ),
+            AppDateWidget(
               onTap: () {
-                DatePickerService.datePicker(context, selectedDate: todDate)
+                DateTime firstDate = fromDate ?? DateTime.now();
+                DatePickerService.datePicker(context,
+                        selectedDate: todDate, firstDate: firstDate)
                     .then((picked) {
                   if (picked != null) {
                     var day = picked.day < 10 ? '0${picked.day}' : picked.day;
@@ -237,12 +290,11 @@ refNotifier.stateApiFunction(context);
               },
               title: refNotifier.toController.text,
             ),
-                ],
-              ),
+          ],
+        ),
       ],
     );
   }
-
 
   List<DropdownMenuItem<String>> naturalTravelItems(List list) {
     final List<DropdownMenuItem<String>> menuItems = [];
@@ -266,8 +318,6 @@ refNotifier.stateApiFunction(context);
     return menuItems;
   }
 
-
-
   List<DropdownMenuItem<String>> stateItems(List<StateItems> list) {
     final List<DropdownMenuItem<String>> menuItems = [];
     for (final item in list) {
@@ -290,7 +340,6 @@ refNotifier.stateApiFunction(context);
     return menuItems;
   }
 
-
   List<DropdownMenuItem<String>> districtItems(List<DistrictItem> list) {
     final List<DropdownMenuItem<String>> menuItems = [];
     for (final item in list) {
@@ -299,7 +348,7 @@ refNotifier.stateApiFunction(context);
           DropdownMenuItem(
             value: item.district,
             child: Text(
-              item.district??'',
+              item.district ?? '',
             ),
           ),
           if (item != list.last)
@@ -312,5 +361,4 @@ refNotifier.stateApiFunction(context);
     }
     return menuItems;
   }
-
 }

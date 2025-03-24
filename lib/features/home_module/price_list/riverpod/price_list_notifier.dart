@@ -74,13 +74,17 @@ priceApiFunction({bool isLoadMore = false, String search = '',bool isShowLoading
         state = state.copyWith(currentPage: 1);
       }
     }
+    if(isLoadMore){
+    increasePageCount();
+  }
   
-  final response = await ApiService().makeRequest(apiUrl: '${ApiUrls.priceListUrl}?limit=20&current_page=${state.currentPage}&search_text=$searchText&item_category=$filerValue', method: ApiMethod.get.name);
+  final response = await ApiService().makeRequest(apiUrl: '${ApiUrls.priceListUrl}?limit=50&current_page=${state.currentPage}&search_text=$searchText&item_category=$filerValue', method: ApiMethod.get.name);
     updateLoading(false);
     if (!isLoadMore) {
     } else {
       updateLoadingMore(false);
     }
+    
    if (response != null) {
       var newModel = PriceListModel.fromJson(response.data);
       if (isLoadMore) {
@@ -92,12 +96,12 @@ priceApiFunction({bool isLoadMore = false, String search = '',bool isShowLoading
       } else {
       state =  state.copyWith(priceListModel: newModel);
       }
-      if (newModel.data!.isEmpty || newModel.data!.length < state.currentPage) {
-      } else {
-        if(isLoadMore){
-          increasePageCount();
-        }
-      }
+      // if (newModel.data!.isEmpty || newModel.data!.length < state.currentPage) {
+      // } else {
+      //   // if(isLoadMore){
+      //     increasePageCount();
+      //   // }
+      // }
       }
  
  } 

@@ -1,3 +1,4 @@
+import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit/model/customer_info_model.dart';
 import 'package:mohan_impex/features/home_module/kyc/model/segment_model.dart';
 import 'package:mohan_impex/features/home_module/kyc/riverpod/add_kyc_notifier.dart';
 import 'package:mohan_impex/features/home_module/requisitions/journey_plan/model/district_model.dart';
@@ -19,14 +20,16 @@ class AddKycState {
   DistrictModel? billingDistrictModel;
   SegmentModel? segmentModel;
   int addKycTabBarIndex;
+  CustomerInfoModel? customerInfoModel;
   AddKycState({required this.isLoading,required this.isSameBillingAddress, required this.selectedBusinessType,  required this.cdImageList,required this.clImageList,
    this.districtModel, this.shippingDistrictModel, this.stateModel,this.segmentModel,this.shippingStateModel,
-  this.billingDistrictModel,this.billingStateModel,this.addKycTabBarIndex =0
+  this.billingDistrictModel,this.billingStateModel,this.addKycTabBarIndex =0,
+  this.customerInfoModel
   });
 
   AddKycState copyWith({  bool? isLoading, bool?isSameBillingAddress, int?selectedBusinessType,List?cdImageList, List? clImageList, 
   StateModel?stateModel,DistrictModel? districtModel, SegmentModel? segmentModel,DistrictModel? billingDistrictModel,
-  StateModel?billingStateModel, int? addKycTabBarIndex, DistrictModel? shippingDistrictModel, StateModel?shippingStateModel
+  StateModel?billingStateModel, int? addKycTabBarIndex, DistrictModel? shippingDistrictModel, StateModel?shippingStateModel, CustomerInfoModel? customerInfoModel
   }) {
     return AddKycState(
       isLoading: isLoading??this.isLoading,
@@ -41,7 +44,8 @@ class AddKycState {
       billingStateModel: billingStateModel?? this.billingStateModel,
       addKycTabBarIndex: addKycTabBarIndex??this.addKycTabBarIndex,
       shippingDistrictModel: shippingDistrictModel??this.shippingDistrictModel,
-      shippingStateModel: shippingStateModel??this.shippingStateModel
+      shippingStateModel: shippingStateModel??this.shippingStateModel,
+      customerInfoModel: customerInfoModel ?? this.customerInfoModel
     );
   }
 }

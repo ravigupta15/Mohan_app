@@ -493,6 +493,11 @@ class _MyCustomerScreenState extends ConsumerState<MyCustomerScreen> {
                                 filterFromDate = "${picked.year}-$month-$day";
                                 state(() {
                                   fromDate = picked;
+                                   if (todDate != null &&
+                                          fromDate!.isAfter(todDate!)) {
+                                        todDate = null;
+                                        filterToDate = "";
+                                      } 
                                 });
                               }
                             });
@@ -507,8 +512,10 @@ class _MyCustomerScreenState extends ConsumerState<MyCustomerScreen> {
                         ),
                         AppDateWidget(
                           onTap: () {
+                               DateTime firstDate = fromDate ?? DateTime.now();
                             DatePickerService.datePicker(context,
-                                    selectedDate: todDate)
+                                    selectedDate: todDate,
+                                    firstDate: firstDate)
                                 .then((picked) {
                               if (picked != null) {
                                 var day = picked.day < 10

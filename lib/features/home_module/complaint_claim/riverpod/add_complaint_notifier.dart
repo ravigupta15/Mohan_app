@@ -9,6 +9,8 @@ import 'package:mohan_impex/core/constant/app_constants.dart';
 import 'package:mohan_impex/core/services/internet_connectivity.dart';
 import 'package:mohan_impex/data/datasources/local_share_preference.dart';
 import 'package:mohan_impex/features/home_module/complaint_claim/model/compalint_model.dart';
+import 'package:mohan_impex/features/home_module/complaint_claim/model/invoice_items_model.dart';
+import 'package:mohan_impex/features/home_module/complaint_claim/model/invoice_model.dart';
 import 'package:mohan_impex/features/home_module/complaint_claim/model/view_complaint_model.dart';
 import 'package:mohan_impex/res/loader/show_loader.dart';
 import 'package:mohan_impex/utils/logout_helper.dart';
@@ -27,6 +29,18 @@ class AddComplaintNotifier extends StateNotifier<AddComplaintState> {
     state= state.copyWith(isLoading: value);
   }
 
+  String searchText = '';
+String fromDateFilter = '';
+String toDateFilter = '';
+String visitTypeFilter = '';
+String claimTypeFilter ='';
+String selectedTabbar = '';
+String selectedCustomer = '';
+String selectedShop = '';
+String? selectedInvoice ;
+final searchController = TextEditingController();
+List <InvoiceItemRecords> selectedItemsList = [];
+
 
  List contactNumberList = [];
   final formKey = GlobalKey<FormState>();
@@ -34,6 +48,7 @@ class AddComplaintNotifier extends StateNotifier<AddComplaintState> {
 final subjectController = TextEditingController();
   final channelPartnerController = TextEditingController();
   final contactPersonNameController = TextEditingController();
+  final shopNameController = TextEditingController();
   final addressController = TextEditingController();
   final contactController = TextEditingController();
   final stateNameController = TextEditingController();
@@ -54,11 +69,16 @@ final subjectController = TextEditingController();
 
 
   void resetValues() {
-    state = state.copyWith(isLoading: false,selectedVisitType: 0,channerPartnerList: [],imgList: [],itemList: [],selectedClaimTypeIndex: 0,selectedRadio: 0,);
+    state = state.copyWith(isLoading: false,selectedVisitType: 0,channerPartnerList: [],imgList: [],itemList: [],selectedClaimTypeIndex: 0,selectedRadio: 0,invoiceItemsModel: InvoiceItemsModel.fromJson({}),invoiceModel: InvoiceModel.fromJson({}));
+    selectedCustomer = '';
+    selectedShop = '';
+    selectedInvoice = null;
     channelPartnerController.clear();
+    shopNameController.clear();
     contactPersonNameController.clear();
     addressController.clear();
     contactController.clear();
+    selectedItemsList.clear();
     stateNameController.clear();
     townTypeController.clear();
     pincodeController.clear();
@@ -79,9 +99,24 @@ final subjectController = TextEditingController();
   }
 
 
+resetComplaintValues(){
+  selectedTabbar = "Active";
+  resetFilter();
+}
+
+  resetFilter(){
+   fromDateFilter = '';
+ toDateFilter = '';
+ visitTypeFilter = '';
+ claimTypeFilter ='';
+ searchController.clear();
+ }
+
+
 resetOnChangedVerfiyType(){
   contactNumberList = [];
   contactController.clear();
+  shopNameController.clear();
   contactPersonNameController.clear();
   stateNameController.clear();
   townTypeController.clear();
@@ -105,24 +140,106 @@ saveImge(value){
   state = state.copyWith(imgList: [value]);
 }
 
-updateTabBarIndex(int index){
-state = state.copyWith(tabBarIndex: index);
-complaintListApiFunction();
+onChangedInvoiceNo(BuildContext context, searchVal){
+invoiceNoController.text = searchVal ?? '';
+updateSelectedItemsList();
+state.invoiceModel?.data?.forEach((val){
+  if(val.name==searchVal){
+    invoiceDateController.text = val.date;
+  }
+});
+invoiceItemListApiFunction(context, searchVal);
 }
+
+clearSelectedInvoice(BuildContext context, String name){
+  invoiceNoController.clear();
+   selectedInvoice = null;
+  invoiceDateController.clear();
+   updateSelectedItemsList();
+  invoiceApiFunction(context, name);
+}
+
+
+updateTabBarIndex(val){
+    selectedTabbar = val==0?"Active":"Resolved";
+    if(state.tabBarIndex !=val){
+      resetFilter();
+      resetPageCount();
+      searchText = '';
+      complaintListApiFunction();
+    }
+    state = state.copyWith(tabBarIndex: val);
+    selectedTabbar = val==0?"Active":"Resolved";
+    
+  }
 
   checkValidation(BuildContext context){
   if(formKey.currentState!.validate()){
     if(state.imgList.isEmpty){
-      MessageHelper.showToast("Please uplaod the image");
+      MessageHelper.showErrorSnackBar(context, "Please uplaod the image");
     }
     else{
+      if(checkItemsValueIsEmpty()){
+    MessageHelper.showErrorSnackBar(context, "Values should not be empty");
+      }
+      else{
       callApiAddComplaint(context);
+      }
     }
   }
   else{
-    print('elses');
   }
 }
+
+bool checkItemsValueIsEmpty(){
+   return selectedItemsList.any((val)=> val.batchNoController.text.isEmpty || (val.selectedItemName ??'').isEmpty || val.mfdDateController.text.isEmpty || val.expiryDateController.text.isEmpty || val.valueOfGoodsController.text.isEmpty || val.itemQuantityController.text.isEmpty);
+
+}
+
+updateFilterValues({required String visitType, required String fromDate, required toDate, required String claimType}){
+    fromDateFilter = fromDate;
+ toDateFilter = toDate;
+ visitTypeFilter = visitType;
+ claimTypeFilter = claimType;
+}
+
+onChangedSearch(String val){
+  if(val.isEmpty){
+    searchText = '';
+     resetPageCount();
+     complaintListApiFunction();
+  }
+  else{
+    searchText = val;
+     resetPageCount();
+    complaintListApiFunction();
+  }
+}
+
+
+
+updateSelectedItemsList(){
+  selectedItemsList.clear();
+  state = state.copyWith(invoiceItemsModel: InvoiceItemsModel.fromJson({}));
+  var model = InvoiceItemRecords();
+  selectedItemsList.add(model);
+}
+
+increaseSelectedItemsList(){
+  var model = InvoiceItemRecords();
+  selectedItemsList.add(model);
+}
+
+updateLoadingMore(bool value){
+  state = state.copyWith(isLoadingMore: value);
+  }
+
+resetPageCount(){
+  state = state.copyWith(currentPage: 1);
+}
+
+increasePageCount(){
+  state = state.copyWith(currentPage: state.currentPage+1);}
 
 
 
@@ -197,42 +314,84 @@ channelPartnerApiFunction()async{
 }
 
 
-complaintListApiFunction()async{
-  state = state.copyWith(complaintModel: null);
-  updateLoading(true);
-  final response = await ApiService().makeRequest(apiUrl: ApiUrls.complaintListUrl, method: ApiMethod.get.name,);
-  updateLoading(false);
-  if(response!=null){
-    state = state.copyWith(complaintModel: ComplaintModel.fromJson(response.data));
+complaintListApiFunction({bool isLoadMore = false, String search = '',bool isShowLoading = true})async{
+    if (isLoadMore) {
+      updateLoadingMore(true);
+    }
+     else {
+      if(isShowLoading){
+        updateLoading(isShowLoading);
+      }
+      else{
+        state = state.copyWith(currentPage: 1);
+      }
+    }
+  if(isLoadMore){
+    increasePageCount();
   }
+  updateLoading(true);
+  final response = await ApiService().makeRequest(apiUrl: "${ApiUrls.complaintListUrl}?tab=$selectedTabbar&limit=10&current_page=${state.currentPage}&search_text=$searchText&customer_level=$visitTypeFilter&claim_type=$claimTypeFilter&from_date=$fromDateFilter&to_date=$toDateFilter", method: ApiMethod.get.name,);
+  updateLoading(false);
+    if (!isLoadMore) {
+    } else {
+      updateLoadingMore(false);
+    }
+    
+  if (response != null) {
+      var newModel = ComplaintModel.fromJson(response.data);
+      if (isLoadMore) {
+         List<ComplaintRecords> updatedData = [
+            ...(state.complaintModel?.data?[0].records ?? []), 
+            ...?newModel.data![0].records,
+          ];
+          state.complaintModel?.data?[0].records = updatedData;
+      } else {
+      state =  state.copyWith(complaintModel: newModel);
+      }
+      // if (newModel.data!.isEmpty || newModel.data!.length < state.currentPage) {
+      // } else {
+      //   // if(isLoadMore){
+      //     increasePageCount();
+      //   // }
+      // }
+      }
+  
 }
 
 
- callApiAddComplaint(BuildContext context)
- async {
+ callApiAddComplaint(BuildContext context)async {
+   List<Map<String, dynamic>> formattedData = selectedItemsList.map((e) {
+  return {
+       "item_code": e.selectedItemCode,
+        "item_name": e.selectedItemName,
+        "complaint_itm_qty": e.itemQuantityController.text,
+        "value_of_goods": e.valueOfGoodsController.text,
+        "batch_no": e.batchNoController.text,
+        "expiry": e.expiryDateController.text,
+         "mfd": e.mfdDateController.text
+    };
+  }).toList();  
+  print(formattedData);
+
   ShowLoader.loader(context);
    TextfieldUtils.hideKeyboard();
    final data=
-       {
-         "claim_type": claimTypeTitle(state.selectedClaimTypeIndex), // Transit or Quality
-         "customer_type": AppConstants.visitTypeList[state.selectedVisitType],
-         "company": channelPartnerController.text,
-         "customer": contactPersonNameController.text,
-         "contact":contactController.text,
-         "state": stateNameController.text,
-         "town": townTypeController.text,
-         "pincode": pincodeController.text,
-         "mfd": mfdController.text,
-         "opening_date": dateController.text,
-         "item_name": selectedItemNameController.text,
-         "invoice_no": invoiceNoController.text,
-         "complaint_itm_qty": complaintItemQuanityController.text,
-         "value_of_goods": goodsController.text,
-         "batch_no": batchNoController.text,
-         "expiry": expiryController.text,
-         "description": reasonController.text,
-         "ref_attachments": state.imgList,
-         "subject":subjectController.text
+        {
+    "subject": subjectController.text,
+    "claim_type": claimTypeTitle(state.selectedClaimTypeIndex), // Transit or Quality
+    "customer_level":AppConstants.visitTypeList[state.selectedVisitType],
+    "shop": selectedShop,
+    "shop_name": shopNameController.text,
+    "customer": selectedCustomer,
+    "contact_name": contactPersonNameController.text,
+    "contact": contactController.text,
+    "state": stateNameController.text,
+    "district": townTypeController.text,
+    "pincode": pincodeController.text,
+    "opening_date": dateController.text, //date
+    "invoice_no": invoiceNoController.text,
+    "invoice_date": invoiceDateController.text,
+    "complaint_item": formattedData,
        };
    print(data);
    final response = await ApiService().makeRequest(apiUrl: ApiUrls.createComplaintUrl, method: ApiMethod.post.name,data:data);
@@ -261,6 +420,28 @@ Future customerAddressApiFunction(BuildContext context, String searchText, Strin
    ShowLoader.hideLoader();
   if(response!=null){
     return response.data;
+  }
+}
+
+
+invoiceApiFunction(BuildContext context,String id)async{
+  state = state.copyWith(invoiceModel: InvoiceModel.fromJson({}));
+  ShowLoader.loader(context);
+   final response = await ApiService().makeRequest(apiUrl: "${ApiUrls.invoiceUrl}?customer=$id", method: ApiMethod.get.name);
+   ShowLoader.hideLoader();
+   if(response!=null){
+    state = state.copyWith(invoiceModel: InvoiceModel.fromJson(response.data));
+   }
+}
+
+
+invoiceItemListApiFunction(BuildContext context, String invoiceId)async{
+  ShowLoader.loader(context);
+  state = state.copyWith(invoiceItemsModel: InvoiceItemsModel.fromJson({}));
+  final response = await ApiService().makeRequest(apiUrl: '${ApiUrls.getInvoiceItems}?sales_invoice=$invoiceId', method: ApiMethod.get.name);
+  ShowLoader.hideLoader();
+  if(response!=null){
+    state = state.copyWith(invoiceItemsModel: InvoiceItemsModel.fromJson(response.data));
   }
 }
 

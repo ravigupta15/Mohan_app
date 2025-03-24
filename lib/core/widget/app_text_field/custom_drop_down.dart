@@ -26,7 +26,7 @@ import 'package:mohan_impex/res/app_fontfamily.dart';
 Widget customDropDown(){
   return DropdownButtonHideUnderline(
     child: DropdownButtonFormField2<String>(
-      isDense: true,
+      // isDense: true,
       decoration: InputDecoration(
           hintStyle: TextStyle(
                     fontSize: 14,color: AppColors.black1,fontFamily: AppFontfamily.poppinsRegular
@@ -55,7 +55,7 @@ Widget customDropDown(){
            ),
           
             style: TextStyle(
-              fontSize: 14,color: AppColors.black
+              fontSize: 13,color: AppColors.black
             ),
             items: items,
             value: selectedValue,

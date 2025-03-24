@@ -20,6 +20,7 @@ class JourneyNotifier extends StateNotifier<JourneyState> {
 
 final searchController = TextEditingController();
 String filterNatureOfTravelValue = '';
+String filterModeTravelValue  ='';
 String filterDateValue = '';
 String searchText = '';
 
@@ -89,6 +90,7 @@ resetValues(){
   resetFilter(){
     filterDateValue='';
     filterNatureOfTravelValue='';
+    filterModeTravelValue = '';
  }
 
 
@@ -105,26 +107,28 @@ resetPageCount(){
    selectedTabbar = val==0?"Approved":"Pending";
     if(state.tabBarIndex !=val){
       resetFilter();
+      resetPageCount();
       searchController.clear();
       searchText = '';
       journeyPlanListApiFunction();
     }
     state = state.copyWith(tabBarIndex: val);
-    state = state.copyWith(page: 1);
     selectedTabbar = val==0?"Approved":"Pending";
-
   }
 
 
 increasePageCount(){
   print('object');
-  state = state.copyWith(page: state.page+1);}
+  state = state.copyWith(page: state.page+1);
+  print("sdfgh...${state.page}");
+  }
 
 
-updateFilterValues({required String date, required String type}){
+updateFilterValues({required String date, required String type, required String modeTravel}){
   resetPageCount();
   filterNatureOfTravelValue = type;
   filterDateValue=date;
+  filterModeTravelValue =  modeTravel;
 }
 
 onChangedSearch(String val){
@@ -181,11 +185,14 @@ onChangedSearch(String val){
         updateLoading(isShowLoading);
       }
       else{
-        state = state.copyWith(page: 1);
+        // state = state.copyWith(page: 1);
       }
     }
+  if(isLoadMore){
+    increasePageCount();
+  }
   
-    final response = await ApiService().makeRequest(apiUrl: "${ApiUrls.journeyPlanListUrl}?nature_of_travel=$filterNatureOfTravelValue&date=$filterDateValue&search_text=$searchText&tab=$selectedTabbar&limit=5&current_page=${state.page}", method: ApiMethod.get.name);
+    final response = await ApiService().makeRequest(apiUrl: "${ApiUrls.journeyPlanListUrl}?nature_of_travel=$filterNatureOfTravelValue&date=$filterDateValue&search_text=$searchText&tab=$selectedTabbar&limit=5&current_page=${state.page}&mode_of_travel=$filterModeTravelValue", method: ApiMethod.get.name);
    updateLoading(false);
     if (!isLoadMore) {
     } else {
@@ -202,12 +209,13 @@ onChangedSearch(String val){
       } else {
       state =  state.copyWith(collateralsReqestModel: newModel);
       }
-      if (newModel.data!.isEmpty || newModel.data!.length < state.page) {
-      } else {
-        if(isLoadMore){
-          increasePageCount();
-        }
-      }
+      // if (int.parse(newModel.data![0].pageCount.toString()) <= state.page) {
+      
+      // } else {
+      //   if(isLoadMore){
+      //     increasePageCount();
+      //   }
+      // }
       }
   
   }

@@ -72,8 +72,8 @@ class _kycComplateState extends State<kycComplate> {
                       padding: const EdgeInsets.symmetric(horizontal: 60),
                       child: AppTextButton(title: "Track",color: Colors.black,height: 33,
                         onTap: () {
-                          Navigator.pop(context);
-                          Navigator.pop(context);
+                          Navigator.pop(context, true);
+                          Navigator.pop(context, true);
                           // AppRouter.pushCupertinoNavigation(KycScreen());
                         },
                       ),

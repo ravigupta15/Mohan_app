@@ -61,7 +61,7 @@ class Data {
 
 class SalesRecords {
   dynamic name;
-  dynamic customShopName;
+  dynamic shopName;
   dynamic contact;
   dynamic location;
   dynamic createdBy;
@@ -71,7 +71,7 @@ class SalesRecords {
 
   SalesRecords(
       {this.name,
-      this.customShopName,
+      this.shopName,
       this.contact,
       this.location,
       this.createdBy,
@@ -81,7 +81,7 @@ class SalesRecords {
 
   SalesRecords.fromJson(Map<String, dynamic> json) {
     name = json['name'];
-    customShopName = json['custom_shop_name'];
+    shopName = json['shop_name'];
     contact = json['contact'];
     location = json['location'];
     createdBy = json['created_by'];
@@ -93,7 +93,7 @@ class SalesRecords {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data =  Map<String, dynamic>();
     data['name'] = name;
-    data['custom_shop_name'] = customShopName;
+    data['shop_name'] = shopName;
     data['contact'] = contact;
     data['location'] = location;
     data['created_by'] = createdBy;

@@ -62,6 +62,7 @@ ScrollController _scrollController = ScrollController();
 
   callInitFunction(){
     _scrollController.addListener(_scrollListener); 
+    ref.read(customVisitProvider.notifier).resetValues();
    ref.read(customVisitProvider.notifier).customVisitApiFunction();
     setState(() {      
     });
@@ -159,8 +160,8 @@ ScrollController _scrollController = ScrollController();
             const SizedBox(height: 10,),
             Expanded(child: 
             refState.tabBarIndex==0 ? 
-            myVisitWidget(refState):
-            visitDraftWidget(refState))
+            myVisitWidget(refState,refNotifier):
+            visitDraftWidget(refState, refNotifier))
           ],
         ),
       ),
@@ -190,7 +191,7 @@ ScrollController _scrollController = ScrollController();
     );
   } 
 
-  Widget myVisitWidget(CustomerVisitState refState){
+  Widget myVisitWidget(CustomerVisitState refState, CustomerVisitNotifier refNotifier){
     return refState.isLoading?
     CustomerVisitShimmer(isShimmer: refState.isLoading,isKyc: true,):
      (refState.customerVisitModel?.data?[0].records?.length??0)>0?
@@ -205,7 +206,9 @@ ScrollController _scrollController = ScrollController();
       itemBuilder: (ctx,index){
         return Column(
           children: [
-            _VisitItemsWidget(isKyc: true,model: refState.customerVisitModel?.data?[0].records?[index],),
+            _VisitItemsWidget(isKyc:  true,
+            refNotifier: refNotifier,
+            model: refState.customerVisitModel?.data?[0].records?[index],),
              index == (refState.customerVisitModel?.data?[0].records?.length??0) - 1 &&
                               refState.isLoadingMore
                           ? Container(
@@ -222,7 +225,7 @@ ScrollController _scrollController = ScrollController();
     }): NoDataFound(title: "My visit data not found");
   }
 
-Widget visitDraftWidget(CustomerVisitState refState){
+Widget visitDraftWidget(CustomerVisitState refState, CustomerVisitNotifier refNotifier){
   return refState.isLoading?
     CustomerVisitShimmer(isShimmer: refState.isLoading,isKyc: false,):
     (refState.customerVisitModel?.data?[0].records?.length??0)>0?
@@ -237,7 +240,9 @@ Widget visitDraftWidget(CustomerVisitState refState){
       itemBuilder: (ctx,index){
         return Column(
           children: [
-            _VisitItemsWidget(isKyc: false,model:refState.customerVisitModel?.data?[0].records?[index] ,),
+            _VisitItemsWidget(isKyc: false,model:refState.customerVisitModel?.data?[0].records?[index] ,
+            refNotifier: refNotifier,
+            ),
              index == (refState.customerVisitModel?.data?[0].records?.length??0) - 1 &&
                               refState.isLoadingMore
                           ? Container(
@@ -502,13 +507,19 @@ Widget visitDraftWidget(CustomerVisitState refState){
 class _VisitItemsWidget extends StatelessWidget {
  final bool isKyc;
  CustomerVisitRecords? model;
-   _VisitItemsWidget({required this.isKyc, required this.model});
+ final CustomerVisitNotifier refNotifier;
+   _VisitItemsWidget({required this.isKyc, required this.model,required this.refNotifier});
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
           onTap: (){
-            AppRouter.pushCupertinoNavigation( VisitDetailsScreen(id: model?.name??'',));
+            AppRouter.pushCupertinoNavigation( VisitDetailsScreen(id: model?.name??'',)).then((val){
+              if(val!=null){
+                refNotifier.resetPageCount();
+                refNotifier.customVisitApiFunction();
+              }
+            });
           },
           child: Container(
             padding: EdgeInsets.symmetric(vertical: 10),
@@ -549,7 +560,7 @@ class _VisitItemsWidget extends StatelessWidget {
                     ],
                   ),
                 ),
-                isKyc?
+                isKyc && (model?.customerLevel ?? '').toString().toLowerCase() != 'secondary'?
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -559,7 +570,7 @@ class _VisitItemsWidget extends StatelessWidget {
                     color: AppColors.edColor,
                   ),
                 ),
-                 kycWidget(model?.kycStatus??'')
+                 kycWidget(model?.workflowState??'')
                   ],
                 ):Container()
               ],

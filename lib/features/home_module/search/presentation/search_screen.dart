@@ -14,7 +14,10 @@ class SearchScreen extends ConsumerStatefulWidget {
   final String route;
   final String channelParter;
   final String visitType;
-  const SearchScreen({super.key, required this.route, this.channelParter = '', this.visitType = ''});
+  final String verificationType;
+  const SearchScreen({super.key, required this.route, this.channelParter = '', this.visitType = '',
+  this.verificationType = ''
+  });
 
   @override
   ConsumerState<SearchScreen> createState() => _SearchScreenState();
@@ -47,7 +50,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     } else if (widget.route == 'product') {
       refNotifier.productApiFunction('');
     } else if(widget.route=='verified') {
-      refNotifier.customerInfoApiFunction(searchText: '', channelPartern: widget.channelParter, visitType: widget.visitType);
+      refNotifier.customerInfoApiFunction(searchText: '', channelPartern: widget.channelParter, visitType: widget.visitType,verificationType: widget.verificationType );
     }
     else if(widget.route=='unverified'){
        refNotifier.unvCustomerApiFunction('');
@@ -284,9 +287,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   _handleCustomInfoSearch(String val) {
     isInit = false; 
     if (val.isNotEmpty) {
-      ref.read(newCustomVisitProvider.notifier).customerInfoApiFunction(searchText: val,channelPartern: widget.channelParter, visitType: widget.visitType);
+      ref.read(newCustomVisitProvider.notifier).customerInfoApiFunction(searchText: val,channelPartern: widget.channelParter, visitType: widget.visitType, verificationType: widget.verificationType);
     } else {
-        ref.read(newCustomVisitProvider.notifier).customerInfoApiFunction(searchText: '',channelPartern: widget.channelParter, visitType: widget.visitType);
+        ref.read(newCustomVisitProvider.notifier).customerInfoApiFunction(searchText: '',channelPartern: widget.channelParter, visitType: widget.visitType, verificationType: widget.visitType);
       // ref.read(newCustomVisitProvider.notifier).customerInfoApiFunction('');
     }
   }

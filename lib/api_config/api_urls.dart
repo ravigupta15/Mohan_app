@@ -50,6 +50,8 @@ static const imageUploadUrl = "${baseUrl}method/mohan_impex.api.cvm.capture_imag
  static const uploadComplaintImageUrl = "${baseUrl}method/mohan_impex.api.upload_attachments";
  static const complaintListUrl = "${baseUrl}method/mohan_impex.api.complaints.complaints_list";
  static const viewComplaintUrl = "${baseUrl}method/mohan_impex.api.complaints.complaints_form";
+ static const invoiceUrl  = '${baseUrl}method/mohan_impex.api.get_sales_invoices';
+ static const getInvoiceItems = '${baseUrl}method/mohan_impex.api.get_sales_invoice_items';
 
  /// master 
 //  static const itemListUrl = "${baseUrl}resource/Item";

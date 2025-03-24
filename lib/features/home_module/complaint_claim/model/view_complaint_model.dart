@@ -46,7 +46,7 @@ class ComplaintData {
   dynamic customer;
   dynamic contact;
   dynamic state;
-  dynamic town;
+  dynamic district;
   dynamic pincode;
   dynamic mfd;
   dynamic createdByEmp;
@@ -84,7 +84,7 @@ List<ImageUrl>? imageUrl;
       this.customer,
       this.contact,
       this.state,
-      this.town,
+      this.district,
       this.pincode,
       this.mfd,
       this.createdByEmp,
@@ -124,7 +124,7 @@ List<ImageUrl>? imageUrl;
     customer = json['customer'];
     contact = json['contact'];
     state = json['state'];
-    town = json['town'];
+    district = json['district'];
     pincode = json['pincode'];
     mfd = json['mfd'];
     createdByEmp = json['created_by_emp'];
@@ -170,7 +170,7 @@ List<ImageUrl>? imageUrl;
     data['customer'] = customer;
     data['contact'] = contact;
     data['state'] = state;
-    data['town'] = town;
+    data['district'] = district;
     data['pincode'] = pincode;
     data['mfd'] = mfd;
     data['created_by_emp'] = createdByEmp;

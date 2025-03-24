@@ -44,6 +44,7 @@ class VisitItemsModel {
   dynamic latitude;
   dynamic longitude;
   dynamic hasTrialPlan;
+  dynamic shop;
   dynamic shopName;
   dynamic status;
   dynamic location;
@@ -68,6 +69,7 @@ class VisitItemsModel {
   List<Contact>? contact;
   List<ImageUrl>? imageUrl;
   List<Activities>? activities;
+  dynamic custEditNeeded;
   VisitItemsModel(
       {this.name,
       this.customerType,
@@ -83,6 +85,7 @@ class VisitItemsModel {
       this.latitude,
       this.longitude,
       this.hasTrialPlan,
+      this.shop,
       this.shopName,
       this.status,
       this.location,
@@ -106,7 +109,8 @@ class VisitItemsModel {
       this.itemTrial,
       this.contact,
       this.imageUrl,
-      this.activities});
+      this.activities,
+      this.custEditNeeded});
 
   VisitItemsModel.fromJson(Map<String, dynamic> json) {
     name = json['name'];
@@ -123,6 +127,7 @@ class VisitItemsModel {
     latitude = json['latitude'];
     longitude = json['longitude'];
     hasTrialPlan = json['has_trial_plan'];
+    shop = json['shop'];
     shopName = json['shop_name'];
     status = json['status'];
     location = json['location'];
@@ -141,6 +146,7 @@ class VisitItemsModel {
     visitEnd = json['visit_end'];
     visitDuration = json['visit_duration'];
     workflowState = json['workflow_state'];
+    custEditNeeded = json['cust_edit_needed'];
     if (json['product_pitching'] != null) {
       productPitching = <ProductPitching>[];
       json['product_pitching'].forEach((v) {
@@ -196,6 +202,7 @@ class VisitItemsModel {
     data['latitude'] = latitude;
     data['longitude'] = longitude;
     data['has_trial_plan'] = hasTrialPlan;
+    data['shop'] = shop;
     data['shop_name'] = shopName;
     data['status'] = status;
     data['location'] = location;
@@ -214,6 +221,7 @@ class VisitItemsModel {
     data['visit_end'] = visitEnd;
     data['visit_duration'] = visitDuration;
     data['workflow_state'] = workflowState;
+    data['cust_edit_needed'] = custEditNeeded;
     if (productPitching != null) {
       data['product_pitching'] =
           productPitching!.map((v) => v.toJson()).toList();

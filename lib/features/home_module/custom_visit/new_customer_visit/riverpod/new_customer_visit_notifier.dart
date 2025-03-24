@@ -186,7 +186,6 @@ timer = Timer.periodic(Duration(seconds: 1), (val){
   }
 
   onChangedVerificationType(val){ 
-    // verfiyTypeController.text = val;
     selectedVerificationType = val;
     resetControllersWhenSwitchCustomType();
     if(val.toString().toLowerCase()=="verified"){
@@ -217,7 +216,7 @@ checkSalesPitchValidation(BuildContext context){
   }
 }
 
-checkOverViewValidation(BuildContext context,{required String actionType}){
+checkOverViewValidation(BuildContext context,{required String actionType, required String route}){
   LocationService().startLocationUpdates().then((val){
     state = state.copyWith(visitEndLatitude: val.latitude.toString(),visitEndLetitude: val.longitude.toString());
   });
@@ -231,8 +230,13 @@ checkOverViewValidation(BuildContext context,{required String actionType}){
     MessageHelper.showErrorSnackBar(context,"Please select product trial type");
   }
   else{
-    // locationValidationApiFunction(context);
-    createProductApiFunction(context, actionType: actionType);
+     bool value = state.selectedProductList.any((val) => val.list.any((items)=>items.quantity == 0));
+      if(value){
+        MessageHelper.showErrorSnackBar(context, "Quantity should not be empty");
+      }
+      else{
+    createProductApiFunction(context, actionType: actionType,route:  route);
+      }
   }
 }
 
@@ -274,7 +278,7 @@ return modelList;
 setResumeData(BuildContext context, VisitItemsModel model){ 
   List contactList = (model.contact??[]).map((e)=>e.contact).toList();
     state = state.copyWith(tabBarIndex: 2,
-    currentTimer: double.parse(model.visitDuration.toString()).round(),
+    currentTimer: (model.visitDuration?.toDouble() ?? 0.0).toInt(),
     selectedCustomerType: model.customerType.toString().toLowerCase() == "new"? 0: 1,
     visitStartDate: model.visitStart,
     channelParterName:  model.channelPartner,
@@ -283,11 +287,12 @@ setResumeData(BuildContext context, VisitItemsModel model){
     selectedProductList: convertInSelectproductedListFromResume(model),
     dealTypeValue: int.parse((model.dealType ?? '0').toString()),
     contactNumberList: contactList,
-    hasProductTrial: model.hasTrialPlan
+    hasProductTrial: model.hasTrialPlan,
     );
-     
+     isEditDetails = model.custEditNeeded.toString() == '1'? true : false; 
     selectedExistingCustomer = model.customer ?? '';
     verifiedCustomerLocation = model.location ?? '';
+    selectedshop = model.shop ?? '';
     selectedVerificationType = model.verificType ?? '';
     trialConductType = model.conductBy ?? '';
     trialType  = model.trialType ?? '';
@@ -355,8 +360,8 @@ channelListApiFunction(String searchText,)async{
   }
 }
 
-customerInfoApiFunction({required String searchText, String channelPartern = '', String visitType = ''})async{ 
-  final response = await ApiService().makeRequest(apiUrl: "${ApiUrls.customerUrl}?search_text=$searchText&customer_level=$visitType&channel_partner=$channelPartern", method: ApiMethod.get.name);
+customerInfoApiFunction({required String searchText, String channelPartern = '', String visitType = '', String verificationType = ''})async{ 
+  final response = await ApiService().makeRequest(apiUrl: "${ApiUrls.customerUrl}?search_text=$searchText&customer_level=$visitType&channel_partner=$channelPartern&verification_type=$verificationType", method: ApiMethod.get.name);
   if(response!=null){
     state = state.copyWith(customerInfoModel: CustomerInfoModel.fromJson(response.data));
   }
@@ -436,7 +441,7 @@ void detailsBack(List list){
 }
 
 
-createProductApiFunction(BuildContext context, {required String actionType})async{
+createProductApiFunction(BuildContext context, {required String actionType, required String route})async{
   ShowLoader.loader(context);
   List<Map<String, dynamic>> formattedData = state.selectedProductList.map((e) {
   return e.list.map((items) {
@@ -506,7 +511,7 @@ final response = await ApiService().makeRequest(apiUrl: ApiUrls.createCVMurl, me
 ShowLoader.hideLoader();
 if(response!=null){
   CreateOrderResponseModel model = CreateOrderResponseModel.fromJson(response.data);
-  AppRouter.pushCupertinoNavigation( BookTrialSuccessScreen(id: model.data?[0].cvm??'',));
+  AppRouter.pushCupertinoNavigation( BookTrialSuccessScreen(id: model.data?[0].cvm??'',route: route,));
 }
 }
 

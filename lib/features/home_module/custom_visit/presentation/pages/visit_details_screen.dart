@@ -57,7 +57,7 @@ class _VisitDetailsScreenState extends ConsumerState<VisitDetailsScreen> {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(5),
             border: Border.all(color: AppColors.greenColor,width: .5)),
-            child: AppText(title: (refState.visitModel?.data?[0].kycStatus ?? ''),fontsize: 9,),
+            child: AppText(title: (refState.visitModel?.data?[0].workflowState ?? ''),fontsize: 9,),
         )
       ]
       ),
@@ -84,7 +84,7 @@ class _VisitDetailsScreenState extends ConsumerState<VisitDetailsScreen> {
               },
               ),
             ):
-            (refState.visitModel?.data?[0].kycStatus ?? '').toString().toLowerCase() == "pending"?
+            (refState.visitModel?.data?[0].kycStatus ?? '').toString().toLowerCase() == "pending" && refState.visitModel?.data?[0].customerLevel =='Primary' && refState.visitModel?.data?[0].verificType.toString().toLowerCase() =='unverified'?
             Align(
               alignment: Alignment.center,
               child: AppTextButton(title: "Complete KYC",color: AppColors.arcticBreeze,
@@ -241,8 +241,9 @@ Widget expandedWidget({required bool isExpanded}){
             itemsWidget("Contact", (model?.contact?.isEmpty ?? true) 
     ? '' 
     : model?.contact?.map((e) => e.contact).join(', ') ?? ''
-
             ),
+const SizedBox(height: 13,),
+            itemsWidget("Visit Type", model?.customerLevel?? ''),
             const SizedBox(height: 13,),
             itemsWidget("Location", model?.location??''),
             const SizedBox(height: 13,),
@@ -339,10 +340,7 @@ Widget expandedWidget({required bool isExpanded}){
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3,mainAxisSpacing: 15,crossAxisSpacing: 15,childAspectRatio: 2.9/3),
              itemBuilder: (ctx,index){
               var model = refState.visitModel?.data?[0].imageUrl?[index];
-              return ClipRRect(
-              borderRadius: BorderRadius.circular(15),
-            child:AppNetworkImage(imgUrl: model?.fileUrl??'' ,height: 85,width: 85,),
-           );})
+              return AppNetworkImage(imgUrl: model?.fileUrl??'' ,height: 85,width: 85,borderRadius: 15,boxFit: BoxFit.cover,);})
         ],
       ),
     );

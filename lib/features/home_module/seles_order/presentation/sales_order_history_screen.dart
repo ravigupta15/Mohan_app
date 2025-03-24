@@ -40,9 +40,9 @@ String filterFromDate = '';
   
 resetValue(){
   filterFromDate = '';
-  filterFromDate = '';
+  filterToDate = '';
   fromDate = null;
-    todDate = null;
+  todDate = null;
 }
 
 ScrollController _scrollController = ScrollController();
@@ -135,11 +135,18 @@ ScrollController _scrollController = ScrollController();
                 title1: "My Orders",
                 title2: "Draft Order",
                 onClicked1: (){
+                  if(refState.tabBarIndex !=0){
+                    resetValue();
+                  }
                   refNotifier.updateTabBarIndex(0);
                   setState(() {
                   });
                 },
                 onClicked2: (){
+                  if(refState.tabBarIndex !=1){
+                    resetValue();
+                  }
+                  
                   refNotifier.updateTabBarIndex(1);
                   setState(() {
                   });
@@ -304,6 +311,11 @@ Widget draftOrderWidget(SalesOrderState refState){
                               filterFromDate = "${picked.year}-$month-$day";
                               state(() {
                                 fromDate = picked;
+                                 if (todDate != null &&
+                                          fromDate!.isAfter(todDate!)) {
+                                        todDate = null;
+                                        filterToDate = "";
+                                      } 
                               });
                             }
                           });
@@ -318,8 +330,10 @@ Widget draftOrderWidget(SalesOrderState refState){
                       ),
                       AppDateWidget(
                         onTap: () {
+                           DateTime firstDate = fromDate ?? DateTime.now();
                           DatePickerService.datePicker(context,
-                                  selectedDate: todDate)
+                                  selectedDate: todDate,
+                                  firstDate: firstDate)
                               .then((picked) {
                             if (picked != null) {
                               var day = picked.day < 10
@@ -455,7 +469,7 @@ class _VisitItemsWidget extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      visitItem(title: 'Shop name', subTitle: model?.customShopName??''),
+                      visitItem(title: 'Shop name', subTitle: model?.shopName??''),
                       const SizedBox(height: 9,),
                       visitItem(title:"Contact",subTitle: model?.contact??''),
                       const SizedBox(height: 9,),

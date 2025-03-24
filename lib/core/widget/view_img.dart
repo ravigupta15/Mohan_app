@@ -3,7 +3,7 @@ import 'package:mohan_impex/core/widget/custom_app_bar.dart';
 import 'package:mohan_impex/res/app_cashed_network.dart';
 
 class ViewImage extends StatefulWidget {
- final String image;
+   final String image;
   const ViewImage({super.key, required this.image});
 
   @override
@@ -17,6 +17,7 @@ class _ViewImageState extends State<ViewImage> {
       appBar: customAppBar(title: ''),
       body: AppNetworkImage(
         imgUrl: widget.image,
+        boxFit: BoxFit.contain,
       ),
     );
   }

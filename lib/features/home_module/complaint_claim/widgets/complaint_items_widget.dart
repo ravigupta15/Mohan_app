@@ -12,8 +12,9 @@ class ComplaintItemsWidget extends StatelessWidget {
   final String date;
   final String reasonTitle;
   final String status;
+  final int tabBarIndex;
   const ComplaintItemsWidget({required this.title,required this.name,required this.date,required this.reasonTitle,
-  required this.status
+  required this.status, required this.tabBarIndex
   });
 
   @override
@@ -81,12 +82,12 @@ class ComplaintItemsWidget extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 4,),
-          status == "Resolved"?
+          tabBarIndex == 1?
             AppText(title: status,fontsize: 10,fontFamily: AppFontfamily.poppinsSemibold,color: AppColors.visitItem,):
           Row(
             children: [
               AppText(title: "Pending : ",fontsize: 10,fontFamily: AppFontfamily.poppinsSemibold,color: AppColors.visitItem,),
-          AppText(title: "Department",fontsize: 10,fontFamily: AppFontfamily.poppinsRegular,color: AppColors.visitItem,),
+          AppText(title: status,fontsize: 10,fontFamily: AppFontfamily.poppinsRegular,color: AppColors.visitItem,),
             ],
           )
         ],

@@ -23,6 +23,7 @@ static List companyTypeList = ['Company','Individual', 'Partnership'];
 static List businessList = ["Registered","UnRegistered"];
 static List customerCategoryList = ['Domestic','International'];
 static List segmentList = ['Lower Income','Middle Income','Upper Income'];
+static const claimTypeList = ['Transit','Quality'];
 
   /// local storage keys
   static const FCM_TOKEN  = "FCM_TOKEN";

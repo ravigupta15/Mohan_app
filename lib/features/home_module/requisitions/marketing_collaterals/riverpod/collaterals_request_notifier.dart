@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mohan_impex/api_config/api_service.dart';
 import 'package:mohan_impex/api_config/api_urls.dart';
-import 'package:mohan_impex/data/datasources/local_share_preference.dart';
 import 'package:mohan_impex/features/home_module/requisitions/marketing_collaterals/model/collaterals_request_model.dart';
 import 'package:mohan_impex/features/home_module/requisitions/marketing_collaterals/model/material_items_model.dart';
 import 'package:mohan_impex/features/home_module/requisitions/marketing_collaterals/model/view_collaterals_request_model.dart';
@@ -51,7 +50,13 @@ resetValues(){
         MessageHelper.showToast("Please add items");
       }
       else{
+        bool value = selectedItem.any((val) => val.quantity == 0);
+      if(value){
+        MessageHelper.showErrorSnackBar(context, "Quantity should not be empty");
+      }
+      else{
       createCollateralsRequestApiFunction(context);
+      }
       }
     }
   }
@@ -120,12 +125,11 @@ resetPageCount(){
       resetFilter();
       searchText = '';
       searchController.clear();
+      resetPageCount();
       collateralListApiFunction();
     }
     state = state.copyWith(tabBarIndex: val);
-    state = state.copyWith(page: 1);
-  
-    collateralListApiFunction();
+    // collateralListApiFunction();
   }
 
   onChangedSearch(String val){
@@ -159,6 +163,9 @@ increasePageCount(){
         state = state.copyWith(page: 1);
       }
     }
+    if(isLoadMore){
+    increasePageCount();
+  }
   final response= await ApiService().makeRequest(apiUrl: "${ApiUrls.collateralRequestListUrl}?tab=$selectedTabbar&limit=10&current_page=${state.page}&search_text=$searchText", method: ApiMethod.get.name,);
   updateLoading(false);
   if (!isLoadMore) {
@@ -176,12 +183,12 @@ increasePageCount(){
       } else {
       state =  state.copyWith(collateralsReqestModel: newModel);
       }
-      if (newModel.data!.isEmpty || newModel.data!.length < state.page) {
-      } else {
-        // if(isLoadMore){
-          increasePageCount();
-        // }
-      }
+      // if (newModel.data!.isEmpty || newModel.data!.length < state.page) {
+      // } else {
+      //   // if(isLoadMore){
+      //     increasePageCount();
+      //   // }
+      // }
       }
     }
 
@@ -190,12 +197,11 @@ increasePageCount(){
   createCollateralsRequestApiFunction(
     BuildContext context,
   ) async {
-    print(LocalSharePreference.token);
     var data = {
     "remarks":remarksController.text,
     "mktg_coll_item": selectedItem.map((e){
       return {
-        "item":e.itemName??'',
+        "item":e.itemCode??'',
         "qty":e.quantity
       };
     }).toList()

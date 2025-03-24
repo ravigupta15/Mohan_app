@@ -36,6 +36,9 @@ class _ViewOrderScreenState extends ConsumerState<ViewOrderScreen> {
   callInitFunction(){
     final refNotifier = ref.read(salesOrderProvider.notifier);
     refNotifier.viewSalesApiFunction(context, widget.id);
+    setState(() {
+      
+    });
   }
 
   @override
@@ -55,7 +58,7 @@ class _ViewOrderScreenState extends ConsumerState<ViewOrderScreen> {
         )
       ]
       ),
-      body: SingleChildScrollView(
+      body: (refState.viewSalesOrderModel?.data?[0])!=null ? SingleChildScrollView(
           padding: const EdgeInsets.only(top: 12,left: 17,right: 17,bottom: 30),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -63,6 +66,10 @@ class _ViewOrderScreenState extends ConsumerState<ViewOrderScreen> {
              ProductWidget(refState: refState,),
              const SizedBox(height: 15,),
              _AdditionalDetailsWidget(refState: refState,),
+             Padding(
+               padding: const EdgeInsets.only(top: 15),
+               child: StatusWidget(activities: refState.viewSalesOrderModel?.data?[0].activities),
+             ),
              const SizedBox(height: 15,),
              widget.isDraft?
              Align(
@@ -82,7 +89,7 @@ class _ViewOrderScreenState extends ConsumerState<ViewOrderScreen> {
             ): EmptyWidget()
           ],
         ),
-      ),
+      ): EmptyWidget(),
     );
   }
 }
@@ -146,8 +153,10 @@ class _CustomInfoWidget extends StatelessWidget {
             ):EmptyWidget(),
             const SizedBox(height: 20,),
             itemsWidget("Contact", model?.contact??''),
-            // const SizedBox(height: 20,),
-            // itemsWidget("Location", model?.location??''),
+            const SizedBox(height: 20,),
+            itemsWidget("Delivery Date", model?.deliveryDate??''),
+            const SizedBox(height: 20,),
+            itemsWidget("Visit Type", model?.customerLevel??''),
         ],
       ),
     );

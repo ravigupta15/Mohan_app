@@ -158,11 +158,17 @@ int selectedConductTypeIndex = -1;
                 title1: "Approved",
                 title2: "Pending",
                 onClicked1: (){
+                  if(refState.tabBarIndex !=0){
+                    resetValue();
+                  }
                 refNotifer.updateTabBarIndex(0);
                   setState(() {
                   });
                 },
                 onClicked2: (){
+                  if(refState.tabBarIndex !=1){
+                    resetValue();
+                  }
                   refNotifer.updateTabBarIndex(1);
                   setState(() {
                   });
@@ -420,6 +426,13 @@ filterBottomSheet(BuildContext context, TrialPlanState refState,
                     }).toList()),
                   ),
                   const SizedBox(height: 25,),
+                  AppText(
+                    title: "Date",
+                    fontFamily: AppFontfamily.poppinsSemibold,
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
                   Row(
                     children: [
                       AppDateWidget(
@@ -437,6 +450,11 @@ filterBottomSheet(BuildContext context, TrialPlanState refState,
                               filterFromDate = "${picked.year}-$month-$day";
                               state(() {
                                 fromDate = picked;
+                                 if (todDate != null &&
+                                          fromDate!.isAfter(todDate!)) {
+                                        todDate = null;
+                                        filterToDate = "";
+                                      } 
                               });
                             }
                           });
@@ -451,8 +469,10 @@ filterBottomSheet(BuildContext context, TrialPlanState refState,
                       ),
                       AppDateWidget(
                         onTap: () {
+                           DateTime firstDate = fromDate ?? DateTime.now();
                           DatePickerService.datePicker(context,
-                                  selectedDate: todDate)
+                                  selectedDate: todDate,
+                                  firstDate: firstDate)
                               .then((picked) {
                             if (picked != null) {
                               var day = picked.day < 10

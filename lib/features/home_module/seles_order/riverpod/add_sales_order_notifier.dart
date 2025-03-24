@@ -142,10 +142,10 @@ convertInSelectproductedListFromResume(ViewSalesItem model){
        int.parse((double.parse(item.qty.toString()).round()).toString()),
        true,
        item.itemTemplate??'',
-       item.itemCategory ?? '',
-       item.competitor,
+       item.competitor ?? '',
        [],
-       item.uom
+       item.uom ?? '',
+       ''
       );
     }).toList(),
   );
@@ -160,6 +160,7 @@ setResumeData(ViewSalesItem resumeItems){
     selectedVisitType: resumeItems.customerLevel.toString().toLowerCase() == "secondary"?1:0,
     selectedProductList: convertInSelectproductedListFromResume(resumeItems)
   );
+  deliveryDateController.text = resumeItems.deliveryDate??'';
   customerNameController.text = resumeItems.customerName??'';
   selectedExistingCustomer = resumeItems.customer ?? '';
   numberController.text = resumeItems.contact ?? '';
@@ -183,8 +184,13 @@ checkOverViewValidation(BuildContext context,{required String actionType}){
     MessageHelper.showErrorSnackBar(context,"Please add your product");
   }
   else{
-    // locationValidationApiFunction(context);
+     bool value = state.selectedProductList.any((val) => val.list.any((items)=>items.quantity == 0));
+      if(value){
+        MessageHelper.showErrorSnackBar(context, "Quantity should not be empty");
+      }
+      else{
     createProductApiFunction(context, actionType: actionType);
+      }
   }
 }
 
@@ -275,10 +281,10 @@ createProductApiFunction(BuildContext context, {required String actionType})asyn
     return {
       "item_template": e.itemTemplate,
             "item_code": items.itemCode,
-            "item_namee": items.itemName,
-            "item_category": items.itemCategory,
+            "item_name": items.itemName,
+            // "item_category": items.itemCategory,
             "qty": items.quantity,
-            "competitor": items.seletedCompetitor
+            // "competitor": items.seletedCompetitor
     };
   }).toList(); 
 }).expand((x) => x).toList(); 

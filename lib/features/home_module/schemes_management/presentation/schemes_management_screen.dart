@@ -294,7 +294,7 @@ Widget schemeWidget(SchemeRecord model){
 
 Widget collapsedWidget(SchemeRecord model,{required bool isExpanded}){
   return Container(
-      padding:isExpanded? EdgeInsets.only(left: 10,right: 10,bottom: 12,top: 6):EdgeInsets.zero,
+      padding:isExpanded? EdgeInsets.symmetric(horizontal: 10,vertical: 14):EdgeInsets.zero,
     child:    Padding(
               padding: const EdgeInsets.only(left: 15,right: 5),
               child: Column(

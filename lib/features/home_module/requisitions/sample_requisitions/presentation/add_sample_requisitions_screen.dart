@@ -13,9 +13,11 @@ import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit
 import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit/widgets/add_remove_container_widget.dart';
 import 'package:mohan_impex/features/home_module/requisitions/sample_requisitions/riverpod/sample_notifier.dart';
 import 'package:mohan_impex/features/home_module/requisitions/sample_requisitions/riverpod/sample_state.dart';
+import 'package:mohan_impex/features/home_module/search/presentation/search_screen.dart';
 import 'package:mohan_impex/res/app_asset_paths.dart';
 import 'package:mohan_impex/res/app_colors.dart';
 import 'package:mohan_impex/res/app_fontfamily.dart';
+import 'package:mohan_impex/res/app_router.dart';
 import 'package:mohan_impex/utils/app_date_format.dart';
 import 'package:mohan_impex/utils/message_helper.dart';
 
@@ -33,7 +35,7 @@ class _AddSampleRequisitionsScreenState
     extends ConsumerState<AddSampleRequisitionsScreen> {
   DateTime selectedDay = DateTime.now(); // Track the selected day
   DateTime focusedDay = DateTime.now();
-  
+  String itemTemplate = '';
   ItemModel?itemModel;
   @override
   void initState() {
@@ -46,7 +48,6 @@ class _AddSampleRequisitionsScreenState
   callInitFunction() {
     final refNotifier = ref.read(sampleProvider.notifier);
     refNotifier.resetAddSampleValues();
-    itemsApiFunction(context, '');
     setState(() {
       
     });
@@ -218,7 +219,20 @@ class _AddSampleRequisitionsScreenState
               ),
               GestureDetector(
                 onTap: () {
-                  addItemBottomSheet(context,refNotifier);
+                 AppRouter.pushCupertinoNavigation(const SearchScreen(route: 'itemTemplateSalesOrder')).then((value){
+              if((value??'').isNotEmpty){
+                itemTemplate = value;
+                 itemsApiFunction(context, '').then((val){
+              if(val!=null){
+                addItemBottomSheet(context, refNotifier);
+              }
+              setState(() {
+                
+              });
+            });
+           
+              }
+            });
                 },
                 child: Container(
                   decoration: BoxDecoration(
@@ -499,7 +513,7 @@ class _AddSampleRequisitionsScreenState
 
 Future itemsApiFunction(BuildContext context, String searchText,)async{ 
   itemModel = null;
-  final response = await ApiService().makeRequest(apiUrl: '${ApiUrls.salesItemVariantUrl}?item_template=$searchText&item_category=', method: ApiMethod.get.name);
+  final response = await ApiService().makeRequest(apiUrl: '${ApiUrls.salesItemVariantUrl}?search_text=$searchText&item_template=$itemTemplate', method: ApiMethod.get.name);
   if(response!=null){
     itemModel =  ItemModel.fromJson(response.data);
     return response;

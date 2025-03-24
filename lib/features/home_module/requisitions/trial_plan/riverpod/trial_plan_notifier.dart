@@ -65,12 +65,13 @@ resetPageCount(){
     selectedTabbar = val==0?"Approved":"Pending";
     if(state.tabBarIndex !=val){
       resetFilter();
+      resetPageCount();
       searchText = '';
       searchController.clear();
       trialPlanListApiFunction();
     }
     state = state.copyWith(tabBarIndex: val);
-    state = state.copyWith(currentPage: 1);
+    // state = state.copyWith(currentPage: 1);
     selectedTabbar = val==0?"Approved":"Pending";
     
   }
@@ -112,6 +113,9 @@ onChangedSearch(String val){
         state = state.copyWith(currentPage: 1);
       }
     }
+    if(isLoadMore){
+    increasePageCount();
+  }
    
     updateLoading(true);
     final response = await ApiService().makeRequest(apiUrl: "${ApiUrls.trialPlanUrl}?tab=$selectedTabbar&limit=10&current_page=${state.currentPage}&search_text=$searchText&conduct_by=$conductByTypeFilter&trial_loc=$trialLocTypeFilter&trial_type=$trailTypeFilter&customer_level=$visitTypeFilter&from_date=$fromDateFilter&to_date=$toDateFilter", method: ApiMethod.get.name);
@@ -131,12 +135,12 @@ onChangedSearch(String val){
       } else {
       state =  state.copyWith(trialPlanModel: newModel);
       }
-      if (newModel.data!.isEmpty || newModel.data!.length < state.currentPage) {
-      } else {
-        if(isLoadMore){
-          increasePageCount();
-        }
-      }
+      // if (newModel.data!.isEmpty || newModel.data!.length < state.currentPage) {
+      // } else {
+      //   // if(isLoadMore){
+      //     increasePageCount();
+      //   // }
+      // }
       }
   }
 

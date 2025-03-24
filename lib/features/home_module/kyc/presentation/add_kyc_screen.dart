@@ -14,10 +14,13 @@ import 'package:mohan_impex/core/widget/custom_radio_button.dart';
 import 'package:mohan_impex/core/widget/expandable_widget.dart';
 import 'package:mohan_impex/data/datasources/local_share_preference.dart';
 import 'package:mohan_impex/features/home_module/custom_visit/model/view_visit_model.dart';
+import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit/model/customer_address_model.dart';
+import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit/model/customer_info_model.dart';
 import 'package:mohan_impex/features/home_module/kyc/riverpod/add_kyc_notifier.dart';
 import 'package:mohan_impex/features/home_module/kyc/riverpod/add_kyc_state.dart';
 import 'package:mohan_impex/features/home_module/kyc/widgets/documents_widget.dart';
 import 'package:mohan_impex/features/home_module/kyc/widgets/kyc_page_number.dart';
+import 'package:mohan_impex/features/home_module/search/presentation/search_screen.dart';
 import 'package:mohan_impex/res/app_asset_paths.dart';
 import 'package:mohan_impex/res/app_cashed_network.dart';
 import 'package:mohan_impex/res/empty_widget.dart';
@@ -29,6 +32,7 @@ import '../../../../core/widget/custom_app_bar.dart';
 import '../../../../core/widget/app_text_field/label_text_textfield.dart';
 import '../../../../res/app_colors.dart';
 import '../../../../res/app_fontfamily.dart';
+import '../../../../res/app_router.dart';
 
 // ignore: must_be_immutable
 class AddKycScreen extends ConsumerStatefulWidget {
@@ -70,7 +74,6 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
 
   @override
   Widget build(BuildContext context) {
-    print(LocalSharePreference.token);
     final refState = ref.watch(addKycProvider);
     final refNotifier = ref.read(addKycProvider.notifier);
     return WillPopScope(
@@ -149,11 +152,7 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AppText(
-          title: "Business Type",
-          color: AppColors.lightBlue62Color,
-          fontsize: 13,
-        ),
+         LabelTextTextfield(title: 'Business Type', isRequiredStar: true),
         const SizedBox(
           height: 10,
         ),
@@ -204,7 +203,7 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
         AppTextfield(
           hintText: "Enter customer name",
           fillColor: false,
-          isReadOnly: widget.route.isEmpty? false : true,
+          isReadOnly:  true,
           controller: refNotifier.customerNameController,
           textInputAction: TextInputAction.next,
           validator: (val) {
@@ -215,7 +214,7 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
           },
           onTap: (){
             if(widget.route.isEmpty){
-              
+              _handleCustomerName(refNotifer: refNotifier, refState: refState);
             }
           },
         ),
@@ -228,7 +227,7 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
         AppTextfield(
             hintText: "Enter contact number",
             fillColor: false,
-            isReadOnly:widget.route.isEmpty? false : true,
+            isReadOnly: true,
             controller: refNotifier.contactNumberController,
             textInputAction: TextInputAction.next,
             textInputType: TextInputType.number,
@@ -249,6 +248,25 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
                 size: 30,
               ),
             )),
+              (refNotifier.contactList).isNotEmpty
+            ? SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                padding: EdgeInsets.only(top: 10),
+                child: Row(
+                  children: refNotifier.contactList.map((e) {
+                    return Container(
+                        margin: EdgeInsets.symmetric(horizontal: 6),
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                            color: AppColors.lightEBColor,
+                            borderRadius: BorderRadius.circular(25)),
+                        alignment: Alignment.center,
+                        child: AppText(title: e));
+                  }).toList(),
+                ),
+              )
+            : Container(),
         const SizedBox(height: 15),
         LabelTextTextfield(title: 'Email', isRequiredStar: true),
         const SizedBox(height: 5),
@@ -268,7 +286,7 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
         AppTextfield(
           hintText: "Enter business name",
           fillColor: false,
-          isReadOnly: widget.route.isEmpty? false : true,
+          isReadOnly:  true,
           textInputAction: TextInputAction.next,
           controller: refNotifier.businessNameController,
           validator: (val) {
@@ -372,6 +390,157 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
           },
         ),
         const SizedBox(height: 15),
+        LabelTextTextfield(title: 'Billing Address-1', isRequiredStar: true),
+        const SizedBox(height: 5),
+        AppTextfield(
+          hintText: "Enter billing address1",
+          fillColor: false,
+          isReadOnly:  true,
+          controller: refNotifier.billingAddress1Controller,
+          textInputAction: TextInputAction.next,
+          validator: (val) {
+            if ((val??'').isEmpty) {
+              return "Enter your billing addres1";
+            }
+            return null;
+          },
+        ),
+        const SizedBox(height: 15),
+        LabelTextTextfield(title: 'Billing Address-2', isRequiredStar: false),
+        const SizedBox(height: 5),
+        AppTextfield(
+          hintText: "Enter billing address2",
+          fillColor: false,
+          isReadOnly: true,
+          controller: refNotifier.billingAddress2Controller,
+          textInputAction: TextInputAction.next,
+          // validator: (val) {
+          //   if ((val??"").isEmpty) {
+          //     return "Enter your billing addres2";
+          //   }
+          //   return null;
+          // },
+        ),
+       
+        const SizedBox(height: 15),
+        LabelTextTextfield(title: 'Billing state', isRequiredStar: true),
+        const SizedBox(height: 5),
+        AppTextfield(
+          controller: refNotifier.billingStateController,
+          isReadOnly: true,
+          fillColor: false,
+          hintText: "Select billing state",
+          validator: (val){
+             if ((val??"").isEmpty) {
+              return "Select billing state";
+            }
+            return null;
+          },
+        ),
+        // CustomDropDown(
+        //   selectedValue: refNotifier.selectedBillingState,
+        //   items:widget.route.isEmpty? DropdownItemHelper().stateItems((refState.billingStateModel?.data??[])) : [],
+        //   hintText: widget.route.isNotEmpty && refNotifier.billingStateController.text.isNotEmpty
+        //       ? refNotifier.billingStateController.text
+        //       : "Select State",
+        //   hintColor:
+        //       widget.route.isNotEmpty && refNotifier.billingStateController.text.isNotEmpty ? AppColors.black : AppColors.lightTextColor,
+          
+        //   onChanged: (val){
+        //     refNotifier.onChangedBillingStateVal(context, val);
+        //     setState(() {
+              
+        //     });
+        //   },
+        // validator: (val) {
+        //     if ((val??"").isEmpty) {
+        //       return "Select billing state";
+        //     }
+        //     return null;
+        //   },
+        // ),
+         const SizedBox(height: 15),
+        LabelTextTextfield(title: 'Billing District', isRequiredStar: true),
+        const SizedBox(height: 5),
+        AppTextfield(
+          controller: refNotifier.billingDistrictController,
+          isReadOnly: true,
+          fillColor: false,
+          hintText: "Select billing district",
+          validator: (val){
+             if ((val??"").isEmpty) {
+              return "Select billing district";
+            }
+            return null;
+          },
+        ),
+        
+        //  CustomDropDown(
+        //   selectedValue: refNotifier.selectedBillingDistrict,
+        //   items:widget.route.isEmpty? DropdownItemHelper().districtItems((refState.billingDistrictModel?.data??[])) : [],
+        //   hintText: widget.route.isNotEmpty && refNotifier.billingDistrictController.text.isNotEmpty
+        //       ? refNotifier.billingDistrictController.text
+        //       : "Select District",
+        //   hintColor:
+        //       widget.route.isNotEmpty && refNotifier.billingDistrictController.text.isNotEmpty ? AppColors.black : AppColors.lightTextColor,
+          
+        //   onChanged: (val){
+        //     refNotifier.billingDistrictController.text = val;
+        //     refNotifier.selectedBillingDistrict = val;
+        //     setState(() {
+              
+        //     });
+        //   },
+        // validator: (val) {
+        //     if ((val??"").isEmpty) {
+        //       return "Select billing district";
+        //     }
+        //     return null;
+        //   },
+        // ),
+        const SizedBox(height: 15),
+        LabelTextTextfield(title: 'Billing pincode', isRequiredStar: true),
+        const SizedBox(height: 5),
+        AppTextfield(
+          hintText: "Enter billing pincode",
+          fillColor: false,
+          isReadOnly: true,
+          controller: refNotifier.billingPincodeController,
+          textInputAction: TextInputAction.next,
+          textInputType: TextInputType.number,
+          inputFormatters: [
+            LengthLimitingTextInputFormatter(6),
+            FilteringTextInputFormatter.digitsOnly
+          ],
+          validator: (val) {
+            if (val!.isEmpty) {
+              return "Enter your billing pincode";
+            }
+            return null;
+          },
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: Row(
+            children: [
+              customCheckbox(
+                  isCheckbox: refState.isSameBillingAddress,
+                  onChanged: (val) {
+                    refNotifier.onChangedCheckBox(context, val!);
+                    setState(() {
+                      
+                    });
+                  }),
+              AppText(
+                title: "Same as shipping address",
+                color: AppColors.lightTextColor,
+                fontFamily: AppFontfamily.poppinsMedium,
+                fontsize: 11,
+              )
+            ],
+          ),
+        ),
+        const SizedBox(height: 15),
         LabelTextTextfield(title: 'Shipping Address1', isRequiredStar: true),
         const SizedBox(height: 5),
         AppTextfield(
@@ -390,7 +559,7 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
           },
         ),
         const SizedBox(height: 15),
-        LabelTextTextfield(title: 'Shipping Address2', isRequiredStar: true),
+        LabelTextTextfield(title: 'Shipping Address2', isRequiredStar: false),
         const SizedBox(height: 5),
         AppTextfield(
           hintText: "Enter shipping address2",
@@ -400,12 +569,12 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
           inputFormatters: [
             emojiRestrict(),
           ],
-          validator: (val) {
-            if ((val??'').isEmpty) {
-              return "Enter shipping address2";
-            }
-            return null;
-          },
+          // validator: (val) {
+          //   if ((val??'').isEmpty) {
+          //     return "Enter shipping address2";
+          //   }
+          //   return null;
+          // },
         ),
         const SizedBox(height: 15),
           LabelTextTextfield(title: 'Shipping state', isRequiredStar: true),
@@ -415,7 +584,6 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
           items: DropdownItemHelper().stateItems((refState.shippingStateModel?.data??[])),
           hintText: "Select state",
           onChanged: (val){
-            print("asfsd..${refState.shippingDistrictModel}");
             refNotifier.onChangedShippingStateVal(context, val);
             setState(() {
               
@@ -471,131 +639,6 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
             return null;
           },
         ),
-        Padding(
-          padding: const EdgeInsets.only(top: 8),
-          child: Row(
-            children: [
-              customCheckbox(
-                  isCheckbox: refState.isSameBillingAddress,
-                  onChanged: (val) {
-                    refNotifier.onChangedCheckBox(context, val!);
-                    setState(() {
-                      
-                    });
-                  }),
-              AppText(
-                title: "Same as billing address",
-                color: AppColors.lightTextColor,
-                fontFamily: AppFontfamily.poppinsMedium,
-                fontsize: 11,
-              )
-            ],
-          ),
-        ),
-        const SizedBox(height: 15),
-        LabelTextTextfield(title: 'Billing Address-1', isRequiredStar: true),
-        const SizedBox(height: 5),
-        AppTextfield(
-          hintText: "Enter billing address1",
-          fillColor: false,
-          isReadOnly: widget.route.isEmpty? false : true,
-          controller: refNotifier.billingAddress1Controller,
-          textInputAction: TextInputAction.next,
-          validator: (val) {
-            if ((val??'').isEmpty) {
-              return "Enter your billing addres1";
-            }
-            return null;
-          },
-        ),
-        const SizedBox(height: 15),
-        LabelTextTextfield(title: 'Billing Address-2', isRequiredStar: true),
-        const SizedBox(height: 5),
-        AppTextfield(
-          hintText: "Enter billing address2",
-          fillColor: false,
-          controller: refNotifier.billingAddress2Controller,
-          textInputAction: TextInputAction.next,
-          validator: (val) {
-            if ((val??"").isEmpty) {
-              return "Enter your billing addres2";
-            }
-            return null;
-          },
-        ),
-       
-        const SizedBox(height: 15),
-        LabelTextTextfield(title: 'Billing state', isRequiredStar: true),
-        const SizedBox(height: 5),
-        CustomDropDown(
-          selectedValue: refNotifier.selectedBillingState,
-          items:widget.route.isEmpty? DropdownItemHelper().stateItems((refState.billingStateModel?.data??[])) : [],
-          hintText: widget.route.isNotEmpty && refNotifier.billingStateController.text.isNotEmpty
-              ? refNotifier.billingStateController.text
-              : "Select State",
-          hintColor:
-              widget.route.isNotEmpty && refNotifier.billingStateController.text.isNotEmpty ? AppColors.black : AppColors.lightTextColor,
-          
-          onChanged: (val){
-            refNotifier.onChangedBillingStateVal(context, val);
-            setState(() {
-              
-            });
-          },
-        validator: (val) {
-            if ((val??"").isEmpty) {
-              return "Select billing state";
-            }
-            return null;
-          },
-        ),
-         const SizedBox(height: 15),
-        LabelTextTextfield(title: 'Billing District', isRequiredStar: true),
-        const SizedBox(height: 5),
-         CustomDropDown(
-          selectedValue: refNotifier.selectedBillingDistrict,
-          items:widget.route.isEmpty? DropdownItemHelper().districtItems((refState.billingDistrictModel?.data??[])) : [],
-          hintText: widget.route.isNotEmpty && refNotifier.billingDistrictController.text.isNotEmpty
-              ? refNotifier.billingDistrictController.text
-              : "Select District",
-          hintColor:
-              widget.route.isNotEmpty && refNotifier.billingDistrictController.text.isNotEmpty ? AppColors.black : AppColors.lightTextColor,
-          
-          onChanged: (val){
-            refNotifier.billingDistrictController.text = val;
-            refNotifier.selectedBillingDistrict = val;
-            setState(() {
-              
-            });
-          },
-        validator: (val) {
-            if ((val??"").isEmpty) {
-              return "Select billing district";
-            }
-            return null;
-          },
-        ),
-        const SizedBox(height: 15),
-        LabelTextTextfield(title: 'Billing pincode', isRequiredStar: true),
-        const SizedBox(height: 5),
-        AppTextfield(
-          hintText: "Enter billing pincode",
-          fillColor: false,
-          isReadOnly: widget.route.isEmpty? false : true,
-          controller: refNotifier.billingPincodeController,
-          textInputAction: TextInputAction.next,
-          textInputType: TextInputType.number,
-          inputFormatters: [
-            LengthLimitingTextInputFormatter(6),
-            FilteringTextInputFormatter.digitsOnly
-          ],
-          validator: (val) {
-            if (val!.isEmpty) {
-              return "Enter your billing pincode";
-            }
-            return null;
-          },
-        ),
         const SizedBox(height: 15),
         businessTypeWidget(refNotifier: refNotifier, refState: refState),
         const SizedBox(height: 15),
@@ -628,7 +671,7 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
         const SizedBox(height: 15),
         LabelTextTextfield(
           title: 'Proposed Credit Limit.',
-          isRequiredStar: false,
+          isRequiredStar: true,
         ),
         const SizedBox(height: 5),
         AppTextfield(
@@ -667,6 +710,11 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
                         "${picked.year}-$month-$day";
                     setState(() {
                       startDate = picked;
+                       if (endDate != null &&
+                                          startDate!.isAfter(endDate!)) {
+                                        endDate = null;
+                                        refNotifier.creditEndDaysController.clear();
+                                      } 
                     });
                   }
                 });
@@ -681,7 +729,10 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
             ),
             AppDateWidget(
               onTap: () {
-                DatePickerService.datePicker(context, selectedDate: endDate)
+                 DateTime firstDate = startDate ?? DateTime.now();
+                DatePickerService.datePicker(context, selectedDate: endDate,
+                firstDate: firstDate
+                )
                     .then((picked) {
                   if (picked != null) {
                     var day = picked.day < 10 ? '0${picked.day}' : picked.day;
@@ -1113,6 +1164,46 @@ Widget _documentCheckListWidget({required AddKycNotifier refNotifier, required A
                                   .addKycTabBarIndex(refState.addKycTabBarIndex - 1);
                             }
   }
+
+
+_handleCustomerName({required AddKycNotifier refNotifer, required AddKycState refState,}){
+            refState.customerInfoModel = null;
+            AppRouter.pushCupertinoNavigation(SearchScreen(
+              route: 'verified',
+              visitType: 'Primary',
+              verificationType: 'Unverified',
+            )).then((val) {
+              if (val != null) {
+                CustomerDetails model = val;
+                      refNotifer.contactList = (model.contact??[]);
+                      refNotifer.businessNameController.text = model.shopName?? '';
+                      refNotifer.selectedShop = model.shop ?? '';
+                      refNotifer.unvCustomerId = model.name ?? '';
+                    refNotifer.customerNameController.text = model.customerName ?? '';
+                    if (refNotifer.contactList.isNotEmpty) {
+                      refNotifer.contactNumberController.text =
+                          refNotifer.contactList[0];
+                    }
+                    /// calling address api
+                  refNotifer
+                      .customerAddressApiFunction(context, model.name ?? '', model.verificType ?? '')
+                      .then((response) {
+                        if(response!=null&& response['data'].isNotEmpty){
+                    CustomerAddressModel addressModel =
+                        CustomerAddressModel.fromJson(response);
+                    refNotifer.billingAddress1Controller.text = addressModel.data?.addressLine1 ?? '';
+                    refNotifer.billingAddress2Controller.text = addressModel.data?.addressLine2 ?? '';
+                    refNotifer.billingDistrictController.text = addressModel.data?.district ?? '';
+                    refNotifer.billingStateController.text = addressModel.data?.state ?? '';
+                    refNotifer.billingPincodeController.text = addressModel.data?.pincode ?? '';
+                        }
+                  });
+                
+                setState(() {});
+              }
+            });
+          
+}
 
 }
 

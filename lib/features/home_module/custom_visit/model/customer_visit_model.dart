@@ -70,6 +70,7 @@ class CustomerVisitRecords {
   dynamic totalCount;
   dynamic formUrl;
   dynamic imageUrl;
+  dynamic customerLevel;
 
   CustomerVisitRecords(
       {this.name,
@@ -81,7 +82,8 @@ class CustomerVisitRecords {
       this.workflowState,
       this.totalCount,
       this.formUrl,
-      this.imageUrl});
+      this.imageUrl,
+      this.customerLevel});
 
   CustomerVisitRecords.fromJson(Map<String, dynamic> json) {
     name = json['name'];
@@ -94,6 +96,7 @@ class CustomerVisitRecords {
     totalCount = json['total_count'];
     formUrl = json['form_url'];
     imageUrl = json['image_url'];
+    customerLevel = json['customerLevel'];
   }
 
   Map<String, dynamic> toJson() {
@@ -108,6 +111,7 @@ class CustomerVisitRecords {
     data['total_count'] = totalCount;
     data['form_url'] = formUrl;
     data['image_url'] = imageUrl;
+    data['customerLevel'] = customerLevel;
     return data;
   }
 }

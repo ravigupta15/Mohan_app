@@ -4,6 +4,7 @@ import 'package:mohan_impex/core/widget/app_text.dart';
 import 'package:mohan_impex/core/widget/custom_app_bar.dart';
 import 'package:mohan_impex/core/widget/dotted_divider.dart';
 import 'package:mohan_impex/core/widget/expandable_widget.dart';
+import 'package:mohan_impex/features/common_widgets/remarks_widgets.dart';
 import 'package:mohan_impex/features/common_widgets/status_activity.dart';
 import 'package:mohan_impex/features/home_module/requisitions/marketing_collaterals/riverpod/collaterals_request_state.dart';
 import 'package:mohan_impex/res/app_colors.dart';
@@ -49,7 +50,12 @@ class _ViewMarkingCollateralsScreenState extends ConsumerState<ViewMarkingCollat
           children: [
             StatusWidget(activities: refState.viewCollateralsReqestModel?.data?[0].activities,),
             const SizedBox(height: 15,),
-            _ItemRequestedWidget(refState: refState,)
+            _ItemRequestedWidget(refState: refState,),
+            const SizedBox(height: 15,),
+            RemarksWidget(
+              isEditable: false,
+              remarks: refState.viewCollateralsReqestModel?.data?[0].remarks??'',
+            )
           ],
         ),
       ):EmptyWidget(),

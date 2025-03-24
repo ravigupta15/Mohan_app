@@ -28,7 +28,7 @@ class DigitalMarkingModel {
 }
 
 class Data {
-  List<Records>? records;
+  List<DigitalRecords>? records;
   dynamic totalCount;
   dynamic pageCount;
   dynamic currentPage;
@@ -37,9 +37,9 @@ class Data {
 
   Data.fromJson(Map<String, dynamic> json) {
     if (json['records'] != null) {
-      records = <Records>[];
+      records = <DigitalRecords>[];
       json['records'].forEach((v) {
-        records!.add(new Records.fromJson(v));
+        records!.add(new DigitalRecords.fromJson(v));
       });
     }
     totalCount = json['total_count'];
@@ -59,7 +59,7 @@ class Data {
   }
 }
 
-class Records {
+class DigitalRecords {
   dynamic name;
   dynamic productName;
   dynamic productAttachment;
@@ -67,7 +67,7 @@ class Records {
   dynamic totalCount;
   dynamic fileType;
 
-  Records(
+  DigitalRecords(
       {this.name,
       this.productName,
       this.productAttachment,
@@ -75,7 +75,7 @@ class Records {
       this.totalCount,
       this.fileType});
 
-  Records.fromJson(Map<String, dynamic> json) {
+  DigitalRecords.fromJson(Map<String, dynamic> json) {
     name = json['name'];
     productName = json['product_name'];
     productAttachment = json['product_attachment'];

@@ -35,7 +35,7 @@ class SampleApprovedWidget extends StatelessWidget {
             GestureDetector(
               onTap: (){
                 AppRouter.pushCupertinoNavigation( ViewSampleRequisitionsScreen(id: model?.name??'',)).then((val){
-                  refNotifier.sampleRequisitionsListApiFunction();
+                  // refNotifier.sampleRequisitionsListApiFunction();
                 });
               },
               child: Container(

@@ -35,7 +35,7 @@ class SamplePendingWidget extends StatelessWidget {
             GestureDetector(
               onTap: (){
                   AppRouter.pushCupertinoNavigation( ViewSampleRequisitionsScreen(id: model?.name??'',)).then((val){
-                    refNotifier.sampleRequisitionsListApiFunction();
+                    // refNotifier.sampleRequisitionsListApiFunction();
                   });
               },
               child: Container(
@@ -59,7 +59,7 @@ class SamplePendingWidget extends StatelessWidget {
                       JourneyPlanItemsWidget(
                       title:"Ticket #${model?.name??''}",
                       status: "Pending",
-                      statusDes: model?.approvedDate??'',
+                      statusDes: model?.status??'',
                       ),
                     ],
                   ),

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:mohan_impex/features/home_module/complaint_claim/model/invoice_items_model.dart';
+import 'package:mohan_impex/features/home_module/complaint_claim/model/invoice_model.dart';
 import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit/model/unv_customer_model.dart';
 import 'package:mohan_impex/features/home_module/kyc/model/segment_model.dart';
 import 'package:mohan_impex/features/home_module/requisitions/journey_plan/model/district_model.dart';
@@ -80,7 +82,7 @@ List<DropdownMenuItem<String>> unvCustomerList(List<UNVModel> list) {
       const DropdownMenuItem<String>(
         value: null, // No value when empty
         child: Text(
-          'No items available',
+          'No found',
           style: TextStyle(color: Colors.grey),
         ),
       ),
@@ -114,7 +116,7 @@ List<DropdownMenuItem<String>> segmentList(List<SegmentItemModel> list) {
       const DropdownMenuItem<String>(
         value: null, // No value when empty
         child: Text(
-          'No items available',
+          'No found',
           style: TextStyle(color: Colors.grey),
         ),
       ),
@@ -124,6 +126,72 @@ List<DropdownMenuItem<String>> segmentList(List<SegmentItemModel> list) {
       menuItems.add(DropdownMenuItem(
         value: item.name,
         child: Text(item.name ?? ''),
+      ));
+      
+      if (item != list.last) {
+        menuItems.add(const DropdownMenuItem<String>(
+          enabled: false,
+          child: Divider(),
+        ));
+      }
+    }
+  }
+
+  return menuItems;
+}
+
+List<DropdownMenuItem<String>> invoiceList(List<invoiceListModel> list) {
+  final List<DropdownMenuItem<String>> menuItems = [];
+
+  if (list.isEmpty) {
+    menuItems.add(
+      const DropdownMenuItem<String>(
+        value: null, // No value when empty
+        child: Text(
+          'Not found',
+          style: TextStyle(color: Colors.grey),
+        ),
+      ),
+    );
+  } else {
+    for (final item in list) {
+      menuItems.add(DropdownMenuItem(
+        value: item.name,
+        child: Text(item.name ?? ''),
+      ));
+      
+      if (item != list.last) {
+        menuItems.add(const DropdownMenuItem<String>(
+          enabled: false,
+          child: Divider(),
+        ));
+      }
+    }
+  }
+
+  return menuItems;
+}
+
+
+
+List<DropdownMenuItem<String>> invoiceItemList(List<InvoiceItemRecords> list) {
+  final List<DropdownMenuItem<String>> menuItems = [];
+
+  if (list.isEmpty) {
+    menuItems.add(
+      const DropdownMenuItem<String>(
+        value: null, // No value when empty
+        child: Text(
+          'Select item',
+          style: TextStyle(color: Colors.grey),
+        ),
+      ),
+    );
+  } else {
+    for (final item in list) {
+      menuItems.add(DropdownMenuItem(
+        value: item.itemName,
+        child: Text(item.itemName ?? ''),
       ));
       
       if (item != list.last) {

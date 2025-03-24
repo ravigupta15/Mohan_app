@@ -49,7 +49,7 @@ class _CustomSliderWidgetState extends State<CustomSliderWidget> {
   } else if (value == 4) {
     return 0.7;  // Maps to range [0.5, 0.7]
   } else if (value == 5) {
-    return 1.0;  // Maps to range [0.7, 1]
+    return 0.87;  // Maps to range [0.7, 1]
   } else {
     return 0;  // Fallback value, should not be reached if slider values are restricted
   }

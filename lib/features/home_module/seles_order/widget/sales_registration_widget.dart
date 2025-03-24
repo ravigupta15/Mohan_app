@@ -323,8 +323,15 @@ class _SalesRegistrationWidgetState extends State<SalesRegistrationWidget>
           inputFormatters: [emojiRestrict()],
           hintText: "Select delivery date",
           onTap: (){
-            currentDay = selectedDay;
+            if(widget.refNotifer.deliveryDateController.text.isEmpty){
+              currentDay = selectedDay;
             currentfocusedDay = focusedDay;
+            }
+            else{
+              /// when we resume the data from draft
+            currentDay = DateTime.parse(widget.refNotifer.deliveryDateController.text);
+            currentfocusedDay = DateTime.parse(widget.refNotifer.deliveryDateController.text);
+            }
             setState(() {
             });
             datePickerBottomsheet(context);

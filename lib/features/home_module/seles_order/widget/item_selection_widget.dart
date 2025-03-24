@@ -45,7 +45,8 @@ class _ItemSelectionWidgetState extends ConsumerState<ItemSelectionWidget> {
             refState.itemVariantModel = null;
             AppRouter.pushCupertinoNavigation(const SearchScreen(route: 'itemTemplateSalesOrder')).then((value){
               if((value??'').isNotEmpty){
-                 refNotifier.itemsVariantApiFunction(context,searchText: value, itemCategory: 'MP').then((val){
+
+                 refNotifier.itemsVariantApiFunction(context,searchText: value, itemCategory: '').then((val){
               if(val!=null){
                 refState.itemVariantModel = ItemTemplateModel.fromJson(val);
                refNotifier.selectedProductCategoryIndex = 0;
@@ -145,11 +146,6 @@ Widget addedProductWidget({required AddSalesOrderNotifier refNotifier,required A
               return Row(
       children: [
         Expanded(child: AppText(title: (model.itemName??''),maxLines: 2,)),
-        model.seletedCompetitor.isEmpty? EmptyWidget():
-        Expanded(child: Padding(
-          padding: const EdgeInsets.only(left: 8),
-          child: AppText(title: model.seletedCompetitor,maxLines: 2,),
-        )),
         const SizedBox(width: 10,),
         customContainerForAddRemove(isAdd: false,onTap: (){
            if((model.quantity)>0){
@@ -238,8 +234,8 @@ _productBottomSheetWidget( AddSalesOrderNotifier refNotifier, AddSalesOrderState
                   ),
                 ),
                 const SizedBox(height: 25,),
-                tabBar(state,productTitle: title,refNotifer: refNotifier,refState: refState),
-                const SizedBox(height: 15,),
+                // tabBar(state,productTitle: title,refNotifer: refNotifier,refState: refState),
+                // const SizedBox(height: 15,),
                 headersForTabBarItems(refNotifier),
                 const SizedBox(height: 5,),
                 productItemsWidget(refNotifier: refNotifier,refState: refState,title: title,stateful: state),
@@ -400,16 +396,16 @@ headersForTabBarItems(AddSalesOrderNotifier refNotifier){
         SizedBox(
           width: 60,
           child: AppText(title: "Item",fontsize: 11,color: AppColors.lightTextColor,)),
-           Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8),
-                  decoration: BoxDecoration(
-                      border: Border.symmetric(
-                          vertical: BorderSide(color: AppColors.e2Color))),
-                  child: AppText(
-                      title: "Competetor",
-                      fontsize: 11,
-                      color: AppColors.lightTextColor),
-                ),
+          //  Container(
+          //         padding: EdgeInsets.symmetric(horizontal: 8),
+          //         decoration: BoxDecoration(
+          //             border: Border.symmetric(
+          //                 vertical: BorderSide(color: AppColors.e2Color))),
+          //         child: AppText(
+          //             title: "Competetor",
+          //             fontsize: 11,
+          //             color: AppColors.lightTextColor),
+          //       ),
         Expanded(child: Center(child: AppText(title: "Quantity",fontsize: 11,color: AppColors.lightTextColor))),
        Container(
         padding: EdgeInsets.only(left: 8),
@@ -440,44 +436,45 @@ return ListView.separated(
      SizedBox(
       width: 60,
       child:  AppText(title: (model?.itemName??''),fontFamily: AppFontfamily.poppinsMedium,maxLines: 2,),),
-      GestureDetector(
-                      onTap: () {
-                        _competetorModelBottomSheet(
-                            index, refState, refNotifier,(model?.competitors ?? []), stateful);
-                      },
-                      child: Container(
-                        width: 64,
-                        margin: EdgeInsets.symmetric(horizontal: 12),
-                        decoration: BoxDecoration(
-                            border: Border.all(color: AppColors.edColor),
-                            borderRadius: BorderRadius.circular(5)),
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                        child: (model?.seletedCompetitor ?? "").isEmpty
-                            ? Row(
-                                children: [
-                                  AppText(
-                                    title: "Select",
-                                    fontsize: 10,
-                                    color: AppColors.lightTextColor,
-                                  ),
-                                  const SizedBox(
-                                    width: 4,
-                                  ),
-                                  Icon(
-                                    Icons.arrow_forward_ios,
-                                    size: 10,
-                                  )
-                                ],
-                              )
-                            : AppText(
-                                title: (model?.seletedCompetitor ?? ''),
-                                fontsize: 10,
-                                color: AppColors.lightTextColor,
-                                maxLines: 1,
-                              ),
-                      ),
-                    ),
+      // GestureDetector(
+      //                 onTap: () {
+      //                   _competetorModelBottomSheet(
+      //                       index, refState, refNotifier,(model?.competitors ?? []), stateful);
+      //                 },
+      //                 child: Container(
+      //                   width: 64,
+      //                   margin: EdgeInsets.symmetric(horizontal: 12),
+      //                   decoration: BoxDecoration(
+      //                       border: Border.all(color: AppColors.edColor),
+      //                       borderRadius: BorderRadius.circular(5)),
+      //                   padding:
+      //                       EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+      //                   child: (model?.seletedCompetitor ?? "").isEmpty
+      //                       ? Row(
+      //                           children: [
+      //                             AppText(
+      //                               title: "Select",
+      //                               fontsize: 10,
+      //                               color: AppColors.lightTextColor,
+      //                             ),
+      //                             const SizedBox(
+      //                               width: 4,
+      //                             ),
+      //                             Icon(
+      //                               Icons.arrow_forward_ios,
+      //                               size: 10,
+      //                             )
+      //                           ],
+      //                         )
+      //                       : AppText(
+      //                           title: (model?.seletedCompetitor ?? ''),
+      //                           fontsize: 10,
+      //                           color: AppColors.lightTextColor,
+      //                           maxLines: 1,
+      //                         ),
+      //                 ),
+      //               ),
+   
     //  refNotifier.selectedProductCategoryIndex==2 ? SizedBox(width: 80,):
       Expanded(
         child: Row(
@@ -520,7 +517,6 @@ return ListView.separated(
         isCheckbox: (model?.isSelected??false),
         onChanged: (val){
           model?.isSelected=val!;
-          model?.itemCategory= productCategoryTitle(refNotifier.selectedProductCategoryIndex);
           model?.itemTempate = title;
           if((model?.isSelected??false)==false){
              for(int i=0;i<(refState.itemVariantModel?.selectedList.length??0);i++){

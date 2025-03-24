@@ -58,12 +58,13 @@ resetPageCount(){
     selectedTabbar = val==0?"Submitted":"Draft";
     if(state.tabBarIndex !=val){
       resetFilter();
+      resetPageCount();
       searchController.clear();
       searchText = '';
       salesOrderApiFunction();
     }
     state = state.copyWith(tabBarIndex: val);
-    state = state.copyWith(currentPage: 1);
+    // state = state.copyWith(currentPage: 1);
     selectedTabbar = val==0?"Submitted":"Draft";
     
   }
@@ -102,6 +103,9 @@ salesOrderApiFunction({bool isLoadMore = false, String search = '',bool isShowLo
         state = state.copyWith(currentPage: 1);
       }
     }
+    if(isLoadMore){
+    increasePageCount();
+  }
    
   final response = await ApiService().makeRequest(apiUrl: "${ApiUrls.salesOrderListUrl}?tab=$selectedTabbar&limit=10&current_page=${state.currentPage}&search_text=$searchText&from_date=$fromDateFilter&to_date=$toDateFilter", method: ApiMethod.get.name);
  updateLoading(false);
@@ -121,18 +125,18 @@ salesOrderApiFunction({bool isLoadMore = false, String search = '',bool isShowLo
       } else {
       state =  state.copyWith(salesOrderModel: newModel);
       }
-      if (newModel.data!.isEmpty || newModel.data!.length < state.currentPage) {
-      } else {
-        if(isLoadMore){
-          increasePageCount();
-        }
-      }
+      // if (newModel.data!.isEmpty || newModel.data!.length < state.currentPage) {
+      // } else {
+      //   // if(isLoadMore){
+      //     increasePageCount();
+      //   // }
+      // }
       }
   
  } 
 
  viewSalesApiFunction(BuildContext context, String id)async{
-  state = state.copyWith(viewSalesOrderModel: null);
+  state = state.copyWith(viewSalesOrderModel: ViewSalesOrderModel.fromJson({}));
   ShowLoader.loader(context);
   final resonse = await ApiService().makeRequest(apiUrl: "${ApiUrls.viewSalesOrderUrl}?name=$id", method: ApiMethod.get.name);
   ShowLoader.hideLoader();

@@ -1,6 +1,6 @@
 class ComplaintModel {
   dynamic status;
-  String? message;
+  dynamic message;
   List<Data>? data;
 
   ComplaintModel({this.status, this.message, this.data});
@@ -28,92 +28,74 @@ class ComplaintModel {
 }
 
 class Data {
-  List<Active>? active;
-  List<Active>? resolved;
-  Perms? perms;
+  List<ComplaintRecords>? records;
+  dynamic totalCount;
+  dynamic pageCount;
+  dynamic currentPage;
 
-  Data({this.active, this.resolved, this.perms});
+  Data({this.records, this.totalCount, this.pageCount, this.currentPage});
 
   Data.fromJson(Map<String, dynamic> json) {
-    if (json['active'] != null) {
-      active = <Active>[];
-      json['active'].forEach((v) {
-        active!.add( Active.fromJson(v));
+    if (json['records'] != null) {
+      records = <ComplaintRecords>[];
+      json['records'].forEach((v) {
+        records!.add( ComplaintRecords.fromJson(v));
       });
     }
-    if (json['resolved'] != null) {
-      resolved = <Active>[];
-      json['resolved'].forEach((v) {
-        resolved!.add( Active.fromJson(v));
-      });
-    }
-    perms = json['perms'] != null ?  Perms.fromJson(json['perms']) : null;
+    totalCount = json['total_count'];
+    pageCount = json['page_count'];
+    currentPage = json['current_page'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data =  Map<String, dynamic>();
-    if (active != null) {
-      data['active'] = active!.map((v) => v.toJson()).toList();
+    if (records != null) {
+      data['records'] = records!.map((v) => v.toJson()).toList();
     }
-    if (resolved != null) {
-      data['resolved'] = resolved!.map((v) => v.toJson()).toList();
-    }
-    if (perms != null) {
-      data['perms'] = perms!.toJson();
-    }
+    data['total_count'] = totalCount;
+    data['page_count'] = pageCount;
+    data['current_page'] = currentPage;
     return data;
   }
 }
 
-class Active {
+class ComplaintRecords {
   dynamic name;
   dynamic date;
   dynamic claimType;
   dynamic workflowState;
+  dynamic totalCount;
   dynamic username;
   dynamic formUrl;
 
-  Active(
+  ComplaintRecords(
       {this.name,
       this.date,
       this.claimType,
       this.workflowState,
+      this.totalCount,
       this.username,
       this.formUrl});
 
-  Active.fromJson(Map<String, dynamic> json) {
+  ComplaintRecords.fromJson(Map<String, dynamic> json) {
     name = json['name'];
     date = json['date'];
     claimType = json['claim_type'];
     workflowState = json['workflow_state'];
+    totalCount = json['total_count'];
     username = json['username'];
     formUrl = json['form_url'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data =  Map<String, dynamic>();
     data['name'] = name;
     data['date'] = date;
     data['claim_type'] = claimType;
     data['workflow_state'] = workflowState;
+    data['total_count'] = totalCount;
     data['username'] = username;
     data['form_url'] = formUrl;
-    return data;
-  }
-}
-
-class Perms {
-  dynamic createPerm;
-
-  Perms({this.createPerm});
-
-  Perms.fromJson(Map<String, dynamic> json) {
-    createPerm = json['create_perm'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['create_perm'] = this.createPerm;
     return data;
   }
 }

@@ -10,7 +10,8 @@ import '../../../../../res/app_asset_paths.dart';
 
 class BookTrialSuccessScreen extends ConsumerStatefulWidget {
   final String id;
-  const BookTrialSuccessScreen({super.key, required this.id});
+  final String route;
+  const BookTrialSuccessScreen({super.key, required this.id, this.route = ''});
 
   @override
   ConsumerState<BookTrialSuccessScreen> createState() => _BookTrialSuccessScreenState();
@@ -59,8 +60,15 @@ class _BookTrialSuccessScreenState extends ConsumerState<BookTrialSuccessScreen>
                     const SizedBox(height: 12,),
                     GestureDetector(
                       onTap: (){
-                         Navigator.pop(context, true);
+                        if(widget.route.isEmpty){
+                          Navigator.pop(context, true);
                        Navigator.pop(context,true);
+                        }
+                        else{
+                          Navigator.pop(context, true);
+                       Navigator.pop(context,true);
+                       Navigator.pop(context,true);
+                        }
                       //  Navigator.pop(context);
                       },
                       child: Container(

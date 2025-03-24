@@ -147,6 +147,9 @@ customerApiFunction({bool isLoadMore = false,bool isShowLoading = true})async{
         state = state.copyWith(currentPage: 1);
       }
     }
+    if(isLoadMore){
+    increasePageCount();
+  }
    
   final response = await ApiService().makeRequest(apiUrl: "${ApiUrls.myCustomerListUrl}?search_text=$searchText&limit=10&current_page=${state.currentPage}&district=$districtStringFilter&state=$stateStringFilter&business_type=$businessTypeFilter&zero_billing=$zeroBillingFilter&from_date=$fromDateFilter&to_date=$toDateFilter", method: ApiMethod.get.name);
  updateLoading(false);
@@ -165,12 +168,12 @@ customerApiFunction({bool isLoadMore = false,bool isShowLoading = true})async{
       } else {
       state =  state.copyWith(myCustomerModel: newModel);
       }
-      if (newModel.data!.isEmpty || newModel.data!.length < state.currentPage) {
-      } else {
-        if(isLoadMore){
-          increasePageCount();
-        }
-      }
+      // if (newModel.data!.isEmpty || newModel.data!.length < state.currentPage) {
+      // } else {
+      //   // if(isLoadMore){
+      //     increasePageCount();
+      //   // }
+      // }
       }
   
  } 
@@ -202,6 +205,9 @@ customerApiFunction({bool isLoadMore = false,bool isShowLoading = true})async{
       }
     }
    
+if(isLoadMore){
+    increaseLedgerPageCount();
+  }
   final response = await ApiService().makeRequest(apiUrl: "${ApiUrls.ledgerUrl}?name=$id&search_text=$ledgerSearchText&from_date=$ledgerFromDate&to_date=$ledgerToDate&limit=100&current_page=${state.ledgerPageIndex}", method: ApiMethod.get.name);
   ShowLoader.hideLoader();
  updateLoading(false);
@@ -220,12 +226,12 @@ customerApiFunction({bool isLoadMore = false,bool isShowLoading = true})async{
       } else {
       state =  state.copyWith(ledgerModel: newModel);
       }
-      if (newModel.data!.isEmpty || newModel.data!.length < state.ledgerPageIndex) {
-      } else {
-        if(isLoadMore){
-          increaseLedgerPageCount();
-        }
-      }
+      // if (newModel.data!.isEmpty || newModel.data!.length < state.ledgerPageIndex) {
+      // } else {
+      //   if(isLoadMore){
+      //     increaseLedgerPageCount();
+      //   }
+      // }
       }
   }
 

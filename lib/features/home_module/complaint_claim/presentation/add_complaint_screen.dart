@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mohan_impex/core/constant/app_constants.dart';
+import 'package:mohan_impex/core/helper/dropdown_item_helper.dart';
 import 'package:mohan_impex/core/services/image_picker_service.dart';
 import 'package:mohan_impex/core/widget/app_button.dart';
-import 'package:mohan_impex/core/widget/app_date_widget.dart';
 import 'package:mohan_impex/core/widget/app_text.dart';
 import 'package:mohan_impex/core/widget/app_text_field/app_textfield.dart';
-import 'package:mohan_impex/core/widget/app_text_field/custom_search_drop_down.dart';
 import 'package:mohan_impex/core/widget/app_text_field/label_text_textfield.dart';
 import 'package:mohan_impex/core/widget/custom_app_bar.dart';
 import 'package:mohan_impex/core/widget/custom_radio_button.dart';
+import 'package:mohan_impex/core/widget/expandable_widget.dart';
+import 'package:mohan_impex/features/home_module/complaint_claim/model/invoice_items_model.dart';
 import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit/model/customer_address_model.dart';
 import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit/model/customer_info_model.dart';
 import 'package:mohan_impex/features/home_module/kyc/widgets/documents_widget.dart';
@@ -22,7 +24,6 @@ import 'package:mohan_impex/res/app_colors.dart';
 import 'package:mohan_impex/res/app_router.dart';
 import 'package:mohan_impex/res/empty_widget.dart';
 import 'package:mohan_impex/utils/message_helper.dart';
-
 import '../../../../../core/services/date_picker_service.dart';
 import '../../../../../core/widget/app_text_field/custom_drop_down.dart';
 import '../../../../../utils/app_validation.dart';
@@ -58,8 +59,11 @@ class _AddComplaintScreenState extends ConsumerState<AddComplaintScreen>
   callInitFunction(){
     final refNotifier = ref.read(addComplaintsProvider.notifier);
     refNotifier.resetValues();
-    refNotifier.itemListApiFunction(context);
+    refNotifier.increaseSelectedItemsList();
     refNotifier.channelPartnerApiFunction();
+    setState(() {
+      
+    });
   }
 
   @override
@@ -193,6 +197,21 @@ class _AddComplaintScreenState extends ConsumerState<AddComplaintScreen>
                   height: 15,
                 ),
                 textfieldWithTitleWidget(
+                  title: "Shop Name",
+                  controller: addComplaintNotifier.shopNameController,
+                  textInputAction: TextInputAction.next,
+                  isReadOnly: true,
+                  validator: (val) {
+                    if (val!.isEmpty) {
+                      return "Enter shop name";
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(
+                  height: 15,
+                ),
+                textfieldWithTitleWidget(
                     title: "Contact",
                     controller: addComplaintNotifier.contactController,
                     textInputAction: TextInputAction.next,
@@ -232,13 +251,13 @@ class _AddComplaintScreenState extends ConsumerState<AddComplaintScreen>
                   height: 15,
                 ),
                 textfieldWithTitleWidget(
-                  title: "Town",
+                  title: "District",
                   controller: addComplaintNotifier.townTypeController,
                   textInputAction: TextInputAction.next,
                   isReadOnly: true,
                   validator: (val) {
                     if (val!.isEmpty) {
-                      return "Enter Town";
+                      return "Enter District";
                     }
                     return null;
                   },
@@ -269,200 +288,78 @@ class _AddComplaintScreenState extends ConsumerState<AddComplaintScreen>
                 const SizedBox(
                   height: 15,
                 ),
-                LabelTextTextfield(title: 'Item', isRequiredStar: true),
-                const SizedBox(height: 15),
-                CustomSearchDropDown(
-                  selectedValues: itemSelectedValue,
-                  searchController: searchController,
-                  hintText: "Select item",
-                  items: dropDownMenuItems(addComplaintState.itemList),
-                  onChanged: addComplaintNotifier.onChangedCustomType,
-                  validator: (val) {
-                    if ((val ?? "").isEmpty) {
-                      return "Select item";
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(
-                  height: 15,
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
                     LabelTextTextfield(
                         title: "Invoice no", isRequiredStar: true),
                         // & Date
                     const SizedBox(
                       height: 15,
                     ),
-                    Row(
-                      children: [
-                        Expanded(
-                            child: AppTextfield(
+                    CustomDropDown(
+                      selectedValue: addComplaintNotifier.selectedInvoice,
+                      items: DropdownItemHelper().invoiceList((addComplaintState.invoiceModel?.data ?? [])),
+                     hintText: "Invoice no",
+                     onChanged: (val){
+                      addComplaintNotifier.onChangedInvoiceNo(context, val);
+                     },
+                     validator: (val){
+                      if (val!.isEmpty) {
+                        return "Select Invoice no";
+                         }
+                       return null;
+                     },
+                    ),
+                     const SizedBox(
+                      height: 15,
+                    ),
+                LabelTextTextfield(title: 'Invoice Date', isRequiredStar: true),
+              const SizedBox(
+                      height: 15,
+                    ),
+                 AppTextfield(
                           fillColor: false,
-                          controller: addComplaintNotifier.invoiceNoController,
+                          isReadOnly: true,
+                          hintText: 'Invoice date',
+                          controller: addComplaintNotifier.invoiceDateController,
                           textInputAction: TextInputAction.next,
                           validator: (val) {
                             if (val!.isEmpty) {
-                              return "Enter Invoice no ";
+                              return "Select Invoice date";
                             }
                             return null;
                           },
-                        )),
-                        // const SizedBox(
-                        //   width: 30,
-                        // ),
-                        // AppDateWidget(
-                        //   onTap: () {
-                        //     DatePickerService.datePicker(context,
-                        //             selectedDate: startDate)
-                        //         .then((picked) {
-                        //       if (picked != null) {
-                        //         var day = picked.day < 10
-                        //             ? '0${picked.day}'
-                        //             : picked.day;
-                        //         var month = picked.month < 10
-                        //             ? '0${picked.month}'
-                        //             : picked.month;
-                        //         addComplaintNotifier.invoiceDateController
-                        //             .text = "${picked.year}-$month-$day";
-                        //         setState(() {
-                        //           startDate = picked;
-                        //         });
-                        //       }
-                        //     });
-                        //   },
-                        //   title:
-                        //       addComplaintNotifier.invoiceDateController.text,
-                        // ),
-                        // SizedBox(
-                        //   width: MediaQuery.of(context).size.width * .2,
-                        // )
-                      ],
+                        ),
+               const SizedBox(
+                      height: 15,
+                    ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    LabelTextTextfield(title: 'Item', isRequiredStar: true),
+                    InkWell(
+                      onTap: (){
+                        if(addComplaintNotifier.invoiceNoController.text.isEmpty){
+                          MessageHelper.showErrorSnackBar(context, "Select invoice no");
+                        }
+
+                        else if(addComplaintNotifier.checkItemsValueIsEmpty()){
+                          MessageHelper.showErrorSnackBar(context, "Values should not be empty");
+                        }
+                        else{
+                        addComplaintNotifier.increaseSelectedItemsList();
+                        }
+                        setState(() {
+                          
+                        });
+                      },
+                      child: Icon( Icons.add,
+                                      color: AppColors.greenColor,
+                                        size: 25,
+                                  ),
                     )
                   ],
                 ),
-                const SizedBox(
-                  height: 15,
-                ),
-                textfieldWithTitleWidget(
-                  title: "Complaint Item Quantity",
-                  textInputAction: TextInputAction.next,
-                  textInputType: TextInputType.number,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly
-                  ],
-                  controller: addComplaintNotifier.complaintItemQuanityController,
-                  validator: (val) {
-                    if (val!.isEmpty) {
-                      return "Enter Complaint Item Quantity";
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(
-                  height: 15,
-                ),
-                textfieldWithTitleWidget(
-                  title: "Value of Goods",
-                  controller: addComplaintNotifier.goodsController,
-                  textInputAction: TextInputAction.next,
-                  textInputType: TextInputType.number,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly
-                  ],
-                  validator: (val) {
-                    if (val!.isEmpty) {
-                      return "Enter Value of Goods";
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(
-                  height: 15,
-                ),
-                textfieldWithTitleWidget(
-                  title: "Batch no.",
-                  controller: addComplaintNotifier.batchNoController,
-                  textInputAction: TextInputAction.next,
-                  textInputType: TextInputType.number,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly
-                  ],
-                  validator: (val) {
-                    if (val!.isEmpty) {
-                      return "Enter Batch no.";
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(
-                  height: 15,
-                ),
-                textfieldWithTitleWidget(
-                  title: "MFD",
-                  controller: addComplaintNotifier.mfdController,
-                  isReadOnly: true,
-                  onTap: (){
-                       DatePickerService.datePicker(context,
-                            selectedDate: mfdDate)
-                        .then((picked) {
-                      if (picked != null) {
-                        var day =
-                            picked.day < 10 ? '0${picked.day}' : picked.day;
-                        var month = picked.month < 10
-                            ? '0${picked.month}'
-                            : picked.month;
-                        addComplaintNotifier.mfdController.text =
-                            "${picked.year}-$month-$day";
-                        setState(() {
-                          mfdDate = picked;
-                        });
-                      }
-                    });
-
-                  },
-                  validator: (val) {
-                    if (val!.isEmpty) {
-                      return "Enter MFD";
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(
-                  height: 15,
-                ),
-                textfieldWithTitleWidget(
-                  title: "Expiry",
-                  controller: addComplaintNotifier.expiryController,
-                  isReadOnly: true,
-                  onTap: (){
-                       DatePickerService.datePicker(context,
-                            selectedDate: expiryDate)
-                        .then((picked) {
-                      if (picked != null) {
-                        var day =
-                            picked.day < 10 ? '0${picked.day}' : picked.day;
-                        var month = picked.month < 10
-                            ? '0${picked.month}'
-                            : picked.month;
-                        addComplaintNotifier.expiryController.text =
-                            "${picked.year}-$month-$day";
-                        setState(() {
-                          expiryDate = picked;
-                        });
-                      }
-                    });
-
-                  },
-                  validator: (val) {
-                    if (val!.isEmpty) {
-                      return "Select Expiry date";
-                    }
-                    return null;
-                  },
-                ),
+                const SizedBox(height: 15),
+                itemsWidget(refNotifer: addComplaintNotifier, refState: addComplaintState),         
                 const SizedBox(
                   height: 15,
                 ),
@@ -502,6 +399,216 @@ class _AddComplaintScreenState extends ConsumerState<AddComplaintScreen>
     );
   }
 
+Widget itemsWidget({required AddComplaintNotifier refNotifer, required AddComplaintState refState,}){
+  return  ListView.separated(
+    separatorBuilder: (ctx,sb){
+      return const SizedBox(height: 15,);
+    },
+    shrinkWrap: true,
+    physics: const ScrollPhysics(),
+    itemCount: refNotifer.selectedItemsList.length,
+    itemBuilder: (context,index) {
+      var model = refNotifer.selectedItemsList[index];
+      return ExpandableWidget(
+          initExpanded: false,
+          collapsedWidget: collpasedWidget(isExpanded: true, refNotifer: refNotifer, refState: refState, model: model),
+         expandedWidget: expandedWidget(isExpanded: false, refNotifer: refNotifer, refState: refState,model: model));
+    }
+  );
+  }
+
+collpasedWidget({required AddComplaintNotifier refNotifer, required AddComplaintState refState,required bool isExpanded, InvoiceItemRecords? model}){
+  return Container(
+    padding: isExpanded? EdgeInsets.all(12) : null,
+   child: Column(
+    children: [
+      Row(
+        children: [
+          LabelTextTextfield(title: 'Item', isRequiredStar: true),
+          const Spacer(),
+          refNotifer.selectedItemsList.length>1 && isExpanded?
+          InkWell(
+            onTap: (){
+              refNotifer.selectedItemsList.remove(model);
+              setState(() {
+              });
+            },
+            child: Container(
+              padding: const EdgeInsets.only(right: 15,left: 15),
+              color: AppColors.whiteColor,
+              child: SvgPicture.asset(AppAssetPaths.deleteIcon,colorFilter: ColorFilter.mode(AppColors.redColor, BlendMode.srcIn),))) : EmptyWidget(),
+           Icon(
+            !isExpanded ? Icons.expand_less : Icons.expand_more,
+            color: AppColors.light92Color,
+          ),
+        ],
+      )
+    ],
+   ),
+  );
+}
+
+expandedWidget({required AddComplaintNotifier refNotifer, required AddComplaintState refState,required bool isExpanded,InvoiceItemRecords? model}){
+  return Container(
+   padding: !isExpanded? EdgeInsets.all(12) : null,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        collpasedWidget(refNotifer: refNotifer, refState: refState, isExpanded: isExpanded), 
+        const SizedBox(height: 13,),
+        CustomDropDown(
+          selectedValue: model?.selectedDropdownValue,
+          items: DropdownItemHelper().invoiceItemList(refState.invoiceItemsModel?.data??[]),
+        onChanged: (val){
+          model?.selectedDropdownValue = val;
+          refState.invoiceItemsModel?.data?.forEach((value){
+            if(value.itemName == val){
+              model?.itemQuantityController.text = value.qty.toString();
+              model?.valueOfGoodsController.text = value.amount.toString();
+              model?.selectedItemName = value.itemName;
+              model?.selectedItemCode = value.itemCode;
+              setState(() {
+              });
+            }
+          });
+        },
+        ),
+        const SizedBox(
+                    height: 10,
+                  ),
+          textfieldWithTitleWidget(
+                    title: "Complaint Item Quantity",
+                    textInputAction: TextInputAction.next,
+                    textInputType: TextInputType.number,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly
+                    ],
+                    isReadOnly: true,
+                    controller: model?.itemQuantityController,
+                    validator: (val) {
+                      if (val!.isEmpty) {
+                        return "Enter Complaint Item Quantity";
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  textfieldWithTitleWidget(
+                    title: "Value of Goods",
+                    controller: model?.valueOfGoodsController,
+                    textInputAction: TextInputAction.next,
+                    isReadOnly: true,
+                    textInputType: TextInputType.number,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly
+                    ],
+                    validator: (val) {
+                      if (val!.isEmpty) {
+                        return "Enter Value of Goods";
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  textfieldWithTitleWidget(
+                    title: "Batch no.",
+                    controller: model?.batchNoController,
+                    textInputAction: TextInputAction.next,
+                    textInputType: TextInputType.number,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly
+                    ],
+                    validator: (val) {
+                      if (val!.isEmpty) {
+                        return "Enter Batch no.";
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  textfieldWithTitleWidget(
+                    title: "MFD",
+                    controller: model?.mfdDateController,
+                    isReadOnly: true,
+                    onTap: (){
+                         DatePickerService.datePicker(context,
+                              selectedDate:  model?.mfdDate)
+                          .then((picked) {
+                        if (picked != null) {
+                          var day =
+                              picked.day < 10 ? '0${picked.day}' : picked.day;
+                          var month = picked.month < 10
+                              ? '0${picked.month}'
+                              : picked.month;
+                          model?.mfdDateController.text =
+                              "${picked.year}-$month-$day";
+                          setState(() {
+                           model?.mfdDate = picked;
+                            if ((model?.expiryDateController.text ?? '').isNotEmpty && (model?.mfdDate)!.isAfter((model?.expiryDate)!)) {
+                             model?.expiryDate = null;
+                           model?.expiryDateController.clear();
+                           }
+                          });
+                        }
+                      });
+    
+                    },
+                    validator: (val) {
+                      if (val!.isEmpty) {
+                        return "Enter MFD";
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  textfieldWithTitleWidget(
+                    title: "Expiry",
+                    controller: model?.expiryDateController,
+                    isReadOnly: true,
+                    onTap: (){
+                         DateTime firstDate = model?.mfdDate ?? DateTime.now();
+                         DatePickerService.datePicker(context,
+                              selectedDate:model?.expiryDate,
+                              firstDate: firstDate
+                              )
+                          .then((picked) {
+                        if (picked != null) {
+                          var day =
+                              picked.day < 10 ? '0${picked.day}' : picked.day;
+                          var month = picked.month < 10
+                              ? '0${picked.month}'
+                              : picked.month;
+                          model?.expiryDateController.text =
+                              "${picked.year}-$month-$day";
+                          setState(() {
+                            model?.expiryDate = picked;
+                          });
+                        }
+                      });
+    
+                    },
+                    validator: (val) {
+                      if (val!.isEmpty) {
+                        return "Select Expiry date";
+                      }
+                      return null;
+                    },
+                  ),
+                
+      ],
+    ),
+  );
+
+}
+
   Widget textfieldWithTitleWidget(
       {required String title,
       Widget? suffix,
@@ -530,60 +637,6 @@ class _AddComplaintScreenState extends ConsumerState<AddComplaintScreen>
           textInputAction: textInputAction,
           validator: validator,
         ),
-      ],
-    );
-  }
-
-  Widget invoiceNoAndDateWidget(
-      TextEditingController? controller, addComplaintNotifier) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        LabelTextTextfield(title: "Invoice no & Date", isRequiredStar: true),
-        const SizedBox(
-          height: 15,
-        ),
-        Row(
-          children: [
-            Expanded(
-                child: AppTextfield(
-              fillColor: false,
-              controller: controller,
-              textInputAction: TextInputAction.next,
-              validator: (val) {
-                if (val!.isEmpty) {
-                  return "Enter Invoice no ";
-                }
-                return null;
-              },
-            )),
-            const SizedBox(
-              width: 30,
-            ),
-            AppDateWidget(
-              onTap: () {
-                DatePickerService.datePicker(context, selectedDate: startDate)
-                    .then((picked) {
-                  if (picked != null) {
-                    var day = picked.day < 10 ? '0${picked.day}' : picked.day;
-                    var month =
-                        picked.month < 10 ? '0${picked.month}' : picked.month;
-                    addComplaintNotifier.creditStartDaysController.text =
-                        "${picked.year}-$month-$day";
-                    setState(() {
-                      startDate = picked;
-                    });
-                  }
-                });
-              },
-              title: addComplaintNotifier.creditStartDaysController.text,
-            ),
-            AppDateWidget(),
-            SizedBox(
-              width: MediaQuery.of(context).size.width * .2,
-            )
-          ],
-        )
       ],
     );
   }
@@ -761,17 +814,20 @@ _handleCustomerName({required AddComplaintNotifier refNotifer, required AddCompl
             AppRouter.pushCupertinoNavigation(SearchScreen(
               route: 'verified',
               visitType: AppConstants.visitTypeList[refState.selectedVisitType],
+              verificationType: 'Verified',
             )).then((val) {
               if (val != null) {
+                
+                setState(() {
+                });
                 refNotifer.resetOnChangedVerfiyType();
-                ///
-                  CustomerDetails model = val;
+                CustomerDetails model = val;
+                refNotifer.clearSelectedInvoice(context,model.name ??'');
                       refNotifer.contactNumberList = (model.contact??[]);
-                    // refNotifer.businessNameController.text = model.shopName ?? '';
-                    // refNotifer.customer = model.name ?? '';
+                      refNotifer.shopNameController.text = model.shopName?? '';
+                      refNotifer.selectedShop = model.shop ?? '';
+                    refNotifer.selectedCustomer = model.name ?? '';
                     refNotifer.contactPersonNameController.text = model.customerName ?? '';
-                    // refNotifer.selectedVerifyType = model.verificType ?? '';
-                    // refNotifer.selectedShop = model.shop ?? '';
                     if (refNotifer.contactNumberList.isNotEmpty) {
                       refNotifer.contactController.text =
                           refNotifer.contactNumberList[0];
@@ -783,20 +839,9 @@ _handleCustomerName({required AddComplaintNotifier refNotifer, required AddCompl
                         if(response!=null&& response['data'].isNotEmpty){
                     CustomerAddressModel addressModel =
                         CustomerAddressModel.fromJson(response);
-                      //  refNotifer.verifiedCustomerLocation = (addressModel.data?.name??'');
-                    // refNotifer.address1Controller.text = addressModel.data?.addressLine1 ?? '';
-                    // refNotifer.address2Controller.text = addressModel.data?.addressLine2 ?? '';
-                    // refNotifer.districtController.text = addressModel.data?.district ?? '';
                     refNotifer.stateNameController.text = addressModel.data?.state ?? '';
                     refNotifer.pincodeController.text = addressModel.data?.pincode ?? '';
-                    refNotifer.townTypeController.text = addressModel.data?.district ?? '';
-                    // refNotifer.addressTypeController.text = addressModel.data?.addressTitle ?? '';
-                    // refNotifer.selectedStateValue = addressModel.data?.state;
-                        // if((addressModel.data?.state??'').isNotEmpty){
-                        //   refNotifer.districtApiFunction(context, stateText: addressModel.data?.state);
-                        //   refNotifer.selectedDistrictValue = addressModel.data?.district;
-                        // }
-                    
+                    refNotifer.townTypeController.text = addressModel.data?.district ?? ''; 
                         }
                   });
                 

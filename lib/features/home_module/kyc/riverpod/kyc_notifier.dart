@@ -76,11 +76,12 @@ onChangedSearch(String val){
     if(state.tabBarIndex !=val){
       resetFilter();
       searchController.clear();
+      resetPageCount();
       searchText ='';
       kyclistApiFunction();
     }
     state = state.copyWith(tabBarIndex: val);
-    state = state.copyWith(currentPage: 1);
+    // state = state.copyWith(currentPage: 1);
   }
 updateLoadingMore(bool value){
   state = state.copyWith(isLoadingMore: value);
@@ -108,6 +109,9 @@ kyclistApiFunction({bool isLoadMore = false, String search = '',bool isShowLoadi
       }
     }
   
+  if(isLoadMore){
+    increasePageCount();
+  }
   final response = await ApiService().makeRequest(apiUrl: "${ApiUrls.kycList}?tab=$selectedTabbar&limit=10&current_page=${state.currentPage}&customer_type=$customerTypeFilter&business_type=$businessTypeFilter&segment=$segmentFilter&customer_category=$customerCategoryFilter&search_text=$searchText", method: ApiMethod.get.name);
   updateLoading(false);
     if (!isLoadMore) {
@@ -125,12 +129,12 @@ kyclistApiFunction({bool isLoadMore = false, String search = '',bool isShowLoadi
       } else {
       state =  state.copyWith(kycModel: newModel);
       }
-      if (newModel.data!.isEmpty || newModel.data!.length < state.currentPage) {
-      } else {
-        if(isLoadMore){
-          increasePageCount();
-        }
-      }
+      // if (newModel.data!.isEmpty || newModel.data!.length < state.currentPage) {
+      // } else {
+      //   // if(isLoadMore){
+      //     increasePageCount();
+      //   // }
+      // }
       }
  } 
 

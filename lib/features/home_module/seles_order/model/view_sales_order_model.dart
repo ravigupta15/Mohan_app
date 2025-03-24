@@ -39,6 +39,7 @@ class ViewSalesItem {
   dynamic dealType;
   dynamic location;
   dynamic contact;
+  dynamic deliveryDate;
   List<ItemsTemplate>? itemsTemplate;
   List<Activities>? activities;
 
@@ -52,6 +53,7 @@ class ViewSalesItem {
       this.dealType,
       this.location,
       this.contact,
+      this.deliveryDate,
       this.itemsTemplate,
       this.activities});
 
@@ -65,6 +67,7 @@ class ViewSalesItem {
     dealType = json['deal_type'];
     location = json['location'];
     contact = json['contact'];
+    deliveryDate = json['delivery_date'];
     if (json['items'] != null) {
       itemsTemplate = <ItemsTemplate>[];
       json['items'].forEach((v) {
@@ -90,6 +93,7 @@ class ViewSalesItem {
     data['deal_type'] = dealType;
     data['location'] = location;
     data['contact'] = contact;
+    data['delivery_date'] = deliveryDate;
     if (itemsTemplate != null) {
       data['items'] = itemsTemplate!.map((v) => v.toJson()).toList();
     }

@@ -32,21 +32,23 @@ class _SalesOverviewWidgetState extends State<SalesOverviewWidget> {
 
   double thumbRadius = 20;
 
-  double getSliderValue(double value) {
-    if (value == 0.1) {
-      return 1; // Maps to range [0, 1]
-    } else if (value == 2) {
-      return 0.3; // Maps to range [0.1, 0.3]
-    } else if (value == 3) {
-      return 0.5; // Maps to range [0.3, 0.5]
-    } else if (value == 4) {
-      return 0.7; // Maps to range [0.5, 0.7]
-    } else if (value == 5) {
-      return 1.0; // Maps to range [0.7, 1]
-    } else {
-      return 0; // Fallback value, should not be reached if slider values are restricted
-    }
+  
+  double getSliderValue(double value){
+     if (value == 0.1) {
+    return 1;  // Maps to range [0, 1]
+  } else if (value == 2) {
+    return 0.3;  // Maps to range [0.1, 0.3]
+  } else if (value == 3) {
+    return 0.5;  // Maps to range [0.3, 0.5]
+  } else if (value == 4) {
+    return 0.7;  // Maps to range [0.5, 0.7]
+  } else if (value == 5) {
+    return 0.87;  // Maps to range [0.7, 1]
+  } else {
+    return 0;  // Fallback value, should not be reached if slider values are restricted
   }
+  }
+
 
   @override
   void initState() {
@@ -82,50 +84,52 @@ class _SalesOverviewWidgetState extends State<SalesOverviewWidget> {
   Widget addedProductWidget(
       {required AddSalesOrderNotifier refNotifier,
       required AddSalesOrderState refState}) {
-    return ListView.separated(
-        separatorBuilder: (ctx, sb) {
-          return const SizedBox(
+    return Container(
+       padding: EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                  decoration: BoxDecoration(
+                    color: AppColors.itemsBG,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Color(0xffE2E2E2)),
+                  ),
+                 
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          AppText(
+            title: 'Added Items',
+            fontsize: 14,
+            color: AppColors.black,
+            fontFamily: AppFontfamily.poppinsSemibold,
+          ),
+          const SizedBox(
             height: 10,
-          );
-        },
-        itemCount: refState.selectedProductList.length,
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemBuilder: (ctx, index) {
-          return Container(
-              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 15),
-              decoration: BoxDecoration(
-                color: AppColors.itemsBG,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Color(0xffE2E2E2)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  AppText(
-                    title: 'Added Items',
-                    fontsize: 14,
-                    color: AppColors.black,
-                    fontFamily: AppFontfamily.poppinsSemibold,
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  ExpandableWidget(
-                      initExpanded: true,
-                      collapsedWidget: productCollapsedWidget(
-                          isExpanded: true,
-                          index: index,
-                          refNotifier: refNotifier,
-                          refState: refState),
-                      expandedWidget: productExpandexpandWidget(
-                          isExpanded: false,
-                          index: index,
-                          refNotifier: refNotifier,
-                          refState: refState)),
-                ],
-              ));
-        });
+          ),
+          ListView.separated(
+              separatorBuilder: (ctx, sb) {
+                return const SizedBox(
+                  height: 10,
+                );
+              },
+              itemCount: refState.selectedProductList.length,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemBuilder: (ctx, index) {
+                return ExpandableWidget(
+                    initExpanded: true,
+                    collapsedWidget: productCollapsedWidget(
+                        isExpanded: true,
+                        index: index,
+                        refNotifier: refNotifier,
+                        refState: refState),
+                    expandedWidget: productExpandexpandWidget(
+                        isExpanded: false,
+                        index: index,
+                        refNotifier: refNotifier,
+                        refState: refState));
+              }),
+        ],
+      ),
+    );
   }
 
   productCollapsedWidget(
@@ -201,17 +205,6 @@ class _SalesOverviewWidgetState extends State<SalesOverviewWidget> {
                       title: (model.itemName ?? ''),
                       maxLines: 2,
                     )),
-                    Expanded(
-                        child: Padding(
-                      padding: const EdgeInsets.only(left: 8),
-                      child: AppText(
-                        title: model.seletedCompetitor,
-                        maxLines: 2,
-                      ),
-                    )),
-                    const SizedBox(
-                      width: 10,
-                    ),
                     const SizedBox(
                       width: 5,
                     ),
@@ -590,9 +583,10 @@ class _CustomInfoWidget extends StatelessWidget {
               (refState.contactNumberList).isEmpty
                   ? refNotifier.numberController.text
                   : refState.contactNumberList.join(', ')),
-
-            const SizedBox(height: 10,),
-            itemsWidget("Delivery Date", refNotifier.deliveryDateController.text),
+          const SizedBox(
+            height: 10,
+          ),
+          itemsWidget("Delivery Date", refNotifier.deliveryDateController.text),
         ],
       ),
     );
