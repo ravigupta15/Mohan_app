@@ -40,6 +40,8 @@ class ViewSalesItem {
   dynamic location;
   dynamic contact;
   dynamic deliveryDate;
+  dynamic workflowState;
+  dynamic custEditNeeded;
   List<ItemsTemplate>? itemsTemplate;
   List<Activities>? activities;
 
@@ -54,6 +56,8 @@ class ViewSalesItem {
       this.location,
       this.contact,
       this.deliveryDate,
+      this.workflowState,
+      this.custEditNeeded,
       this.itemsTemplate,
       this.activities});
 
@@ -68,6 +72,8 @@ class ViewSalesItem {
     location = json['location'];
     contact = json['contact'];
     deliveryDate = json['delivery_date'];
+    workflowState = json['workflow_state'];
+    custEditNeeded = json['cust_edit_needed'];
     if (json['items'] != null) {
       itemsTemplate = <ItemsTemplate>[];
       json['items'].forEach((v) {
@@ -94,6 +100,8 @@ class ViewSalesItem {
     data['location'] = location;
     data['contact'] = contact;
     data['delivery_date'] = deliveryDate;
+    data['workflow_state'] = workflowState;
+    data['cust_edit_needed'] = custEditNeeded;
     if (itemsTemplate != null) {
       data['items'] = itemsTemplate!.map((v) => v.toJson()).toList();
     }

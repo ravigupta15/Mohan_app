@@ -48,13 +48,15 @@ class _ViewOrderScreenState extends ConsumerState<ViewOrderScreen> {
     return Scaffold(
         appBar: customAppBar(title: "Sales Order",
       actions: [
+        (refState.viewSalesOrderModel?.data?[0].workflowState ?? '').isEmpty?
+        EmptyWidget():
         Container(
           margin: EdgeInsets.only(right: 10),
           padding: EdgeInsets.symmetric(horizontal: 7,vertical: 2),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(5),
             border: Border.all(color: AppColors.greenColor,width: .5)),
-            child: AppText(title: "Complete",fontsize: 9,),
+            child: AppText(title:(refState.viewSalesOrderModel?.data?[0].workflowState ?? ''),fontsize: 9,),
         )
       ]
       ),
@@ -123,7 +125,7 @@ class _CustomInfoWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) { 
     return ExpandableWidget(
-        initExpanded: false,
+        initExpanded: true,
         collapsedWidget: collapsedWidget(isExpanded: true),
         expandedWidget: expandedWidget(isExpanded: false));
   }
@@ -183,7 +185,7 @@ class _CustomInfoWidget extends StatelessWidget {
             const SizedBox(height: 20,),
             itemsWidget("Visit Type", model?.customerLevel??''),
             const SizedBox(height: 20,),
-            itemsWidget("Details edit needed", ''),
+            itemsWidget("Details edit needed", (model?.custEditNeeded??'').toString() == '1'?"Yes":"No"),
         ],
       ),
     );

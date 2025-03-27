@@ -30,8 +30,10 @@ class AddSalesOrderNotifier extends StateNotifier<AddSalesOrderState> {
   String selectedVerificationType = '';
   String selectedshop = '';
   String selectedExistingCustomer = '';
- bool isEditDetails = false;
- bool isReadOnlyFields = false;
+  bool isEditDetails = false;
+  bool isReadOnlyFields = false;
+  int isUpdate = 0;
+  String soId = '';
 
  
   int selectedProductCategoryIndex= 0;
@@ -62,6 +64,8 @@ updateLoading(bool isLoading){
   itemVariantModel: null,
   uploadedImageList: [],contactNumberList: [],channelParterName: ''
   );
+  isUpdate =0;
+  soId = '';
   isEditDetails = false;
   resetControllers();
   selectedUNVCustomer = '';
@@ -166,7 +170,9 @@ setResumeData(ViewSalesItem resumeItems){
   numberController.text = resumeItems.contact ?? '';
   channelPartnerController.text = resumeItems.channelPartner ?? '';
   shopNameController.text = resumeItems.shopName ?? '';
-  
+  isEditDetails = (resumeItems.custEditNeeded??'').toString() == '1'?true: false;
+  isUpdate = 1;
+  soId = resumeItems.name ?? '';
 }
 
 
@@ -302,7 +308,9 @@ final body = {
     "contact": numberController.text,
     "remarksnotes": remarksController.text,
     "items": formattedData,
-    "delivery_date": deliveryDateController.text
+    "delivery_date": deliveryDateController.text,
+    'so_id':soId,
+    'isupdate': isUpdate
 };
 // print(body);
 log(json.encode(body));
@@ -317,7 +325,7 @@ if(response!=null){
     if(route == 'resume'){
         Navigator.pop(context, true);
     }
-  }, des: 'You have successfully created ticket'));
+  }, des: 'You have successfully ${isUpdate ==0? 'created':'updated' } sales order'));
   // AppRouter.pushCupertinoNavigation( BookTrialSuccessScreen(id: response.data['data']?[0]?['so_id'],));
 }
 }

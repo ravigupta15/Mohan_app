@@ -72,6 +72,7 @@ class StatusWidget extends StatelessWidget {
                 return const SizedBox(height: 15,);
               },
               shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
               itemCount: (activities?.length??0),
               itemBuilder: (ctx,index){
                 var model = activities?[index];
@@ -104,8 +105,10 @@ class StatusWidget extends StatelessWidget {
         )
         ],
       ),
-      (model?.status??'').isEmpty || (model?.status??'').toLowerCase() =='pending'?
-      EmptyWidget():
+      //  (model?.commentType ?? '').toString().toLowerCase() =='workflow' && (model?.status??'').isEmpty|| (model?.status??'').toLowerCase() =='pending'? 
+
+      // (model?.status??'').isEmpty || (model?.status??'').toLowerCase() =='pending'?
+      // EmptyWidget():
       commentWidget(model),
     ],
   );
@@ -133,7 +136,9 @@ class StatusWidget extends StatelessWidget {
           ],
         ),
          const SizedBox(height: 12,),
-         AppText(title:model?.status??'',fontsize: 10,fontWeight: FontWeight.w300,)
+         AppText(title:
+         (model?.commentType ?? '').toString().toLowerCase() == 'workflow'?
+         (model?.status??'') : (model?.comments ?? ''),fontsize: 10,fontWeight: FontWeight.w300,)
       ],
     ),
   );

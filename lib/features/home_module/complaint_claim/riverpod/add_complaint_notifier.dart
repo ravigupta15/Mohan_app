@@ -405,7 +405,7 @@ complaintListApiFunction({bool isLoadMore = false, String search = '',bool isSho
 
 
 viewComplaintApiFunction(BuildContext context, String ticketId)async{
-  state = state.copyWith(viewComplaintModel: null);
+  state = state.copyWith(viewComplaintModel: ViewComplaintModel.fromJson({}));
   ShowLoader.loader(context);
   final response = await ApiService().makeRequest(apiUrl: "${ApiUrls.viewComplaintUrl}?name=$ticketId", method: ApiMethod.get.name);
   ShowLoader.hideLoader();

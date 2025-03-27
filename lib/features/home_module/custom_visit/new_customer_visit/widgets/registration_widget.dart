@@ -407,6 +407,7 @@ class _RegistrationWidgetState extends State<RegistrationWidget>
             widget.refState.unvCustomerModel = null;
             AppRouter.pushCupertinoNavigation(SearchScreen(
               route: 'verified',
+              showCustomerStatus: true,
               visitType: widget.refState.selectedCustomerType == 1 ? AppConstants.visitTypeList[widget.refState.selectedVisitType] : '',
               channelParter: widget.refState.selectedCustomerType == 1 && widget.refState.selectedVisitType == 1  ?
                widget.refNotifer.channelPartnerController.text : '',

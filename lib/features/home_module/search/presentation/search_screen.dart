@@ -8,6 +8,7 @@ import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit
 import 'package:mohan_impex/features/home_module/seles_order/riverpod/add_sales_order_state.dart';
 import 'package:mohan_impex/res/app_asset_paths.dart';
 import 'package:mohan_impex/res/app_colors.dart';
+import 'package:mohan_impex/res/empty_widget.dart';
 import 'package:mohan_impex/res/no_data_found_widget.dart';
 
 class SearchScreen extends ConsumerStatefulWidget {
@@ -15,8 +16,9 @@ class SearchScreen extends ConsumerStatefulWidget {
   final String channelParter;
   final String visitType;
   final String verificationType;
+  final bool showCustomerStatus;
   const SearchScreen({super.key, required this.route, this.channelParter = '', this.visitType = '',
-  this.verificationType = ''
+  this.verificationType = '',this.showCustomerStatus = false
   });
 
   @override
@@ -52,9 +54,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     } else if(widget.route=='verified') {
       refNotifier.customerInfoApiFunction(searchText: '', channelPartern: widget.channelParter, visitType: widget.visitType,verificationType: widget.verificationType );
     }
-    else if(widget.route=='unverified'){
-       refNotifier.unvCustomerApiFunction('');
-    }
     else if(widget.route == 'itemTemplateSalesOrder'){
       addSalesNotifier.itemTemplateApiFunction('');
     }
@@ -84,8 +83,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                          ? _handleProductSearch
                          : widget.route=='verified'?
                          _handleCustomInfoSearch:
-                         widget.route == 'unverified'?
-                         _handleUnvCustomSearch:
                          widget.route == 'itemTemplateSalesOrder'?
                          _handleSalesItemTemplateSearch:
                           _handleCustomInfoSearch
@@ -94,8 +91,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                          /// widget 
                          widget.route =='verified'?
                          _customInfoWidget(refState):
-                         widget.route == 'unverified'?
-                         _unvCustomInfoWidget(refState):
                          widget.route == 'product'
                          ? _productWidget(refState)
                          : widget.route == 'channel'
@@ -138,7 +133,18 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                                   width: 1,
                                   color: AppColors.lightBlue62Color
                                       .withValues(alpha: .4)))),
-                      child: AppText(title: model?.customerName ?? ''),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Flexible(child: AppText(title: model?.customerName ?? '',maxLines: 1,)),
+                          const SizedBox(width: 4,),
+                        widget.showCustomerStatus?
+                          AppText(title: model?.verificType ?? '',
+                          fontsize: 13,
+                          color: (model?.verificType ?? '').toLowerCase() == 'verified' ? AppColors.greenColor : AppColors.redColor,
+                          ) : EmptyWidget()
+                        ],
+                      ),
                     ),
                   );
                 }));
@@ -181,41 +187,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                 }));
   }
 
-
-  Widget _unvCustomInfoWidget(NewCustomerVisitState refState) {
-    return Expanded(
-        child: (refState.unvCustomerModel?.data ?? []).isEmpty && !isInit
-            ? NoDataFound(title: "No matching vendor found")
-            : ListView.separated(
-                separatorBuilder: (ctx, index) {
-                  return const SizedBox(
-                    height: 10,
-                  );
-                },
-                itemCount: (refState.unvCustomerModel?.data?.length ?? 0),
-                shrinkWrap: true,
-                padding: EdgeInsets.only(top: 20),
-                itemBuilder: (ctx, index) {
-                  var model = refState.unvCustomerModel?.data?[index];
-                  return GestureDetector(
-                    onTap: () {
-                      Navigator.pop(
-                          context, refState.unvCustomerModel?.data![index]);
-                    },
-                    child: Container(
-                      height: 50,
-                      alignment: Alignment.centerLeft,
-                      decoration: BoxDecoration(
-                          border: Border(
-                              bottom: BorderSide(
-                                  width: 1,
-                                  color: AppColors.lightBlue62Color
-                                      .withValues(alpha: .4)))),
-                      child: AppText(title: model?.customerName ?? ''),
-                    ),
-                  );
-                }));
-  }
 
   Widget _channelWidget(NewCustomerVisitState refState) {
     return Expanded(

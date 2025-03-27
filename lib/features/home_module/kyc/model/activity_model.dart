@@ -1,5 +1,6 @@
 
 class Activities {
+  dynamic commentType;
   dynamic role;
   dynamic name;
   dynamic status;
@@ -8,9 +9,10 @@ class Activities {
   dynamic time;
 
   Activities(
-      {this.role, this.name, this.status, this.comments, this.date, this.time});
+      {this.commentType, this.role, this.name, this.status, this.comments, this.date, this.time});
 
   Activities.fromJson(Map<String, dynamic> json) {
+    commentType = json['comment_type'];
     role = json['role'];
     name = json['name'];
     status = json['status'];
@@ -21,6 +23,7 @@ class Activities {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data =  Map<String, dynamic>();
+    data['comment_type'] = commentType;
     data['role'] = role;
     data['name'] = name;
     data['status'] = status;
