@@ -235,7 +235,8 @@ increasePageCount(){
             if((route ?? '').isNotEmpty){
         detailsBack!([trailTypeController.text,
             AppConstants.conductByList[state.selectedConductType],
-            trailTypeController.text.toString().toLowerCase() == "product"? productFormatted: itemFormatted
+            trailTypeController.text.toString().toLowerCase() == "product"? productFormatted: itemFormatted,
+            appointmentController.text
             ],);
             }
 

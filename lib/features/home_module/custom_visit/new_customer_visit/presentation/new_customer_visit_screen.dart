@@ -181,7 +181,12 @@ class _NewCustomerVisitScreenState
                                           MessageHelper.showErrorSnackBar(
                                               context,
                                               "Quantity should not be empty");
+                                        } else if(refState.productTrial == 1 && refState.hasProductTrial ==0){
+                                          MessageHelper.showErrorSnackBar(
+                                              context,
+                                              "Please book the trial");
                                         } else {
+
                                           refNotifier.createProductApiFunction(
                                               context,
                                               actionType: 'Draft',route: widget.route);

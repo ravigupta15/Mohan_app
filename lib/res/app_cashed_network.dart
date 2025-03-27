@@ -57,50 +57,43 @@ class _AppNetworkImageState extends State<AppNetworkImage> {
             width: widget.width,
             child: const _ImageErrorWidget(),
           )
-        : GestureDetector(
-            onTap: () {
-              if (widget.canOpenImage) {
-                // FilePreviewScreen.open(context, widget.imageUrl);
-              }
-            },
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(widget.borderRadius),
-              child: _isSVGImage(widget.imgUrl)
-                  ? SvgPicture.network(
-                      widget.imgUrl,
-                      height: widget.height,
-                      width: widget.width,
-                      fit: widget.boxFit ?? BoxFit.contain,
-                      placeholderBuilder: (context) =>
-                          widget.loadingPlaceholder ??
-                          const _ImageProgressIndicatorBuilder(),
-                    )
-                  : CachedNetworkImage(
-                    httpHeaders: {
-                  'Authorization': "Bearer ${LocalSharePreference.token}",  // If needed for authentication
-                     },
-                      height: widget.height,
-                      width: widget.width,
-                      imageUrl: widget.imgUrl,
-                      fit: widget.boxFit,
-                      /// when enable to cache the image then
-                      cacheKey: widget.enableCache ? widget.imgUrl : null,
-                      maxWidthDiskCache: widget.maxWidthDiskCache,
-                      memCacheWidth: widget.memCacheWidth,
-                      maxHeightDiskCache: widget.maxHeightDiskCache,
-                      memCacheHeight: widget.memCacheHeight,
-
-                      // placeholder: (context, url) => Image.asset(AppAssetPaths.placeholderIcon),
-                      progressIndicatorBuilder:
-                          (context, url, downloadProgress) {
-                        return widget.loadingPlaceholder ??
-                            const _ImageProgressIndicatorBuilder();
-                      },
-                      errorWidget: (context, url, error) =>
-                          widget.errorPlaceholder ?? const _ImageErrorWidget(),
-                    ),
-            ),
-          );
+        : ClipRRect(
+          borderRadius: BorderRadius.circular(widget.borderRadius),
+          child: _isSVGImage(widget.imgUrl)
+              ? SvgPicture.network(
+                  widget.imgUrl,
+                  height: widget.height,
+                  width: widget.width,
+                  fit: widget.boxFit ?? BoxFit.contain,
+                  placeholderBuilder: (context) =>
+                      widget.loadingPlaceholder ??
+                      const _ImageProgressIndicatorBuilder(),
+                )
+              : CachedNetworkImage(
+                httpHeaders: {
+              'Authorization': "Bearer ${LocalSharePreference.token}",  // If needed for authentication
+                 },
+                  height: widget.height,
+                  width: widget.width,
+                  imageUrl: widget.imgUrl,
+                  fit: widget.boxFit,
+                  /// when enable to cache the image then
+                  cacheKey: widget.enableCache ? widget.imgUrl : null,
+                  maxWidthDiskCache: widget.maxWidthDiskCache,
+                  memCacheWidth: widget.memCacheWidth,
+                  maxHeightDiskCache: widget.maxHeightDiskCache,
+                  memCacheHeight: widget.memCacheHeight,
+        
+                  // placeholder: (context, url) => Image.asset(AppAssetPaths.placeholderIcon),
+                  progressIndicatorBuilder:
+                      (context, url, downloadProgress) {
+                    return widget.loadingPlaceholder ??
+                        const _ImageProgressIndicatorBuilder();
+                  },
+                  errorWidget: (context, url, error) =>
+                      widget.errorPlaceholder ?? const _ImageErrorWidget(),
+                ),
+        );
   }
 
 ///////////////////////////////////////////////////////////

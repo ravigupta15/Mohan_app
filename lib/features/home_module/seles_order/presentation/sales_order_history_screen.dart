@@ -213,7 +213,7 @@ ScrollController _scrollController = ScrollController();
                           : SizedBox.fromSize()
           ],
         );
-    }): NoDataFound(title: "No orders found");
+    }): NoDataFound(title: "No my orders found");
   }
 
 Widget draftOrderWidget(SalesOrderState refState){
@@ -245,7 +245,7 @@ Widget draftOrderWidget(SalesOrderState refState){
                           : SizedBox.fromSize()
           ],
         );
-    }) : NoDataFound(title: "Visit draft data not found");
+    }) : NoDataFound(title: "No draft orders found");
 }
 
 

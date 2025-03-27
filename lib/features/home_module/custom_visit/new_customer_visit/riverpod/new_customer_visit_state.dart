@@ -19,7 +19,6 @@ final int selectedVisitType;
 final String customerName;
 final String shopName;
 final int addQuantity;
-final List captureImageList;
 final List uploadedImageList;
 final int productTrial;
 final List channelList;
@@ -42,14 +41,14 @@ CustomerInfoModel? customerInfoModel;
  String visitStartLetitude;
  String visitEndLatitude;
  String visitEndLetitude;
-  NewCustomerVisitState({required this.isLoading,required this.tabBarIndex, required this.currentTimer, required this.selectedCustomerType,required this.selectedVisitType, required this.customerName, required this.shopName, required this.addQuantity, required this.captureImageList,required this.uploadedImageList, this.productTrial=0,
+  NewCustomerVisitState({required this.isLoading,required this.tabBarIndex, required this.currentTimer, required this.selectedCustomerType,required this.selectedVisitType, required this.customerName, required this.shopName, required this.addQuantity,required this.uploadedImageList, this.productTrial=0,
   required this.channelList,this.competitorModel, this.itemModel, required this.selectedProductList,this.customerInfoModel,required this.contactNumberList,  this.channelParterName = '',this.dealTypeValue=1, this.visitStartDate = '', this.hasProductTrial=0, this.productModel,this.productItemModel,
   this.stateModel,this.districtModel, this.unvCustomerModel,
   this.visitEndLatitude ='',this.visitEndLetitude = '',this.visitStartLatitude='',this.visitStartLetitude=''
   });
 
   NewCustomerVisitState copyWith({  bool? isLoading, int? tabBarIndex, int? currentTimer, int?selectedCustomerType,
-  int? selectedVisitType, String? customerName, String? shopName, int?addQuantity,List?captureImageList,int?productTrial, List? uploadedImageList,  List? channelList,CompetitorModel? competitorModel, ItemModel?itemModel,
+  int? selectedVisitType, String? customerName, String? shopName, int?addQuantity,int?productTrial, List? uploadedImageList,  List? channelList,CompetitorModel? competitorModel, ItemModel?itemModel,
   List<ProductSendModel>?selectedProductList, CustomerInfoModel?customerInfoModel,List?contactNumberList, String?channelParterName,int?dealTypeValue, String?visitStartDate,int?hasProductTrial,
   ProductModel? productModel,ProductItemModel? productItemModel,StateModel?stateModel,
   DistrictModel? districtModel,UNVCustomerModel? unvCustomerModel,
@@ -65,7 +64,6 @@ CustomerInfoModel? customerInfoModel;
       customerName: customerName??this.customerName,
       shopName: shopName??this.shopName,
       addQuantity: addQuantity??this.addQuantity,
-      captureImageList: captureImageList??this.captureImageList,
       productTrial: productTrial??this.productTrial,
       uploadedImageList: uploadedImageList??this.uploadedImageList,
       channelList: channelList??this.channelList,

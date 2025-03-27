@@ -16,6 +16,7 @@ import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit
 import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit/widgets/customer_information_widget.dart';
 import 'package:mohan_impex/features/home_module/requisitions/trial_plan/presentation/add_trial_screen.dart';
 import 'package:mohan_impex/res/app_asset_paths.dart';
+import 'package:mohan_impex/res/app_cashed_network.dart';
 import 'package:mohan_impex/res/app_colors.dart';
 import 'package:mohan_impex/res/app_fontfamily.dart';
 import 'package:mohan_impex/res/app_router.dart';
@@ -204,14 +205,7 @@ class _OverviewWidgetState extends State<OverviewWidget> {
       decoration: BoxDecoration(
           color: AppColors.whiteColor,
           borderRadius: BorderRadius.circular(10),
-          boxShadow: !isExpanded
-              ? []
-              : [
-                  BoxShadow(
-                      offset: Offset(0, 0),
-                      color: AppColors.black.withValues(alpha: .2),
-                      blurRadius: 10)
-                ]),
+          ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -242,12 +236,7 @@ class _OverviewWidgetState extends State<OverviewWidget> {
       decoration: BoxDecoration(
           color: AppColors.whiteColor,
           borderRadius: BorderRadius.circular(10),
-          boxShadow: [
-            BoxShadow(
-                offset: Offset(0, 0),
-                color: AppColors.black.withValues(alpha: .2),
-                blurRadius: 10)
-          ]),
+         ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -439,7 +428,7 @@ class _OverviewWidgetState extends State<OverviewWidget> {
       decoration: BoxDecoration(
         color: AppColors.whiteColor,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.oliveGray.withValues(alpha: .3)),
+        // border: Border.all(color: AppColors.oliveGray.withValues(alpha: .3)),
       ),
       padding: EdgeInsets.only(left: 15, right: 15, top: 8, bottom: 20),
       child: Column(
@@ -585,14 +574,7 @@ class _ProductTrial extends StatelessWidget {
       decoration: BoxDecoration(
           color: AppColors.whiteColor,
           borderRadius: BorderRadius.circular(10),
-          boxShadow: !isExpanded
-              ? []
-              : [
-                  BoxShadow(
-                      offset: Offset(0, 0),
-                      color: AppColors.black.withValues(alpha: .2),
-                      blurRadius: 10)
-                ]),
+         ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -618,18 +600,12 @@ class _ProductTrial extends StatelessWidget {
   }
 
   expandedWidget({required bool isExpanded}) {
-    print(refState.productTrial);
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
       decoration: BoxDecoration(
           color: AppColors.whiteColor,
           borderRadius: BorderRadius.circular(10),
-          boxShadow: [
-            BoxShadow(
-                offset: Offset(0, 0),
-                color: AppColors.black.withValues(alpha: .2),
-                blurRadius: 10)
-          ]),
+          ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -711,14 +687,7 @@ class _CaptureImageState extends State<_CaptureImage> {
       decoration: BoxDecoration(
           color: AppColors.whiteColor,
           borderRadius: BorderRadius.circular(10),
-          boxShadow: !isExpanded
-              ? []
-              : [
-                  BoxShadow(
-                      offset: Offset(0, 0),
-                      color: AppColors.black.withValues(alpha: .2),
-                      blurRadius: 10)
-                ]),
+         ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -752,12 +721,7 @@ class _CaptureImageState extends State<_CaptureImage> {
       decoration: BoxDecoration(
           color: AppColors.whiteColor,
           borderRadius: BorderRadius.circular(10),
-          boxShadow: [
-            BoxShadow(
-                offset: Offset(0, 0),
-                color: AppColors.black.withValues(alpha: .2),
-                blurRadius: 10)
-          ]),
+          ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -765,9 +729,9 @@ class _CaptureImageState extends State<_CaptureImage> {
           const SizedBox(
             height: 15,
           ),
-          widget.refState.captureImageList.length > 1
+          widget.refState.uploadedImageList.isNotEmpty
               ? GridView.builder(
-                  itemCount: widget.refState.captureImageList.length,
+                  itemCount: widget.refState.uploadedImageList.length+1,
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -776,40 +740,11 @@ class _CaptureImageState extends State<_CaptureImage> {
                       crossAxisSpacing: 15,
                       childAspectRatio: 2.9 / 3),
                   itemBuilder: (ctx, index) {
-                    return index != 0
-                        ? Stack(
-                            fit: StackFit.expand,
-                            children: [
-                              ClipRRect(
-                                  borderRadius: BorderRadius.circular(20),
-                                  child: Image.file(
-                                    widget.refState.captureImageList[index],
-                                    height: 79,
-                                    width: 100,
-                                    fit: BoxFit.cover,
-                                  )),
-                              Align(
-                                  alignment: Alignment.topRight,
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      widget.refState.captureImageList.removeAt(index);
-                                      widget.refState.uploadedImageList
-                                          .removeAt(index);
-                                    },
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: AppColors.redColor),
-                                      child: Icon(
-                                        Icons.close,
-                                        color: AppColors.whiteColor,
-                                        size: 15,
-                                      ),
-                                    ),
-                                  ))
-                            ],
-                          )
-                        : addImageWidget(context);
+                    return index < widget.refState.uploadedImageList.length
+                        ? AppNetworkImage(
+                          imgUrl: widget.refState.uploadedImageList[index]['url'],
+                          boxFit: BoxFit.cover,borderRadius: 15,
+                        ): addImageWidget(context);
                   })
               : GestureDetector(
                   onTap: () {
@@ -825,6 +760,7 @@ class _CaptureImageState extends State<_CaptureImage> {
                     child: SvgPicture.asset(AppAssetPaths.galleryIcon),
                   ),
                 )
+      
         ],
       ),
     );

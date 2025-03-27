@@ -179,7 +179,7 @@ checkSalesPitchValidation(BuildContext context){
   }
 }
 
-checkOverViewValidation(BuildContext context,{required String actionType}){
+checkOverViewValidation(BuildContext context,{required String actionType, required String route}){
     if(state.selectedProductList.isEmpty){
     MessageHelper.showErrorSnackBar(context,"Please add your product");
   }
@@ -189,7 +189,7 @@ checkOverViewValidation(BuildContext context,{required String actionType}){
         MessageHelper.showErrorSnackBar(context, "Quantity should not be empty");
       }
       else{
-    createProductApiFunction(context, actionType: actionType);
+    createProductApiFunction(context, actionType: actionType, route: route);
       }
   }
 }
@@ -274,7 +274,7 @@ Future itemsVariantApiFunction(BuildContext context, { String searchText = '', S
 }
 
 
-createProductApiFunction(BuildContext context, {required String actionType})async{
+createProductApiFunction(BuildContext context, {required String actionType, required String route})async{
   ShowLoader.loader(context);
   List<Map<String, dynamic>> formattedData = state.selectedProductList.map((e) {
   return e.list.map((items) {
@@ -314,6 +314,9 @@ if(response!=null){
   '', btnTitle: "Home", onTap: (){
     Navigator.pop(context, true);
     Navigator.pop(context, true);
+    if(route == 'resume'){
+        Navigator.pop(context, true);
+    }
   }, des: 'You have successfully created ticket'));
   // AppRouter.pushCupertinoNavigation( BookTrialSuccessScreen(id: response.data['data']?[0]?['so_id'],));
 }

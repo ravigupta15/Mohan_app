@@ -222,7 +222,7 @@ ScrollController _scrollController = ScrollController();
                           : SizedBox.fromSize()
           ],
         );
-    }): NoDataFound(title: "My visit data not found");
+    }): NoDataFound(title: "No visit orders found");
   }
 
 Widget visitDraftWidget(CustomerVisitState refState, CustomerVisitNotifier refNotifier){
@@ -256,7 +256,7 @@ Widget visitDraftWidget(CustomerVisitState refState, CustomerVisitNotifier refNo
                           : SizedBox.fromSize()
           ],
         );
-    }) : NoDataFound(title: "Visit draft data not found");
+    }) : NoDataFound(title: "No draft orders found");
 }
 
 

@@ -182,9 +182,7 @@ class _TrialPlanDetailsWidget extends StatelessWidget {
           decoration: BoxDecoration(
         color:!isExpanded?null: AppColors.whiteColor,
         borderRadius: BorderRadius.circular(10),
-        boxShadow:!isExpanded?[]:  [
-          BoxShadow(offset: Offset(0, 0),color: AppColors.black.withValues(alpha: .2),blurRadius: 10)
-        ]
+
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -200,7 +198,7 @@ class _TrialPlanDetailsWidget extends StatelessWidget {
   Widget expandedWidget({required bool isExpanded}){
     var model = refState.viewTrialPlanModel?.data?[0];
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 17,vertical: 10),
+      padding: EdgeInsets.symmetric(horizontal: 17,vertical: 11),
       decoration: BoxDecoration(
         color: AppColors.itemsBG,
         borderRadius: BorderRadius.circular(10),
@@ -283,9 +281,6 @@ class _ItemRequestedWidget extends StatelessWidget {
           decoration: BoxDecoration(
         color:!isExpanded?null: AppColors.whiteColor,
         borderRadius: BorderRadius.circular(10),
-        boxShadow:!isExpanded?[]:  [
-          BoxShadow(offset: Offset(0, 0),color: AppColors.black.withValues(alpha: .2),blurRadius: 10)
-        ]
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -299,7 +294,7 @@ class _ItemRequestedWidget extends StatelessWidget {
   Widget expandedWidget({required bool isExpanded}){
     var model = refState.viewTrialPlanModel?.data?[0];
    return Container(
-    padding: EdgeInsets.symmetric(horizontal: 17,vertical: 10),
+    padding: EdgeInsets.symmetric(horizontal: 17,vertical: 11),
       decoration: BoxDecoration(
         color: AppColors.itemsBG,
         borderRadius: BorderRadius.circular(10),

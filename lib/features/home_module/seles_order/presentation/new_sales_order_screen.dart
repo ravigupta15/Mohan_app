@@ -145,7 +145,7 @@ class _NewSalesOrderScreenState extends ConsumerState<NewSalesOrderScreen> {
                           "Draft",color: AppColors.arcticBreeze,
                           height: 44,width: 120,
                           onTap: (){
-                            refNotifier.checkOverViewValidation(context,actionType: "Draft" );
+                            refNotifier.checkOverViewValidation(context,actionType: "Draft",route: widget.route );
                           },
                     ),
                   ),
@@ -153,7 +153,7 @@ class _NewSalesOrderScreenState extends ConsumerState<NewSalesOrderScreen> {
                     alignment: Alignment.center,
                     child: AppTextButton(title: "Submit",color: AppColors.arcticBreeze,
                     height: 44,width: 120,onTap: (){
-                      refNotifier.checkOverViewValidation(context,actionType: "Submit");
+                      refNotifier.checkOverViewValidation(context,actionType: "Submit",route: widget.route);
                     },
                     ),
                   )

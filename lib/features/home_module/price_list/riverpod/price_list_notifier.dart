@@ -18,6 +18,8 @@ String searchText = '';
 
 resetValues(){
   state =state.copyWith(currentPage: 1,isLoading: false,isLoadingMore: false,priceListModel: null);
+  filerValue = '';
+  searchText ='';
 }
 
  resetFilter(){

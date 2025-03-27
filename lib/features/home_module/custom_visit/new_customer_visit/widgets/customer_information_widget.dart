@@ -45,11 +45,11 @@ Widget expandedWidget({required bool isExpanded}){
         color: AppColors.whiteColor,
         borderRadius: BorderRadius.circular(10),
         boxShadow: [
-          BoxShadow(
-            offset: Offset(0, 0),
-            color: AppColors.black.withValues(alpha: .2),
-            blurRadius: 10
-          )
+          // BoxShadow(
+          //   offset: Offset(0, 0),
+          //   color: AppColors.black.withValues(alpha: .2),
+          //   blurRadius: 10
+          // )
         ]
       ),
       child: Column(
@@ -86,6 +86,8 @@ Widget expandedWidget({required bool isExpanded}){
             itemsWidget("State", refNotifier.stateController.text),
             const SizedBox(height: 10,),
             itemsWidget("Pincode", refNotifier.pincodeController.text),
+            const SizedBox(height: 10,),
+            itemsWidget("Details edit needed", refNotifier.isEditDetails == true? "Yes":"No"),
         ],
       ),
     );

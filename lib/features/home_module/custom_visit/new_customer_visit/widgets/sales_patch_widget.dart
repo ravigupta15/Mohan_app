@@ -91,7 +91,10 @@ class _SalesPatchWidgetState extends ConsumerState<SalesPatchWidget> {
   Widget addedProductWidget(
       {required NewCustomerVisitNotifier refNotifier,
       required NewCustomerVisitState refState}) {
-    return ListView.builder(
+    return ListView.separated(
+      separatorBuilder: (ctx, sb){
+        return const SizedBox(height: 15,);
+      },
         itemCount: refState.selectedProductList.length,
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
@@ -163,7 +166,7 @@ class _SalesPatchWidgetState extends ConsumerState<SalesPatchWidget> {
       decoration: BoxDecoration(
         color: AppColors.whiteColor,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.oliveGray.withValues(alpha: .3)),
+        // border: Border.all(color: AppColors.oliveGray.withValues(alpha: .3)),
       ),
       padding: EdgeInsets.only(left: 15, right: 15, top: 8, bottom: 20),
       child: Column(
@@ -342,12 +345,32 @@ class _SalesPatchWidgetState extends ConsumerState<SalesPatchWidget> {
                                 refState.selectedProductList.indexWhere(
                               (e) => e.productType == title,
                             );
+
                             if (existingProductIndex != -1) {
-                              refState.selectedProductList[
-                                  existingProductIndex] = ProductSendModel(
-                                list: refState.productItemModel!.selectedList,
-                                productType: title,
-                              );
+                              var product = refState
+                                  .selectedProductList[existingProductIndex];
+                              for (var newItem
+                                  in refState.productItemModel!.selectedList) {
+                                int existingItemIndex =
+                                    product.list.indexWhere((e) {
+                                  if (e.itemCode == null ||
+                                      newItem.itemCode == null) {
+                                    return false; // Don't match if either itemCode is null
+                                  }
+
+                                  return e.itemCode.toString().trim() ==
+                                      newItem.itemCode.toString().trim();
+                                });
+
+                                if (existingItemIndex != -1) {
+                                  var existingItem =
+                                      product.list[existingItemIndex];
+                                  existingItem.quantity += newItem.quantity;
+
+                                } else {
+                                  product.list.add(newItem);
+                                }
+                              }
                             } else {
                               refState.selectedProductList.add(
                                 ProductSendModel(
@@ -356,6 +379,25 @@ class _SalesPatchWidgetState extends ConsumerState<SalesPatchWidget> {
                                 ),
                               );
                             }
+
+                            // final existingProductIndex =
+                            //     refState.selectedProductList.indexWhere(
+                            //   (e) => e.productType == title,
+                            // );
+                            // if (existingProductIndex != -1) {
+                            //   refState.selectedProductList[
+                            //       existingProductIndex] = ProductSendModel(
+                            //     list: refState.productItemModel!.selectedList,
+                            //     productType: title,
+                            //   );
+                            // } else {
+                            //   refState.selectedProductList.add(
+                            //     ProductSendModel(
+                            //       list: refState.productItemModel!.selectedList,
+                            //       productType: title,
+                            //     ),
+                            //   );
+                            // }
                             state(() {});
                             Navigator.pop(context);
                             setState(() {});
@@ -440,7 +482,7 @@ class _SalesPatchWidgetState extends ConsumerState<SalesPatchWidget> {
           refNotifer.selectedProductCategoryIndex = index;
           refState.productItemModel = null;
           refNotifer
-              .productItemApiFunction(context, productTitle: productTitle)
+              .productItemApiFunction(context, productTitle: productTitle,itemCategory: title)
               .then((val) {
             if (val != null) {
               refState.productItemModel = ProductItemModel.fromJson(val);

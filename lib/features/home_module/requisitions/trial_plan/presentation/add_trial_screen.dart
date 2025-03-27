@@ -59,6 +59,7 @@ class _AddTrialScreenState extends ConsumerState<AddTrialScreen> with AppValidat
 ItemModel?itemModel;
 ProductModel? productModel;
 String itemTemplate = '';
+String? selectedTrialType;
 
  @override
   void initState() {
@@ -82,6 +83,7 @@ callInitFunction() {
 
   fromProduct(){
     final trialPlanNotifier = ref.read(addTrialPlanProvider.notifier);
+    final trialPlanState = ref.read(addTrialPlanProvider);
     final newVisitNotifier = ref.read(newCustomVisitProvider.notifier);
     final newVisitState = ref.watch(newCustomVisitProvider);
     if(widget.route == 'visit'){
@@ -90,11 +92,10 @@ callInitFunction() {
     trialPlanNotifier.businessNameController.text = newVisitNotifier.shopNameController.text;
     trialPlanNotifier.verifiedCustomerLocation = AppConstants.customerType[newVisitState.selectedCustomerType] == "new"? '' : newVisitNotifier.verifiedCustomerLocation;
     trialPlanNotifier.customer = newVisitNotifier.selectedExistingCustomer;
-    // trialPlanState.unvName = newVisitNotifier.unvName;
     trialPlanNotifier.selectedVisitType = AppConstants.visitTypeList[newVisitState.selectedVisitType];
     trialPlanNotifier.selectedVerifyType =  newVisitNotifier.selectedVerificationType;
     trialPlanNotifier.channelPartner = newVisitNotifier.channelPartnerController.text;
-    // LocalSharePreference.currentAddress;
+    trialPlanNotifier.selectedShop = newVisitNotifier.selectedshop;
     
     trialPlanNotifier.addressTypeController.text = newVisitNotifier.addressTypeController.text;
     trialPlanNotifier.address1Controller.text = newVisitNotifier.address1Controller.text;
@@ -106,6 +107,23 @@ callInitFunction() {
     trialPlanNotifier.verifyTypeController.text = newVisitNotifier.selectedVerificationType;
     trialPlanNotifier.remarksController.text =  newVisitNotifier.remarksController.text;
     trialPlanNotifier.contactNumberList = newVisitState.contactNumberList;
+    trialPlanNotifier.appointmentController.text = newVisitNotifier.trialPlanAppointmentDate;
+    trialPlanState.selectedConductType = (newVisitNotifier.trialConductType.isNotEmpty && newVisitNotifier.trialConductType.toLowerCase() == 'self')? 0 :1;
+    trialPlanNotifier.trailTypeController.text = newVisitNotifier.trialType;
+    selectedTrialType = newVisitNotifier.trialType.isNotEmpty? newVisitNotifier.trialType : null;
+    trialPlanNotifier.selectedItem = newVisitNotifier.trialType.toLowerCase() == 'item'
+    ? newVisitNotifier.trailItems.map((e) {
+        return Items(itemName: e['item_name'],itemCode: e['item_code']);
+      }).toList()
+    : [];
+
+ trialPlanNotifier.selectedProduct = newVisitNotifier.trialType.toLowerCase() == 'product'
+    ? newVisitNotifier.trailItems.map((e) {
+        return ProductItems(productName: e['product']);
+      }).toList()
+    : [];
+    
+
     if(newVisitState.contactNumberList.isNotEmpty){
       trialPlanNotifier.contactNumberController.text = newVisitState.contactNumberList[0];
     }
@@ -114,17 +132,6 @@ callInitFunction() {
     }
     print("stat....${newVisitNotifier.stateController.text}");
     if((newVisitNotifier.stateController.text).isNotEmpty){
-      // trialPlanNotifier.stateApiFunction(context).then((val){
-      //   if(val!=null){
-      //     trialPlanNotifier.selectedStateValue = newVisitNotifier.stateController.text;
-      //     trialPlanNotifier.districtApiFunction(context, stateText: (newVisitNotifier.stateController.text)).then((districtValue){
-      //       if(districtValue!=null){
-      //         trialPlanNotifier.selectedDistrictValue = newVisitNotifier.districtController.text;
-      //       }
-      //     });
-      //   }
-      // });
-    
     }
     setState(() {
       
@@ -151,8 +158,10 @@ callInitFunction() {
           child: Column(
             children: [
               screenContentWidget(refNotifier,refState),
-              const SizedBox(height: 30,),
-              selectItemWidget(refNotifier),
+              refNotifier.trailTypeController.text.isEmpty? EmptyWidget():
+              Padding(padding: EdgeInsets.only(top: 30),
+              child: selectItemWidget(refNotifier),
+              ),
               Padding(
                 padding: const EdgeInsets.only(top: 30),
                 child: RemarksWidget(
@@ -239,7 +248,9 @@ callInitFunction() {
           const SizedBox(height: 19,),
           LabelTextTextfield(title: 'Trial location', isRequiredStar: false),
           const SizedBox(height: 5),
-          CustomDropDown(items: DropdownItemHelper().dropdownListt(AppConstants.triaLocList),
+          CustomDropDown(
+            
+            items: DropdownItemHelper().dropdownListt(AppConstants.triaLocList),
           hintText: "Select trail location",
           onChanged: (val){
             refNotifier.trialLocationController.text = val;
@@ -256,9 +267,12 @@ callInitFunction() {
           const SizedBox(height: 15,),
           LabelTextTextfield(title: 'Trail Type', isRequiredStar: false),
           const SizedBox(height: 5),
-      CustomDropDown(items:DropdownItemHelper().dropdownListt(AppConstants.trailTypeList),
+      CustomDropDown(
+        selectedValue: selectedTrialType,
+        items:DropdownItemHelper().dropdownListt(AppConstants.trailTypeList),
        hintText: "Select trail type",
           onChanged: (val){
+            selectedTrialType  =val;
             refNotifier.onChangedTrailType(val);
             setState(() {
               

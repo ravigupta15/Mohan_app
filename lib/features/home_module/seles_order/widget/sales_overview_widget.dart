@@ -171,7 +171,7 @@ class _SalesOverviewWidgetState extends State<SalesOverviewWidget> {
       decoration: BoxDecoration(
         color: AppColors.whiteColor,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.oliveGray.withValues(alpha: .3)),
+        // border: Border.all(color: AppColors.oliveGray.withValues(alpha: .3)),
       ),
       padding: EdgeInsets.only(left: 15, right: 15, top: 8, bottom: 20),
       child: Column(
@@ -297,14 +297,7 @@ class _SalesOverviewWidgetState extends State<SalesOverviewWidget> {
       decoration: BoxDecoration(
           color: AppColors.whiteColor,
           borderRadius: BorderRadius.circular(10),
-          boxShadow: !isExpanded
-              ? []
-              : [
-                  BoxShadow(
-                      offset: Offset(0, 0),
-                      color: AppColors.black.withValues(alpha: .2),
-                      blurRadius: 10)
-                ]),
+          ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -335,12 +328,7 @@ class _SalesOverviewWidgetState extends State<SalesOverviewWidget> {
       decoration: BoxDecoration(
           color: AppColors.whiteColor,
           borderRadius: BorderRadius.circular(10),
-          boxShadow: [
-            BoxShadow(
-                offset: Offset(0, 0),
-                color: AppColors.black.withValues(alpha: .2),
-                blurRadius: 10)
-          ]),
+          ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -516,18 +504,11 @@ class _CustomInfoWidget extends StatelessWidget {
     return Container(
       padding: !isExpanded
           ? EdgeInsets.zero
-          : EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+          : EdgeInsets.symmetric(horizontal: 10, vertical: 14),
       decoration: BoxDecoration(
           color: AppColors.whiteColor,
           borderRadius: BorderRadius.circular(10),
-          boxShadow: !isExpanded
-              ? []
-              : [
-                  BoxShadow(
-                      offset: Offset(0, 0),
-                      color: AppColors.black.withValues(alpha: .2),
-                      blurRadius: 10)
-                ]),
+         ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -550,12 +531,7 @@ class _CustomInfoWidget extends StatelessWidget {
       decoration: BoxDecoration(
           color: AppColors.whiteColor,
           borderRadius: BorderRadius.circular(10),
-          boxShadow: [
-            BoxShadow(
-                offset: Offset(0, 0),
-                color: AppColors.black.withValues(alpha: .2),
-                blurRadius: 10)
-          ]),
+         ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

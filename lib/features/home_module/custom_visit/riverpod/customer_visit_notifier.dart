@@ -32,6 +32,7 @@ String selectedTabbar = "Submitted";
 
 resetValues(){
   state = state.copyWith(isLoadingMore: false,tabBarIndex: 0);
+  searchText = '';
   resetPageCount();
   resetFilter();
 }

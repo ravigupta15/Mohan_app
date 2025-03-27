@@ -257,7 +257,7 @@ String businessTypeTitle(index){
   }
 
  setVisitValues(BuildContext context, VisitItemsModel? visitItemsModel){
- customerNameController.text = visitItemsModel?.customerName ?? '';
+ customerNameController.text = visitItemsModel?.unvCustomerName ?? '';
  unvCustomerId = visitItemsModel?.unvCustomer ?? '';
  selectedShop = visitItemsModel?.shop ?? '';
  contactNumberController.text = visitItemsModel?.contact?[0].contact ?? '';

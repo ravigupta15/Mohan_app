@@ -29,7 +29,7 @@ class RemarksWidget extends StatelessWidget {
 
   remarkesCollapsedWidget({required bool isExpanded}){
     return Container(
-        padding:!isExpanded?null: EdgeInsets.symmetric(horizontal: horizontalPadding,vertical: 12),
+        padding:!isExpanded?null: EdgeInsets.symmetric(horizontal: horizontalPadding,vertical: 14),
       child: Row(
        children: [
          AppText(title: "Remarks",fontFamily:AppFontfamily.poppinsSemibold,),

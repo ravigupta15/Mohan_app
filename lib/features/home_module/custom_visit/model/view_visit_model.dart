@@ -64,8 +64,8 @@ class VisitItemsModel {
   dynamic visitDuration;
   dynamic workflowState;
   List<ProductPitching>? productPitching;
-  List? productTrial;
-  List? itemTrial;
+  List<ProductTrial>? productTrial;
+  List<ItemTrial>? itemTrial;
   List<Contact>? contact;
   List<ImageUrl>? imageUrl;
   List<Activities>? activities;
@@ -159,19 +159,19 @@ class VisitItemsModel {
         activities!.add( Activities.fromJson(v));
       });
     }
-   
-    // if (json['product_trial'] != null) {
-    //   productTrial = <Null>[];
-    //   json['product_trial'].forEach((v) {
-    //     productTrial!.add( Null.fromJson(v));
-    //   });
-    // }
-    // if (json['item_trial'] != null) {
-    //   itemTrial = <Null>[];
-    //   json['item_trial'].forEach((v) {
-    //     itemTrial!.add(new Null.fromJson(v));
-    //   });
-    // }
+    if (json['item_trial'] != null) {
+      itemTrial = <ItemTrial>[];
+      json['item_trial'].forEach((v) {
+        itemTrial!.add(new ItemTrial.fromJson(v));
+      });
+    }
+
+  if (json['product_trial'] != null) {
+      productTrial = <ProductTrial>[];
+      json['product_trial'].forEach((v) {
+        productTrial!.add(new ProductTrial.fromJson(v));
+      });
+    }   
     if (json['contact'] != null) {
       contact = <Contact>[];
       json['contact'].forEach((v) {
@@ -233,6 +233,9 @@ class VisitItemsModel {
     if (itemTrial != null) {
       data['item_trial'] = itemTrial!.map((v) => v.toJson()).toList();
     }
+    if (productTrial != null) {
+      data['product_trial'] = productTrial!.map((v) => v.toJson()).toList();
+    }
     if (contact != null) {
       data['contact'] = contact!.map((v) => v.toJson()).toList();
     }
@@ -245,6 +248,36 @@ class VisitItemsModel {
     return data;
   }
 }
+
+class ItemTrial {
+  dynamic name;
+  dynamic itemCode;
+  dynamic itemName;
+  dynamic report;
+  dynamic remarks;
+
+  ItemTrial(
+      {this.name, this.itemCode, this.itemName, this.report, this.remarks});
+
+  ItemTrial.fromJson(Map<String, dynamic> json) {
+    name = json['name'];
+    itemCode = json['item_code'];
+    itemName = json['item_name'];
+    report = json['report'];
+    remarks = json['remarks'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data =  Map<String, dynamic>();
+    data['name'] = name;
+    data['item_code'] = itemCode;
+    data['item_name'] = itemName;
+    data['report'] = report;
+    data['remarks'] = remarks;
+    return data;
+  }
+}
+
 
 class ProductPitching {
   dynamic product;
@@ -342,6 +375,35 @@ class ImageUrl {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['file_url'] = fileUrl;
+    return data;
+  }
+}
+
+class ProductTrial {
+  dynamic name;
+  dynamic product;
+  dynamic trialTemplate;
+  dynamic report;
+  dynamic remarks;
+
+  ProductTrial(
+      {this.name, this.product, this.trialTemplate, this.report, this.remarks});
+
+  ProductTrial.fromJson(Map<String, dynamic> json) {
+    name = json['name'];
+    product = json['product'];
+    trialTemplate = json['trial_template'];
+    report = json['report'];
+    remarks = json['remarks'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['name'] = name;
+    data['product'] = product;
+    data['trial_template'] = trialTemplate;
+    data['report'] = report;
+    data['remarks'] = remarks;
     return data;
   }
 }

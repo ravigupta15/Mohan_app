@@ -20,6 +20,8 @@ String searchText = '';
  }
 
 resetValues(){
+  searchText = '';
+  filerValue = '';
   resetPageCount();
   resetFilter();
   state = state.copyWith(isLoadingMore: false);

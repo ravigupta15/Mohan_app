@@ -72,7 +72,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           children: [
             AppSearchBar(
               autofocus: true,
-                hintText: "Search items",
+                hintText: "Search...",
                 suffixWidget: Container(
                   alignment: Alignment.center,
                   width: 40,

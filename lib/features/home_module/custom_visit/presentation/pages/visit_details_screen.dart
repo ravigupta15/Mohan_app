@@ -12,6 +12,7 @@ import 'package:mohan_impex/features/home_module/custom_visit/model/view_visit_m
 import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit/presentation/new_customer_visit_screen.dart';
 import 'package:mohan_impex/features/home_module/custom_visit/riverpod/customer_visit_state.dart';
 import 'package:mohan_impex/features/home_module/kyc/presentation/add_kyc_screen.dart';
+import 'package:mohan_impex/features/home_module/requisitions/trial_plan/presentation/trial_product_item_screen.dart';
 import 'package:mohan_impex/res/app_cashed_network.dart';
 import 'package:mohan_impex/res/app_colors.dart';
 import 'package:mohan_impex/res/app_fontfamily.dart';
@@ -187,11 +188,17 @@ class _AdditionalDetails extends StatelessWidget {
         ExpandableWidget(
           initExpanded: true,
           collapsedWidget: collapsedWidget(isExpanded: true), expandedWidget: expandedWidget(isExpanded: false)),
+          (refState.visitModel?.data?[0].hasTrialPlan ?? '0').toString() == '0'? EmptyWidget():
+          Padding(
+            padding: const EdgeInsets.only(top: 14),
+            child: _TrialPlanWidget(refState: refState),
+          ),
           const SizedBox(height: 14,),
           RemarksWidget(
             isEditable: false,
             remarks: refState.visitModel?.data?[0].remarksnotes??'',
           ),
+          
           const SizedBox(height: 14,),
           imageWidget(context),
           const SizedBox(height: 14,),
@@ -203,7 +210,7 @@ class _AdditionalDetails extends StatelessWidget {
 
 Widget collapsedWidget({required bool isExpanded}){
   return Container(
-      padding:isExpanded? EdgeInsets.symmetric(horizontal: 10,vertical: 12):EdgeInsets.zero,
+      padding:isExpanded? EdgeInsets.symmetric(horizontal: 10,vertical: 14):EdgeInsets.zero,
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -221,20 +228,13 @@ Widget expandedWidget({required bool isExpanded}){
       decoration: BoxDecoration(
         color: AppColors.whiteColor,
         borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          BoxShadow(
-            offset: Offset(0, 0),
-            color: AppColors.black.withValues(alpha: .2),
-            blurRadius: 10
-          )
-        ]
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
        collapsedWidget(isExpanded: isExpanded),
             const SizedBox(height: 13,),
-            itemsWidget("Vendor Name", model?.name?? ''),
+            itemsWidget("Vendor Name", (model?.customerName??'').isEmpty? (model?.unvCustomerName ?? ''): (model?.customerName??'')),
             const SizedBox(height: 13,),
             itemsWidget("Shop Name", model?.shopName?? ''),
             const SizedBox(height: 13,),
@@ -261,6 +261,23 @@ const SizedBox(height: 13,),
             itemsWidget("State", model?.state??''),
             const SizedBox(height: 13,),
             itemsWidget("Pincode", (model?.pincode??'').toString()),
+            const SizedBox(height: 13,),
+            itemsWidget("Details edit needed", (model?.custEditNeeded??'').toString() == '1'?"Yes":"No"),
+            (model?.conductBy??'').isEmpty? EmptyWidget() :
+             Padding(
+               padding: const EdgeInsets.only(top: 13),
+               child: itemsWidget("Conduct By", (model?.conductBy??'')),
+             ),
+            (model?.trialType??'').isEmpty? EmptyWidget() :
+            Padding(
+              padding: const EdgeInsets.only(top: 13),
+              child: itemsWidget("Trial Type", model?.trialType?? ''),
+            ),
+            (model?.appointmentDate??'').isEmpty? EmptyWidget() :
+            Padding(
+              padding: const EdgeInsets.only(top: 13),
+              child: itemsWidget("Appointment Date", model?.appointmentDate?? ''),
+            ),
         ],
       ),
     );
@@ -296,13 +313,7 @@ const SizedBox(height: 13,),
       decoration: BoxDecoration(
         color: AppColors.whiteColor,
         borderRadius: BorderRadius.circular(10),
-        boxShadow:!isExpanded?[]: [
-          BoxShadow(
-            offset: Offset(0, 0),
-            color: AppColors.black.withValues(alpha: .2),
-            blurRadius: 10
-          )
-        ]
+        
       ),
       child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -320,13 +331,7 @@ const SizedBox(height: 13,),
       decoration: BoxDecoration(
         color: AppColors.whiteColor,
         borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          BoxShadow(
-            offset: Offset(0, 0),
-            color: AppColors.black.withValues(alpha: .2),
-            blurRadius: 10
-          )
-        ]
+
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -347,10 +352,145 @@ const SizedBox(height: 13,),
   }
 
 
-
-
 }
 
+class _TrialPlanWidget extends StatelessWidget {
+   final CustomerVisitState refState;
+   _TrialPlanWidget({super.key, required this.refState});
+
+  @override
+  Widget build(BuildContext context) {
+    return ExpandableWidget(
+      initExpanded: true,
+      collapsedWidget: collapsedWidget(isExpanded: true),
+       expandedWidget: expandedWidget( isExpanded: false));
+  }
+
+
+ Widget collapsedWidget({required bool isExpanded}){
+  var model = refState.visitModel?.data?[0];
+   return Container(
+    padding:!isExpanded?EdgeInsets.zero: EdgeInsets.symmetric(horizontal: 17,vertical: 11),
+          decoration: BoxDecoration(
+        color:!isExpanded?null: AppColors.whiteColor,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+              AppText(title:(model?.trialType ?? '').toString().toLowerCase() == "product"? 'Trial Products' : "Trial Items",fontFamily: AppFontfamily.poppinsSemibold,),
+              Icon(Icons.expand_less,color: AppColors.light92Color,),
+        ],
+      ),
+   );
+  }
+  Widget expandedWidget({required bool isExpanded}){
+    var model = refState.visitModel?.data?[0];
+   return Container(
+    padding: EdgeInsets.symmetric(horizontal: 17,vertical: 11),
+      decoration: BoxDecoration(
+        color: AppColors.itemsBG,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        children: [
+          collapsedWidget(isExpanded: isExpanded),
+           const SizedBox(height: 10,),
+          dotteDivierWidget(dividerColor: AppColors.edColor,),
+            const SizedBox(height: 9,),
+            headingWidget(model?.trialType ?? ''),
+            const SizedBox(height: 7,),
+            (model?.trialType ?? '').toString().toLowerCase() == "product"?
+            productViewWidget() : itemViewWidget()
+        ],
+      ),
+   );
+  }
+
+  headingWidget(String title){
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.edColor,
+        borderRadius: BorderRadius.circular(8)
+      ),
+      padding: EdgeInsets.symmetric(horizontal: 19,vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(child: AppText(title: title,fontsize: 12,fontFamily: AppFontfamily.poppinsSemibold,color: AppColors.oliveGray,)),
+          SizedBox(
+            width: 60,
+            child: AppText(title: "Report",fontsize: 12,fontFamily: AppFontfamily.poppinsSemibold,color: AppColors.oliveGray,),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget productViewWidget(){
+    var model = refState.visitModel?.data?[0];
+    return   ListView.separated(
+       separatorBuilder: (ctx,sb){
+                return const SizedBox(height: 15,);
+              }, 
+              itemCount: (model?.productTrial ?? []).length,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemBuilder: (ctx,index){
+                var productModel = model?.productTrial?[index];
+                return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 19),
+              child: GestureDetector(
+                onTap: (){
+                  // AppRouter.pushCupertinoNavigation(TrialProductItemScreen());
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    AppText(title: productModel?.product ?? '',fontWeight: FontWeight.w400,),
+                    Container(
+                      alignment: Alignment.center,
+                      child: AppText(title: productModel?.report ?? '',fontsize: 12,color: AppColors.mossGreyColor,),)
+                  ],
+                ),
+              ),
+            );
+            });
+  }
+
+
+  Widget itemViewWidget(){
+    var model = refState.visitModel?.data?[0];
+    return   ListView.separated(
+              separatorBuilder: (ctx,sb){
+                return const SizedBox(height: 15,);
+              },
+              itemCount: (model?.itemTrial ?? []).length,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemBuilder: (ctx,index){
+                var productModel = model?.itemTrial?[index];
+                return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 19),
+              child: GestureDetector(
+                onTap: (){
+                  // AppRouter.pushCupertinoNavigation(TrialProductItemScreen());
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    AppText(title: productModel?.itemName ?? '',fontWeight: FontWeight.w400,),
+                    Container(
+                      alignment: Alignment.center,
+                      child: AppText(title: productModel?.report ?? '',fontsize: 12,color: AppColors.mossGreyColor,),)
+                  ],
+                ),
+              ),
+            );
+            });
+  }
+
+}
 
 class _DealTypeWidget extends StatelessWidget {
   final CustomerVisitState refState;
@@ -369,13 +509,6 @@ class _DealTypeWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.whiteColor,
         borderRadius: BorderRadius.circular(10),
-        boxShadow:!isExpanded?[]: [
-          BoxShadow(
-            offset: Offset(0, 0),
-            color: AppColors.black.withValues(alpha: .2),
-            blurRadius: 10
-          )
-        ]
       ),
       child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -405,13 +538,6 @@ class _DealTypeWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.whiteColor,
         borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          BoxShadow(
-            offset: Offset(0, 0),
-            color: AppColors.black.withValues(alpha: .2),
-            blurRadius: 10
-          )
-        ]
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

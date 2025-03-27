@@ -79,7 +79,7 @@ class _CustomInfoWidget extends StatelessWidget {
   Widget collapsedWidget({required bool isExpanded}) {
     return Container(
       padding: isExpanded
-          ? EdgeInsets.symmetric(horizontal: 10, vertical: 12)
+          ? EdgeInsets.symmetric(horizontal: 10, vertical: 14)
           : EdgeInsets.zero,
       child: Column(
         children: [
@@ -127,12 +127,7 @@ class _CustomInfoWidget extends StatelessWidget {
       decoration: BoxDecoration(
           color: AppColors.whiteColor,
           borderRadius: BorderRadius.circular(10),
-          boxShadow: [
-            BoxShadow(
-                offset: Offset(0, 0),
-                color: AppColors.black.withOpacity(0.2),
-                blurRadius: 10)
-          ]),
+         ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -266,16 +261,11 @@ class _DocumentCheckListWidget extends StatelessWidget {
   Widget expandedWidget({required bool isExpanded}) {
     var model =refState.viewKycModel?.data?[0];
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 14),
+      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 12),
       decoration: BoxDecoration(
           color: AppColors.whiteColor,
           borderRadius: BorderRadius.circular(10),
-          boxShadow: [
-            BoxShadow(
-                offset: Offset(0, 0),
-                color: AppColors.black.withOpacity(0.2),
-                blurRadius: 10)
-          ]),
+         ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

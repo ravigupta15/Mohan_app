@@ -107,10 +107,7 @@ class _AdditionalDetailsWidget extends StatelessWidget {
           const SizedBox(height: 14,),
            _DealTypeWidget(refState: refState,),
            const SizedBox(height: 14,),
-           _CustomInfoWidget(refState: refState,),
-           const SizedBox(height: 14,),
-           StatusWidget(activities: refState.viewSalesOrderModel?.data?[0].activities)
-           
+           _CustomInfoWidget(refState: refState,),           
       ],
     );
   }
@@ -118,32 +115,60 @@ class _AdditionalDetailsWidget extends StatelessWidget {
 
 
 
+
 class _CustomInfoWidget extends StatelessWidget {
   final SalesOrderState refState;
-   _CustomInfoWidget({required this.refState});
+  _CustomInfoWidget({ required this.refState});
 
   @override
-  Widget build(BuildContext context) {
-    var model = refState.viewSalesOrderModel?.data?[0];
+  Widget build(BuildContext context) { 
+    return ExpandableWidget(
+        initExpanded: false,
+        collapsedWidget: collapsedWidget(isExpanded: true),
+        expandedWidget: expandedWidget(isExpanded: false));
+  }
+
+  collapsedWidget({required bool isExpanded}) {
     return Container(
-       padding: EdgeInsets.symmetric(horizontal: 10,vertical: 14),
+      padding: !isExpanded
+          ? EdgeInsets.zero
+          : EdgeInsets.symmetric(horizontal: 10, vertical: 14),
       decoration: BoxDecoration(
-        color: AppColors.whiteColor,
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          BoxShadow(
-            offset: Offset(0, 0),
-            color: AppColors.black.withValues(alpha: .2),
-            blurRadius: 10
-          )
-        ]
+          color: AppColors.whiteColor,
+          borderRadius: BorderRadius.circular(10),
+         ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          AppText(
+            title: 'Customer Information',
+            fontFamily: AppFontfamily.poppinsSemibold,
+          ),
+          Icon(
+            !isExpanded ? Icons.expand_less : Icons.expand_more,
+            color: AppColors.light92Color,
+          ),
+        ],
       ),
+    );
+  }
+
+  Widget expandedWidget({required bool isExpanded}) {
+     var model = refState.viewSalesOrderModel?.data?[0];
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 14),
+      decoration: BoxDecoration(
+          color: AppColors.whiteColor,
+          borderRadius: BorderRadius.circular(10),
+         ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-            AppText(title: "Customer Information",fontFamily:AppFontfamily.poppinsSemibold,),
-            const SizedBox(height: 10,),
-            itemsWidget("Vendor Name", model?.customerName??''),
+          collapsedWidget(isExpanded: isExpanded),
+          const SizedBox(
+            height: 10,
+          ),
+           itemsWidget("Vendor Name", model?.customerName??''),
             const SizedBox(height: 20,),
             itemsWidget("Shop Name", model?.shopName??''),
             (model?.channelPartner??'').isNotEmpty?
@@ -157,18 +182,29 @@ class _CustomInfoWidget extends StatelessWidget {
             itemsWidget("Delivery Date", model?.deliveryDate??''),
             const SizedBox(height: 20,),
             itemsWidget("Visit Type", model?.customerLevel??''),
+            const SizedBox(height: 20,),
+            itemsWidget("Details edit needed", ''),
         ],
       ),
     );
   }
 
-  Widget itemsWidget(String title, String subTitle){
+  Widget itemsWidget(String title, String subTitle) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AppText(title: "$title : ",fontFamily: AppFontfamily.poppinsRegular,),
-        AppText(title: subTitle,
-        fontsize: 13,
-        fontFamily: AppFontfamily.poppinsRegular,color: AppColors.lightTextColor,),
+        AppText(
+          title: "$title : ",
+          fontFamily: AppFontfamily.poppinsRegular,
+        ),
+        Expanded(
+          child: AppText(
+            title: subTitle,
+            fontsize: 13,
+            fontFamily: AppFontfamily.poppinsRegular,
+            color: AppColors.lightTextColor,
+          ),
+        ),
       ],
     );
   }
@@ -191,13 +227,6 @@ class _DealTypeWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.whiteColor,
         borderRadius: BorderRadius.circular(10),
-        boxShadow:!isExpanded?[]: [
-          BoxShadow(
-            offset: Offset(0, 0),
-            color: AppColors.black.withValues(alpha: .2),
-            blurRadius: 10
-          )
-        ]
       ),
       child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -227,13 +256,6 @@ class _DealTypeWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.whiteColor,
         borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          BoxShadow(
-            offset: Offset(0, 0),
-            color: AppColors.black.withValues(alpha: .2),
-            blurRadius: 10
-          )
-        ]
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

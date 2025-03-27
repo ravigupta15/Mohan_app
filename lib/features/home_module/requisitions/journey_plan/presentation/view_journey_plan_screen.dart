@@ -67,13 +67,10 @@ class _VisitInformationWidget extends StatelessWidget {
   }
   Widget collapsedWidget({required bool isExpanded}){
     return Container(
-        padding:!isExpanded?EdgeInsets.zero: EdgeInsets.symmetric(horizontal: 10,vertical: 11),
+        padding:!isExpanded?EdgeInsets.zero: EdgeInsets.symmetric(horizontal: 15,vertical: 10),
           decoration: BoxDecoration(
         color:!isExpanded?null: AppColors.whiteColor,
         borderRadius: BorderRadius.circular(10),
-        boxShadow:!isExpanded?[]:  [
-          BoxShadow(offset: Offset(0, 0),color: AppColors.black.withValues(alpha: .2),blurRadius: 10)
-        ]
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
