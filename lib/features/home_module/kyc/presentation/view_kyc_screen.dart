@@ -69,7 +69,7 @@ class _CustomInfoWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ExpandableWidget(
-        initExpanded: false,
+        initExpanded: true,
         collapsedWidget: collapsedWidget(
           isExpanded: true,
         ),
@@ -133,7 +133,7 @@ class _CustomInfoWidget extends StatelessWidget {
         children: [
           collapsedWidget(isExpanded: isExpanded),
           const SizedBox(height: 10),
-          itemsWidget("Customer Name", model?.name??''),
+          itemsWidget("Customer Name", model?.customerName??''),
           const SizedBox(height: 10),
           itemsWidget("Contact", (model?.contact?.isEmpty ?? true) 
     ? '' 
@@ -209,7 +209,7 @@ class _DocumentCheckListWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ExpandableWidget(
-        initExpanded: false,
+        initExpanded: true,
         collapsedWidget: collapsedWidget(
           isExpanded: true,
         ),

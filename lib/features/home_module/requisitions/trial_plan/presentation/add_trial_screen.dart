@@ -108,7 +108,7 @@ callInitFunction() {
     trialPlanNotifier.remarksController.text =  newVisitNotifier.remarksController.text;
     trialPlanNotifier.contactNumberList = newVisitState.contactNumberList;
     trialPlanNotifier.appointmentController.text = newVisitNotifier.trialPlanAppointmentDate;
-    trialPlanState.selectedConductType = (newVisitNotifier.trialConductType.isNotEmpty && newVisitNotifier.trialConductType.toLowerCase() == 'self')? 0 :1;
+    trialPlanState.selectedConductType = (newVisitNotifier.trialConductType.isNotEmpty && newVisitNotifier.trialConductType.toLowerCase() != 'self')? 1:0;
     trialPlanNotifier.trailTypeController.text = newVisitNotifier.trialType;
     selectedTrialType = newVisitNotifier.trialType.isNotEmpty? newVisitNotifier.trialType : null;
     trialPlanNotifier.selectedItem = newVisitNotifier.trialType.toLowerCase() == 'item'
@@ -137,6 +137,11 @@ callInitFunction() {
       
     });
     }
+  }
+
+  bool disableToEdit(){
+   final refState = ref.watch(newCustomVisitProvider);
+   return widget.route == 'visit' && refState.hasProductTrial ==1 ? true : false;
   }
 
 
@@ -181,7 +186,8 @@ callInitFunction() {
                 padding: const EdgeInsets.only(top: 30),
                 child: CustomerVisitInfoWidget(refNotifier: widget.refNotifer!, refState: widget.refState!),
               ) : EmptyWidget(),
-
+              widget.route == "visit" ?
+              EmptyWidget():
                  Padding(
                    padding: const EdgeInsets.only(top: 20),
                    child: Row(
@@ -203,8 +209,10 @@ callInitFunction() {
                              ],
                            ),
                  )
-     ,
+       ,
            const SizedBox(height: 40,),
+           disableToEdit() ?
+           EmptyWidget():
              Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -215,12 +223,6 @@ callInitFunction() {
                 ),
                 AppTextButton(title: "Next",color: AppColors.arcticBreeze,width: 100,height: 40,onTap: (){
                   refNotifier.checkvalidation(context,widget.route, widget.onDetails);
-                  // AppRouter.pushCupertinoNavigation( SuccessScreen(
-                  //   title: '',
-                  //   des: "You have successfukky Submitted", btnTitle: "Track", onTap: (){
-                  //   Navigator.pop(context);
-                  //   Navigator.pop(context);
-                  // }));
                 },),
               ],
              )
@@ -246,10 +248,10 @@ callInitFunction() {
          const SizedBox(height: 20,),
           dateTimeWidget(refNotifier),
           const SizedBox(height: 19,),
-          LabelTextTextfield(title: 'Trial location', isRequiredStar: false),
+          LabelTextTextfield(title: 'Trail location', isRequiredStar: false),
           const SizedBox(height: 5),
           CustomDropDown(
-            
+            isEnable: !disableToEdit(),
             items: DropdownItemHelper().dropdownListt(AppConstants.triaLocList),
           hintText: "Select trail location",
           onChanged: (val){
@@ -268,8 +270,9 @@ callInitFunction() {
           LabelTextTextfield(title: 'Trail Type', isRequiredStar: false),
           const SizedBox(height: 5),
       CustomDropDown(
+        isEnable: !disableToEdit(),
         selectedValue: selectedTrialType,
-        items:DropdownItemHelper().dropdownListt(AppConstants.trailTypeList),
+        items: DropdownItemHelper().dropdownListt(AppConstants.trailTypeList),
        hintText: "Select trail type",
           onChanged: (val){
             selectedTrialType  =val;
@@ -295,6 +298,7 @@ callInitFunction() {
             isReadOnly: true,
             controller: refNotifier.appointmentController,
             onTap: () {
+              disableToEdit() ? null :
               DatePickerService.datePicker(context, selectedDate: selectedDate)
                   .then((picked) {
                 if (picked != null) {
@@ -566,6 +570,7 @@ callInitFunction() {
             AppDateWidget(
               title: refNotifier.dateController.text,
               onTap: (){
+                disableToEdit() ? null :
                 datePickerBottomsheet(context);
               },
             )
@@ -581,6 +586,7 @@ callInitFunction() {
               hintText: 'HH-MM',
               title: refNotifier.timeController.text,
               onTap: (){
+                disableToEdit() ? null :
                 _selectTime(context);
               },
             )
@@ -601,6 +607,7 @@ callInitFunction() {
           children: [
             customRadioButton(isSelected: refState.selectedConductType==0? true:false, title: 'Self',
             onTap: (){
+              disableToEdit() ? null :
               refState.selectedConductType=0;
               setState(() {
                 
@@ -609,6 +616,7 @@ callInitFunction() {
             const Spacer(),
             customRadioButton(isSelected:refState.selectedConductType==1?true: false, title: 'TSM Required',
             onTap: (){
+              disableToEdit() ? null :
               refState.selectedConductType=1;
               setState(() { 
               });
@@ -641,6 +649,7 @@ callInitFunction() {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               AppText(title: refNotifier.trailTypeController.text == 'Product'? "Selected Products": 'Selected Items',fontFamily:AppFontfamily.poppinsSemibold,fontsize: 12,),
+             disableToEdit() ? EmptyWidget() :
               GestureDetector(
                 onTap: (){
                   if(refNotifier.trailTypeController.text == 'Product'){
@@ -706,16 +715,19 @@ callInitFunction() {
                             child: AppText(
                           title: (model.productName ?? ''),
                         )),
-                        InkWell(
-                            onTap: () {
-                              model.isSelected=false;
-                              print(model.isSelected);
-                              refNotifier.selectedProduct.removeAt(index);
-                              setState(() {});
-                            },
-                            child: SizedBox(
-                              height: 20,width: 30,
-                              child: SvgPicture.asset(AppAssetPaths.deleteIcon)))
+                        disableToEdit() ? EmptyWidget() :
+                        Padding(
+                          padding: const EdgeInsets.only(left: 5),
+                          child: InkWell(
+                              onTap: () {
+                                model.isSelected=false;
+                                refNotifier.selectedProduct.removeAt(index);
+                                setState(() {});
+                              },
+                              child: SizedBox(
+                                height: 20,width: 30,
+                                child: SvgPicture.asset(AppAssetPaths.deleteIcon))),
+                        )
                       ],
                     );
                   }):
@@ -735,6 +747,7 @@ callInitFunction() {
                             child: AppText(
                           title: (model.itemName ?? ''),
                         )),
+                         disableToEdit() ? EmptyWidget() :
                         InkWell(
                             onTap: () {
                               model.isSelected=false;
@@ -1219,6 +1232,7 @@ _handleCustomerName({required AddTrialPlanNotifier refNotifer, required AddTrial
             AppRouter.pushCupertinoNavigation(SearchScreen(
               route: 'verified',
               visitType: refNotifer.visitTypeController.text,
+              showCustomerStatus: true,
             )).then((val) {
               if (val != null) {
                refNotifer. selectedStateValue = null;

@@ -26,6 +26,8 @@ resetValues(){
   searchText = '';
   selectedTabbar = "KYC Completed";
   searchController.clear();
+  resetFilter();
+  resetPageCount();
   searchText ='';
 }
 

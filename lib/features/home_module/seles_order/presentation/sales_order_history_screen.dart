@@ -330,7 +330,7 @@ Widget draftOrderWidget(SalesOrderState refState){
                       ),
                       AppDateWidget(
                         onTap: () {
-                           DateTime firstDate = fromDate ?? DateTime.now();
+                           DateTime firstDate = fromDate ?? DateTime(1994);
                           DatePickerService.datePicker(context,
                                   selectedDate: todDate,
                                   firstDate: firstDate)
@@ -393,6 +393,7 @@ Widget draftOrderWidget(SalesOrderState refState){
        (){
         refNotifier.fromDateFilter='';
         filterFromDate = '';
+        fromDate = null;
         refNotifier.salesOrderApiFunction();
         setState(() {
         });
@@ -402,6 +403,7 @@ Widget draftOrderWidget(SalesOrderState refState){
         (){
           refNotifier.toDateFilter='';
           filterToDate = '';
+          todDate = null;
           refNotifier.salesOrderApiFunction();
         setState(() {
         });

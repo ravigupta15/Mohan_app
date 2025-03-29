@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:mohan_impex/core/constant/app_constants.dart';
 import 'package:mohan_impex/core/services/date_picker_service.dart';
 import 'package:mohan_impex/core/widget/app_date_widget.dart';
 import 'package:mohan_impex/core/widget/app_search_bar.dart';
@@ -14,7 +15,6 @@ import 'package:mohan_impex/features/home_module/requisitions/sample_requisition
 import 'package:mohan_impex/features/home_module/requisitions/sample_requisitions/riverpod/sample_notifier.dart';
 import 'package:mohan_impex/features/home_module/requisitions/sample_requisitions/riverpod/sample_state.dart';
 import 'package:mohan_impex/features/home_module/requisitions/sample_requisitions/widget/sample_approved_widget.dart';
-import 'package:mohan_impex/features/home_module/requisitions/sample_requisitions/widget/sample_pending_widget.dart';
 import 'package:mohan_impex/res/app_asset_paths.dart';
 import 'package:mohan_impex/res/app_colors.dart';
 import 'package:mohan_impex/res/app_fontfamily.dart';
@@ -43,6 +43,14 @@ ScrollController _scrollController = ScrollController();
       callInitFunction();
     });
     super.initState();
+  }
+
+  resetFilter(){
+       selectedRadio = -1;
+ seleceDate = null;
+ filterDate = '';
+ filterStatus = '';
+
   }
 
   callInitFunction(){
@@ -89,6 +97,7 @@ ScrollController _scrollController = ScrollController();
                 padding: const EdgeInsets.symmetric(horizontal: 14),
                 child: AppSearchBar(
                   hintText: "Search by name or status",
+                  controller: refNotifer.searchController,
                   onChanged: refNotifer.onChangedSearch,
                   suffixWidget: Container(
                     alignment: Alignment.center,
@@ -124,11 +133,18 @@ ScrollController _scrollController = ScrollController();
                 title1: "Approved",
                 title2: "Pending",
                 onClicked1: (){
+                  if(refState.tabBarIndex !=0){
+                    resetFilter();
+                  }
                   refNotifer.updateTabBarIndex(0);
                   setState(() {
                   });
                 },
                 onClicked2: (){
+                     if(refState.tabBarIndex !=1){
+                    resetFilter();
+                  }
+               
                   refNotifer.updateTabBarIndex(1);
                   setState(() {
                   });
@@ -140,13 +156,9 @@ ScrollController _scrollController = ScrollController();
                 onRefresh: ()async{
                   callInitFunction();
                 },
-                 child: refState.tabBarIndex==0?
-                             SampleApprovedWidget(refState: refState,refNotifier: refNotifer,
-                             scrollController: _scrollController
-                             ):SamplePendingWidget(
-                               refState: refState,refNotifier: refNotifer,
-                               scrollController: _scrollController,
-                              ),
+                 child:      SampleWidget(refState: refState,refNotifier: refNotifer,
+                             scrollController: _scrollController, index: refState.tabBarIndex,
+                             )
                )
             ) 
           ],
@@ -224,22 +236,22 @@ ScrollController _scrollController = ScrollController();
                 });
                         },
                       ),
-                      const SizedBox(height: 15,),
+                      const SizedBox(height: 25,),
                       AppText(title: "Status",fontFamily: AppFontfamily.poppinsSemibold,),
                       const SizedBox(height: 10,),
                       SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: Row(
-                          children: List.generate(refNotifier.filterStatusList.length, (val){
+                          children: List.generate( refState.tabBarIndex ==0?
+                           AppConstants.sampleApprovedStatusList.length :AppConstants.sampleStatusList.length, (val){
                             return  Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 12),
-                              child: customRadioButton(isSelected:selectedRadio==val? true:false, title: refNotifier.filterStatusList[val],
+                              child: customRadioButton(isSelected:selectedRadio ==val? true:false, title: refState.tabBarIndex ==0? AppConstants.sampleApprovedStatusList[val] :AppConstants.sampleStatusList[val],
                               onTap: (){
                                 setState(() {
                                   state(() {
                                   selectedRadio=val;
-                               filterStatus = refNotifier.filterStatusList[val];
-                               print(filterStatus);
+                               filterStatus = refState.tabBarIndex ==0? AppConstants.sampleApprovedStatusList[val] :AppConstants.sampleStatusList[val];
                                 });
                                 });
                               }
@@ -286,6 +298,7 @@ ScrollController _scrollController = ScrollController();
          (){
           refNotifier.filterDateValue='';
           filterDate = '';
+          seleceDate = null;
           refNotifier.sampleRequisitionsListApiFunction();
           setState(() {
             

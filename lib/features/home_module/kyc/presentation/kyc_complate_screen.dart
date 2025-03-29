@@ -47,7 +47,7 @@ class _kycComplateState extends State<kycComplate> {
                     SizedBox(height: 10), // Space between the image and text
                     AppText(title: "KYC #${widget.id}",fontsize: 22,fontFamily: AppFontfamily.poppinsBold,),
                     SizedBox(height: 5),
-                    AppText(title: "You have successfully created Ticket ",color: AppColors.cardText,
+                    AppText(title: "You have successfully created KYC ",color: AppColors.cardText,
                       textAlign: TextAlign.center,
                       fontsize: 15,fontFamily: AppFontfamily.poppinsMedium,),
                     SizedBox(height: 15), // Space between message and button

@@ -17,7 +17,8 @@ import '../home_module/kyc/model/activity_model.dart';
 // ignore: must_be_immutable
 class StatusWidget extends StatelessWidget {
   List<Activities>? activities;
-   StatusWidget({required this.activities});
+ final bool isAddComment;
+   StatusWidget({required this.activities, this.isAddComment= false});
 
   @override
   Widget build(BuildContext context) {
@@ -90,7 +91,7 @@ class StatusWidget extends StatelessWidget {
         children: [
         SvgPicture.asset(AppAssetPaths.selectedTimeIcon,
         colorFilter: ColorFilter.mode(
-         (model?.status??'').isEmpty|| (model?.status??'').toLowerCase() =='pending'?
+         (model?.status??'').isEmpty|| (model?.status??'').toString().toLowerCase().contains('pending')?
          AppColors.light92Color:
           AppColors.greenColor, BlendMode.srcIn),
         ),

@@ -1,15 +1,28 @@
 import 'dart:io';
 
 import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class ImagePickerService {
   
-   static Future<File?> imagePicker(ImageSource source) async {
+  static Future<void> requestPermissions() async {
+  final PermissionStatus cameraStatus = await Permission.camera.request();
+  final PermissionStatus storageStatus = await Permission.storage.request();
+
+  if (cameraStatus.isGranted && storageStatus.isGranted) {
+    // Permissions granted, proceed with camera usage
+  } else {
+    // Permissions not granted, handle accordingly
+  }
+}
+   static Future imagePicker(ImageSource source) async {
     try {
       final ImagePicker picker = ImagePicker();
       final XFile? img = await picker.pickImage(
         source: source, 
-        imageQuality: 55
+        imageQuality: 50, 
+         maxWidth: 800,  // Resize image to reduce memory usage
+        maxHeight: 800, // Resize image to reduce memory usage
       );
 
       // Check if an image was selected

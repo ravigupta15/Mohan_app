@@ -58,9 +58,9 @@ class JourneyPendingWidget extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       JourneyPlanItemsWidget(
-                      title:"Ticket #${model?.name??''}",
-                      status: 'Pending',
-                      statusDes: model?.status??'',
+                      title:model?.name??'',
+                      status: model?.status ?? '',
+                      statusDes: '',
                       ),
                     ],
                   ),

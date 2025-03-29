@@ -57,6 +57,7 @@ String verifiedCustomerLocation = '';
 
   resetAddTrialValues() {
     state =state.copyWith(selectedConductType: 0,verifiedCustomerLocation: '',unvName: '',selectedExistingCustomer: '');
+    print("sdfgh...${state.selectedConductType}");
     customer = '';
     unvName = '';
     channelPartner = '';
@@ -94,10 +95,14 @@ String verifiedCustomerLocation = '';
     selectedDistrictValue = null;
     customer = '';
     selectedShop = '';
+    selectedVerifyType = '';
+    verifiedCustomerLocation = '';
     selectedStateValue = null;
+    contactNumberList.clear();
      businessNameController.clear();
    contactNumberController.clear();
    address1Controller.clear();
+   addressTypeController.clear();
    address2Controller.clear();
    districtController.clear();
    stateController.clear();
@@ -105,8 +110,10 @@ String verifiedCustomerLocation = '';
   }
 
   onChangedVisitType(val){
+    if(visitTypeController.text !=val){
+    resetOnChangedVerifyType();
+    }
     visitTypeController.text = val;
-    print(visitTypeController.text);
   }
 
   onChangedTrailType(val){
@@ -225,14 +232,14 @@ increasePageCount(){
     if (response != null) {
       AppRouter.pushCupertinoNavigation(SuccessScreen(
           title: '',
-          des: "You have successfully Submitted",
+          des: "You have successfully submitted the trial plan",
           btnTitle: "Track",
           onTap: () {
             print("dfg..$response");
             Navigator.pop(context,true);
             Navigator.pop(context,true);
             ///
-            if((route ?? '').isNotEmpty){
+            if(route.isNotEmpty){
         detailsBack!([trailTypeController.text,
             AppConstants.conductByList[state.selectedConductType],
             trailTypeController.text.toString().toLowerCase() == "product"? productFormatted: itemFormatted,

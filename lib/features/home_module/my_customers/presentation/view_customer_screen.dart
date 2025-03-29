@@ -183,7 +183,7 @@ class _ViewCustomerScreenState extends ConsumerState<ViewCustomerScreen> {
               const SizedBox(
                 width: 10,
               ),
-              customBalanceContainer("Last Billing rate",
+              customBalanceContainer("Last Billing Amount",
                   (model?.lastBillingRate ?? '').toString()),
             ],
           ),
@@ -221,29 +221,20 @@ class _ViewCustomerScreenState extends ConsumerState<ViewCustomerScreen> {
                           left: 5,
                         ),
                         child: filtersWidget(
-                            refNotifier.ledgerFromDate, context, refNotifier,
+                            "${refNotifier.ledgerFromDate} - ${refNotifier.ledgerToDate}", context, refNotifier,
                             onTap: () {
                           refNotifier.ledgerFromDate = '';
                           filterFromDate = '';
+                           refNotifier.ledgerToDate = '';
+                          filterToDate = '';
+                          selectedFromDate = null;
+                          selectedToDate = null;
                           refNotifier.ledgerApiFunction(context, widget.id);
                           setState(() {});
                         }),
                       )
                     : EmptyWidget(),
 
-                refNotifier.ledgerToDate.isNotEmpty
-                    ? Padding(
-                        padding: EdgeInsets.only(left: 5),
-                        child: filtersWidget(
-                            refNotifier.ledgerToDate, context, refNotifier,
-                            onTap: () {
-                          refNotifier.ledgerToDate = '';
-                          filterToDate = '';
-                          refNotifier.ledgerApiFunction(context, widget.id);
-                          setState(() {});
-                        }),
-                      )
-                    : EmptyWidget(),
               ],
             ),
           ),
@@ -487,7 +478,7 @@ class _ViewCustomerScreenState extends ConsumerState<ViewCustomerScreen> {
                         AppDateWidget(
                           title: filterToDate,
                           onTap: () {
-                             DateTime firstDate = selectedFromDate ?? DateTime.now();
+                             DateTime firstDate = selectedFromDate ?? DateTime(1994);
                             DatePickerService.datePicker(context,
                                     selectedDate: selectedToDate,
                                     firstDate: firstDate
@@ -525,8 +516,14 @@ class _ViewCustomerScreenState extends ConsumerState<ViewCustomerScreen> {
                       color: AppColors.arcticBreeze,
                       onTap: () {
                         if (filterFromDate.isEmpty && filterToDate.isEmpty) {
-                          MessageHelper.showToast("Select any filter");
-                        } else {
+                          MessageHelper.showToast("Select filter");
+                        } else if((filterFromDate.isNotEmpty &&
+                                      filterToDate.isEmpty) ||
+                                  (filterFromDate.isEmpty &&
+                                      filterToDate.isNotEmpty)){
+                                         MessageHelper.showToast(
+                                    "Please select both From and To dates.");
+                                      } else {
                           Navigator.pop(context);
                           refNotifier.updateLedgerFilterValues(
                               fromDate: filterFromDate, toDate: filterToDate);

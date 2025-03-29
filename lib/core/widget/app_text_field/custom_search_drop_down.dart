@@ -102,7 +102,7 @@ class _CustomSearchDropDownState extends State<CustomSearchDropDown> {
         },
         buttonStyleData: const ButtonStyleData(
           width: double.infinity,
-          height: 15,
+          height: 18,
           elevation: 0,
         ),
         iconStyleData: const IconStyleData(

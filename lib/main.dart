@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mohan_impex/core/services/image_picker_service.dart';
 import 'package:mohan_impex/data/datasources/local_share_preference.dart';
 import 'package:mohan_impex/features/splash/splash_screen.dart';
 import 'package:mohan_impex/res/app_colors.dart';
@@ -21,6 +22,7 @@ void main() async{
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
+  ImagePickerService.requestPermissions();
   runApp(const ProviderScope(child: MyApp()));
 }
 

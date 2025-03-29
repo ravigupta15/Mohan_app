@@ -96,12 +96,15 @@ final subjectController = TextEditingController();
     invoiceDateController.clear();
     subjectController.clear();
     contactNumberList =[];
+    resetOnChangedVerfiyType();
   }
 
 
 resetComplaintValues(){
+  state = state.copyWith(tabBarIndex: 0);
   selectedTabbar = "Active";
   resetFilter();
+  resetPageCount();
 }
 
   resetFilter(){
@@ -115,12 +118,17 @@ resetComplaintValues(){
 
 resetOnChangedVerfiyType(){
   contactNumberList = [];
+  channelPartnerController.clear();
   contactController.clear();
   shopNameController.clear();
   contactPersonNameController.clear();
   stateNameController.clear();
   townTypeController.clear();
   pincodeController.clear();
+  invoiceNoController.clear();
+  selectedInvoice = null;
+  invoiceDateController.clear();
+  updateSelectedItemsList();
 }
   onChangedCustomType(val) {
     selectedItemNameController.text = val;
@@ -130,6 +138,9 @@ resetOnChangedVerfiyType(){
   }
 
   updateVisitType(int index){
+     if(state.tabBarIndex !=index){
+      resetOnChangedVerfiyType();
+    }
     state = state.copyWith(selectedVisitType: index);
   }
 
@@ -151,13 +162,6 @@ state.invoiceModel?.data?.forEach((val){
 invoiceItemListApiFunction(context, searchVal);
 }
 
-clearSelectedInvoice(BuildContext context, String name){
-  invoiceNoController.clear();
-   selectedInvoice = null;
-  invoiceDateController.clear();
-   updateSelectedItemsList();
-  invoiceApiFunction(context, name);
-}
 
 
 updateTabBarIndex(val){
@@ -329,7 +333,7 @@ complaintListApiFunction({bool isLoadMore = false, String search = '',bool isSho
   if(isLoadMore){
     increasePageCount();
   }
-  updateLoading(true);
+  // updateLoading(true);
   final response = await ApiService().makeRequest(apiUrl: "${ApiUrls.complaintListUrl}?tab=$selectedTabbar&limit=10&current_page=${state.currentPage}&search_text=$searchText&customer_level=$visitTypeFilter&claim_type=$claimTypeFilter&from_date=$fromDateFilter&to_date=$toDateFilter", method: ApiMethod.get.name,);
   updateLoading(false);
     if (!isLoadMore) {
@@ -384,7 +388,7 @@ complaintListApiFunction({bool isLoadMore = false, String search = '',bool isSho
     "shop_name": shopNameController.text,
     "customer": selectedCustomer,
     "contact_name": contactPersonNameController.text,
-    "contact": contactController.text,
+    "contact_number": contactController.text,
     "state": stateNameController.text,
     "district": townTypeController.text,
     "pincode": pincodeController.text,

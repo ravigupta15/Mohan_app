@@ -64,24 +64,27 @@ class KycRecords {
   dynamic date;
   dynamic workflowState;
   dynamic totalCount;
-  dynamic username;
+  dynamic customerName;
   dynamic formUrl;
+  dynamic statusDate;
 
   KycRecords(
       {this.name,
       this.date,
       this.workflowState,
       this.totalCount,
-      this.username,
-      this.formUrl});
+      this.customerName,
+      this.formUrl,
+      this.statusDate});
 
   KycRecords.fromJson(Map<String, dynamic> json) {
     name = json['name'];
     date = json['date'];
     workflowState = json['workflow_state'];
     totalCount = json['total_count'];
-    username = json['username'];
+    customerName = json['customer_name'];
     formUrl = json['form_url'];
+    statusDate = json['status_date'];
   }
 
   Map<String, dynamic> toJson() {
@@ -90,8 +93,9 @@ class KycRecords {
     data['date'] = date;
     data['workflow_state'] = workflowState;
     data['total_count'] = totalCount;
-    data['username'] = username;
+    data['customer_name'] = customerName;
     data['form_url'] = formUrl;
+    data['status_date'] = statusDate;
     return data;
   }
 }

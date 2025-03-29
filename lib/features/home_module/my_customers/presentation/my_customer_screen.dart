@@ -71,9 +71,9 @@ class _MyCustomerScreenState extends ConsumerState<MyCustomerScreen> {
   ScrollController _scrollController = ScrollController();
 
   callInitFunction() {
-    // ref.read(myCustomerProvider.notifier).resetValues();
     ref.read(myCustomerProvider.notifier).searchText = '';
     ref.read(myCustomerProvider.notifier).resetFilter();
+    ref.read(myCustomerProvider.notifier).resetPageCount();
     _scrollController.addListener(_scrollListener);
     ref.read(myCustomerProvider.notifier).customerApiFunction();
     ref.read(myCustomerProvider.notifier).stateApiFunction();
@@ -255,7 +255,7 @@ class _MyCustomerScreenState extends ConsumerState<MyCustomerScreen> {
           });
          }
          ): EmptyWidget(),
-           refNotifier.zeroBillingFilter.isNotEmpty? customFiltersUI(refNotifier.biilingList[int.parse(refNotifier.zeroBillingFilter)],
+           refNotifier.zeroBillingFilter.isNotEmpty && selectedBillingTypeIndex !=-1? customFiltersUI(refNotifier.biilingList[selectedBillingTypeIndex],
          (){
           refNotifier.zeroBillingFilter='';
           filterbillingType = '';
@@ -266,26 +266,22 @@ class _MyCustomerScreenState extends ConsumerState<MyCustomerScreen> {
           });
          }
          ): EmptyWidget(),
-           refNotifier.fromDateFilter.isNotEmpty? customFiltersUI(refNotifier.fromDateFilter,
+           refNotifier.fromDateFilter.isNotEmpty? customFiltersUI("${refNotifier.fromDateFilter} - ${refNotifier.toDateFilter}",
          (){
           refNotifier.fromDateFilter='';
           filterFromDate = '';
-          refNotifier.customerApiFunction();
-          setState(() {
-            
-          });
-         }
-         ): EmptyWidget(),
-           refNotifier.toDateFilter.isNotEmpty? customFiltersUI(refNotifier.toDateFilter,
-         (){
-          refNotifier.toDateFilter='';
+          fromDate = null;
+           refNotifier.toDateFilter='';
           filterToDate = '';
+          todDate = null;
+         
           refNotifier.customerApiFunction();
           setState(() {
             
           });
          }
          ): EmptyWidget(),
+          
         ],
       ),
     );
@@ -391,7 +387,7 @@ class _MyCustomerScreenState extends ConsumerState<MyCustomerScreen> {
                       height: 25,
                     ),
                     AppText(
-                      title: "Billing",
+                      title: "Billing Text",
                       fontFamily: AppFontfamily.poppinsSemibold,
                     ),
                     const SizedBox(
@@ -512,7 +508,7 @@ class _MyCustomerScreenState extends ConsumerState<MyCustomerScreen> {
                         ),
                         AppDateWidget(
                           onTap: () {
-                               DateTime firstDate = fromDate ?? DateTime.now();
+                               DateTime firstDate = fromDate ??DateTime(1994);
                             DatePickerService.datePicker(context,
                                     selectedDate: todDate,
                                     firstDate: firstDate)
@@ -556,7 +552,13 @@ class _MyCustomerScreenState extends ConsumerState<MyCustomerScreen> {
                             filterFromDate.isEmpty &&
                             filterToDate.isEmpty) {
                           MessageHelper.showToast("Select any filter");
-                        } else {
+                        }else if ((filterFromDate.isNotEmpty &&
+                                      filterToDate.isEmpty) ||
+                                  (filterFromDate.isEmpty &&
+                                      filterToDate.isNotEmpty)) {
+                                MessageHelper.showToast(
+                                    "Please select both From and To dates.");
+                              }  else {
                           Navigator.pop(context);
                           refNotifier.updateFilterValues(
                               businessType: filterBusinessType,

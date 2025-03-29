@@ -325,7 +325,7 @@ if(response!=null){
     if(route == 'resume'){
         Navigator.pop(context, true);
     }
-  }, des: 'You have successfully ${isUpdate ==0? 'created':'updated' } sales order'));
+  }, des: 'You have successfully ${isUpdate ==0? 'created':'updated' } the sales order'));
   // AppRouter.pushCupertinoNavigation( BookTrialSuccessScreen(id: response.data['data']?[0]?['so_id'],));
 }
 }

@@ -364,17 +364,26 @@ class Contact {
 }
 
 class ImageUrl {
+   dynamic name;
+  dynamic fileName;
   dynamic fileUrl;
+  dynamic url;
 
-  ImageUrl({this.fileUrl});
+  ImageUrl({this.name, this.fileName, this.fileUrl, this.url});
 
   ImageUrl.fromJson(Map<String, dynamic> json) {
+      name = json['name'];
+    fileName = json['file_name'];
     fileUrl = json['file_url'];
+    url = json['url'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
+     data['name'] = name;
+    data['file_name'] = fileName;
     data['file_url'] = fileUrl;
+    data['url'] = url;
     return data;
   }
 }

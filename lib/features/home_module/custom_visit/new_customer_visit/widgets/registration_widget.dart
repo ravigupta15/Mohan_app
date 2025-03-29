@@ -204,26 +204,26 @@ class _RegistrationWidgetState extends State<RegistrationWidget>
         const SizedBox(
           height: 18,
         ),
-        LabelTextTextfield(title: "Address type", isRequiredStar: true),
-        const SizedBox(
-          height: 10,
-        ),
-        AppTextfield(
-          isReadOnly: widget.refNotifer.isReadOnlyFields,
-          controller: widget.refNotifer.addressTypeController,
-          hintText: "Enter address type",
-          fillColor: false,
-          textInputAction: TextInputAction.next,
-          validator: (val) {
-            if ((val ?? '').isEmpty) {
-              return "Required";
-            }
-            return null;
-          },
-        ),
-        const SizedBox(
-          height: 18,
-        ),
+        // LabelTextTextfield(title: "Address type", isRequiredStar: true),
+        // const SizedBox(
+        //   height: 10,
+        // ),
+        // AppTextfield(
+        //   isReadOnly: widget.refNotifer.isReadOnlyFields,
+        //   controller: widget.refNotifer.addressTypeController,
+        //   hintText: "Enter address type",
+        //   fillColor: false,
+        //   textInputAction: TextInputAction.next,
+        //   validator: (val) {
+        //     if ((val ?? '').isEmpty) {
+        //       return "Required";
+        //     }
+        //     return null;
+        //   },
+        // ),
+        // const SizedBox(
+        //   height: 18,
+        // ),
         LabelTextTextfield(title: "Address 1", isRequiredStar: true),
         const SizedBox(
           height: 10,

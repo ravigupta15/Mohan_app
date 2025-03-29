@@ -42,7 +42,7 @@ class _ViewMarkingCollateralsScreenState extends ConsumerState<ViewMarkingCollat
   Widget build(BuildContext context) {
     final refState= ref.watch(collateralRequestProvider);
     return Scaffold(
-      appBar: customAppBar(title: "Marketing Collaterals- #124"),
+      appBar: customAppBar(title: refState.viewCollateralsReqestModel?.data?[0].name ?? ''),
       body:(refState.viewCollateralsReqestModel?.data)!=null? SingleChildScrollView(
          padding: const EdgeInsets.only(top: 14,left: 17,right: 17,bottom: 20),
         child: Column(

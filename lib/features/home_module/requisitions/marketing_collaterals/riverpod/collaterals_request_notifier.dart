@@ -26,7 +26,7 @@ String filterStatusValue = '';
 String filterDateValue = '';
 String searchText = '';
 
- List filterStatusList = ["Approved", "Received", "Pending"];
+ 
 
 List<MaterialItems> selectedItem = [];
   final formKey = GlobalKey<FormState>();
@@ -37,7 +37,10 @@ resetValues(){
   selectedTabbar = "Approved";
   searchController.clear();
  state = state.copyWith(tabBarIndex: 0);
+ resetFilter();
 }
+
+
 
   resetAddCollateralsValues() {
     selectedItem.clear();
@@ -62,6 +65,7 @@ resetValues(){
   }
 
 resetFilter(){
+  resetPageCount();
     filterDateValue='';
     filterStatusValue='';
  }
@@ -81,9 +85,9 @@ onChangedMaterial(val){
  }); 
 }
 
-updateFilterValues({required String date, required String type}){
+updateFilterValues({required String date, required String status}){
   resetPageCount();
-  filterStatusValue = type;
+  filterStatusValue = status;
   filterDateValue=date;
 }
 
@@ -166,7 +170,7 @@ increasePageCount(){
     if(isLoadMore){
     increasePageCount();
   }
-  final response= await ApiService().makeRequest(apiUrl: "${ApiUrls.collateralRequestListUrl}?tab=$selectedTabbar&limit=10&current_page=${state.page}&search_text=$searchText", method: ApiMethod.get.name,);
+  final response= await ApiService().makeRequest(apiUrl: "${ApiUrls.collateralRequestListUrl}?tab=$selectedTabbar&limit=10&current_page=${state.page}&search_text=$searchText&created_date=$filterDateValue&status=$filterStatusValue", method: ApiMethod.get.name,);
   updateLoading(false);
   if (!isLoadMore) {
     } else {
@@ -215,7 +219,7 @@ increasePageCount(){
     if (response != null) {
       AppRouter.pushCupertinoNavigation(SuccessScreen(
           title: '',
-          des: "You have successfully Submitted",
+          des: "You have successfully submitted the collaterals request",
           btnTitle: "Track",
           onTap: () {
             Navigator.pop(context);
@@ -227,7 +231,7 @@ increasePageCount(){
 
   viewCollateralsApiFunction(BuildContext context,{required String id})async{
     ShowLoader.loader(context);
-    state = state.copyWith(viewCollateralsReqestModel: null);
+    state = state.copyWith(viewCollateralsReqestModel: ViewCollateralsReqestModel.fromJson({}));
     final response = await ApiService().makeRequest(apiUrl: "${ApiUrls.viewCollateralUrl}?name=$id", method: ApiMethod.get.name);
     ShowLoader.hideLoader();
     if(response!=null){

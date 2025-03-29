@@ -12,7 +12,7 @@ class DatePickerService {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: initialDate,
-      firstDate: firstDate ?? DateTime.now(),
+      firstDate: firstDate ?? DateTime(1994),
       lastDate: DateTime(2101),
     );
     if (picked != null){

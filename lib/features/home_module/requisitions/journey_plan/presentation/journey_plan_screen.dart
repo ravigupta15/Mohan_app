@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:mohan_impex/core/constant/app_constants.dart';
 import 'package:mohan_impex/core/services/date_picker_service.dart';
 import 'package:mohan_impex/core/widget/app_date_widget.dart';
 import 'package:mohan_impex/core/widget/app_search_bar.dart';
@@ -33,10 +34,12 @@ class _JourneyPlanScreenState extends ConsumerState<JourneyPlanScreen> {
 
   int selectedRadio = -1;
   int selectedModeTravelindex = -1;
+  int selectedFilterStatusIndex = -1;
 DateTime? seleceDate;
 String filterModeTravel = '';
 String filterDate = '';
 String filterTravel = '';
+String filterStatus = '';
 ScrollController _scrollController = ScrollController();
  @override
   void initState() {
@@ -62,6 +65,8 @@ ScrollController _scrollController = ScrollController();
    filterModeTravel = '';
    selectedRadio = -1;
    selectedModeTravelindex = -1;
+   selectedFilterStatusIndex = -1;
+   filterStatus = '';
    filterTravel = ''; 
    seleceDate = null;
   }
@@ -276,7 +281,7 @@ ScrollController _scrollController = ScrollController();
                                 setState(() {
                                   state(() {
                                   selectedRadio=val;
-                               filterTravel =   refNotifier.naturalTravelList[val];
+                               filterTravel = refNotifier.naturalTravelList[val];
                                 });
                                 });
                               }
@@ -285,17 +290,42 @@ ScrollController _scrollController = ScrollController();
                           }).toList() 
                         ),
                       ),
+                          const SizedBox(height: 25,),
+                      AppText(title: "Status",fontFamily: AppFontfamily.poppinsSemibold,),
+                      const SizedBox(height: 10,),
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: List.generate(refState.tabBarIndex ==0?
+                           AppConstants.approvedStatusList.length :AppConstants.pendingStatusList.length, (val){
+                            return  Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 12),
+                              child: customRadioButton(isSelected:selectedFilterStatusIndex ==val? true:false, title: refState.tabBarIndex ==0? AppConstants.approvedStatusList[val] :AppConstants.pendingStatusList[val],
+                              onTap: (){
+                                setState(() {
+                                  state(() {
+                                  selectedFilterStatusIndex=val;
+                               filterStatus = refState.tabBarIndex ==0? AppConstants.approvedStatusList[val] :AppConstants.pendingStatusList[val];
+                                });
+                                });
+                              }
+                              ),
+                            );
+                          }).toList() 
+                        ),
+                      ),
+                  
                       const SizedBox(height: 25,),
                        Align(
                   alignment: Alignment.center,
                   child: AppTextButton(title: "Apply",height: 35,width: 150,color: AppColors.arcticBreeze,
                   onTap: (){
-                    if(filterDate.isEmpty && filterTravel.isEmpty && filterModeTravel.isEmpty){
+                    if(filterDate.isEmpty && filterTravel.isEmpty && filterModeTravel.isEmpty && filterStatus.isEmpty){
                        MessageHelper.showToast("Select any filter");
                     }
                     else{
                         Navigator.pop(context);
-                    refNotifier.updateFilterValues(date: filterDate, type: filterTravel, modeTravel: filterModeTravel);
+                    refNotifier.updateFilterValues(date: filterDate, type: filterTravel, modeTravel: filterModeTravel,status: filterStatus);
                     setState(() {
                     });
                     refNotifier.journeyPlanListApiFunction();
@@ -323,6 +353,7 @@ ScrollController _scrollController = ScrollController();
          (){
           refNotifier.filterDateValue='';
           filterDate = '';
+          seleceDate =null;
           refNotifier.journeyPlanListApiFunction();
           setState(() {
             
@@ -345,6 +376,16 @@ ScrollController _scrollController = ScrollController();
             refNotifier.filterNatureOfTravelValue='';
             filterTravel = '';
             selectedRadio = -1;
+            refNotifier.journeyPlanListApiFunction();
+          setState(() {
+          });
+          }
+          ): EmptyWidget(),
+           refNotifier.filterStatusValue.isNotEmpty? customFiltersUI(refNotifier.filterStatusValue,
+          (){
+            refNotifier.filterStatusValue='';
+            filterStatus = '';
+            selectedFilterStatusIndex = -1;
             refNotifier.journeyPlanListApiFunction();
           setState(() {
           });

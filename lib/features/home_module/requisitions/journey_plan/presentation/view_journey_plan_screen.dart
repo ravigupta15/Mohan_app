@@ -38,7 +38,7 @@ class _ViewJourneyPlanScreenState extends ConsumerState<ViewJourneyPlanScreen> {
   Widget build(BuildContext context) {
     final refState =ref.watch(journeyProvider);
     return Scaffold(
-      appBar: customAppBar(title: "Journey Plan #${widget.id}"),
+      appBar: customAppBar(title: widget.id),
       body: (refState.viewJounreyPlanModel?.message)!=null? SingleChildScrollView(
         padding: const EdgeInsets.only(top: 14,left: 15,right: 15,bottom: 20),
         child: Column(

@@ -43,7 +43,7 @@ class _ViewTrialPlanScreenState extends ConsumerState<ViewTrialPlanScreen> {
   Widget build(BuildContext context) {
      final refState =ref.watch(trialPlanProvider);
     return Scaffold(
-      appBar: customAppBar(title: "Trial #${widget.id}"),
+      appBar: customAppBar(title: widget.id),
       body: SingleChildScrollView(
         padding: const EdgeInsets.only(top: 14,left: 19,right: 19,bottom: 20),
         child: Column(
@@ -210,7 +210,7 @@ class _TrialPlanDetailsWidget extends StatelessWidget {
             const SizedBox(height: 10,),
           dotteDivierWidget(dividerColor: AppColors.edColor,),
             const SizedBox(height: 9,),
-             itemsWidget("Name", model?.customerName?? ''),
+             itemsWidget("Vendor Name", (model?.customerName??'').isEmpty? (model?.unvCustomerName ?? ''): (model?.customerName??'')),
             const SizedBox(height: 16,),
             itemsWidget("Shop Name", model?.shopName?? ''),
             const SizedBox(height: 16,),

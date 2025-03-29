@@ -40,7 +40,7 @@ class _ViewSampleRequisitionsScreenState extends ConsumerState<ViewSampleRequisi
   Widget build(BuildContext context) {
     final refState =ref.watch(sampleProvider);
     return Scaffold(  
-       appBar: customAppBar(title: "Sample #${widget.id}"),
+       appBar: customAppBar(title: widget.id),
       body: (refState.viewSampleRequisitionsModel?.data?[0])!=null? SingleChildScrollView(
          padding: const EdgeInsets.only(top: 14,left: 18,right: 19,bottom: 20),
         child: Column(

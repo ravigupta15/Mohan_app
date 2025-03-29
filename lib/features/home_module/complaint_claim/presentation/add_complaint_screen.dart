@@ -574,7 +574,7 @@ expandedWidget({required AddComplaintNotifier refNotifer, required AddComplaintS
                     controller: model?.expiryDateController,
                     isReadOnly: true,
                     onTap: (){
-                         DateTime firstDate = model?.mfdDate ?? DateTime.now();
+                         DateTime firstDate = model?.mfdDate ?? DateTime(1994);
                          DatePickerService.datePicker(context,
                               selectedDate:model?.expiryDate,
                               firstDate: firstDate
@@ -867,7 +867,8 @@ _handleCustomerName({required AddComplaintNotifier refNotifer, required AddCompl
                 });
                 refNotifer.resetOnChangedVerfiyType();
                 CustomerDetails model = val;
-                refNotifer.clearSelectedInvoice(context,model.name ??'');
+                refNotifer.invoiceApiFunction(context,model.name ??''); // 
+
                       refNotifer.contactNumberList = (model.contact??[]);
                       refNotifer.shopNameController.text = model.shopName?? '';
                       refNotifer.selectedShop = model.shop ?? '';

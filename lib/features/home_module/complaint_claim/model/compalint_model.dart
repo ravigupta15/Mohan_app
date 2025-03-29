@@ -66,6 +66,7 @@ class ComplaintRecords {
   dynamic workflowState;
   dynamic totalCount;
   dynamic username;
+  dynamic statusDate;
   dynamic formUrl;
 
   ComplaintRecords(
@@ -75,6 +76,7 @@ class ComplaintRecords {
       this.workflowState,
       this.totalCount,
       this.username,
+      this.statusDate,
       this.formUrl});
 
   ComplaintRecords.fromJson(Map<String, dynamic> json) {
@@ -84,6 +86,7 @@ class ComplaintRecords {
     workflowState = json['workflow_state'];
     totalCount = json['total_count'];
     username = json['username'];
+    statusDate = json['status_date'];
     formUrl = json['form_url'];
   }
 
@@ -95,6 +98,7 @@ class ComplaintRecords {
     data['workflow_state'] = workflowState;
     data['total_count'] = totalCount;
     data['username'] = username;
+    data['status_date'] = statusDate;
     data['form_url'] = formUrl;
     return data;
   }

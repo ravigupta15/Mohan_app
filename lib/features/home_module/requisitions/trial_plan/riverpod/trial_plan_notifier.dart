@@ -22,6 +22,7 @@ String? selectedDistrictValue;
 String searchText = '';
 String fromDateFilter = '';
 String toDateFilter = '';
+String filterStatusValue = '';
 String visitTypeFilter = '';
 String trailTypeFilter ='';
 String conductByTypeFilter ='';
@@ -44,12 +45,16 @@ String verifiedCustomerLocation = '';
  trailTypeFilter ='';
  conductByTypeFilter ='';
  trialLocTypeFilter ='';
+ filterStatusValue = '';
  }
 
 
 resetValues(){
  state = state.copyWith(tabBarIndex: 0,currentPage: 1,selectedConductType: 0,);
  searchText = '';
+ selectedTabbar = "Approved";
+ resetFilter();
+ resetPageCount();
  searchController.clear();
 }
 
@@ -79,13 +84,15 @@ increasePageCount(){
   state = state.copyWith(currentPage: state.currentPage+1);}
 
 
-updateFilterValues({required String visitType, required String trialType, required String fromDate, required toDate, required String conductType,required String trialLocType}){
+updateFilterValues({required String visitType, required String trialType, required String fromDate, required toDate, required String conductType,required String trialLocType, required String status}){
     fromDateFilter = fromDate;
  toDateFilter = toDate;
  visitTypeFilter = visitType;
  trailTypeFilter = trialType;
  conductByTypeFilter =conductType;
  trialLocTypeFilter =trialLocType;
+ filterStatusValue = status;
+ resetPageCount();
 }
 
 onChangedSearch(String val){
@@ -117,10 +124,10 @@ onChangedSearch(String val){
     increasePageCount();
   }
    
-    updateLoading(true);
-    final response = await ApiService().makeRequest(apiUrl: "${ApiUrls.trialPlanUrl}?tab=$selectedTabbar&limit=10&current_page=${state.currentPage}&search_text=$searchText&conduct_by=$conductByTypeFilter&trial_loc=$trialLocTypeFilter&trial_type=$trailTypeFilter&customer_level=$visitTypeFilter&from_date=$fromDateFilter&to_date=$toDateFilter", method: ApiMethod.get.name);
+    // updateLoading(true);
+    final response = await ApiService().makeRequest(apiUrl: "${ApiUrls.trialPlanUrl}?tab=$selectedTabbar&limit=10&current_page=${state.currentPage}&search_text=$searchText&conduct_by=$conductByTypeFilter&trial_loc=$trialLocTypeFilter&trial_type=$trailTypeFilter&customer_level=$visitTypeFilter&from_date=$fromDateFilter&to_date=$toDateFilter&status=$filterStatusValue", method: ApiMethod.get.name);
   updateLoading(false);
-    if (!isLoadMore) {
+    if (!isLoadMore) {  
     } else {
       updateLoadingMore(false);
     }

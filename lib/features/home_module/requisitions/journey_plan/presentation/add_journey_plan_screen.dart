@@ -6,6 +6,7 @@ import 'package:mohan_impex/core/widget/app_text.dart';
 import 'package:mohan_impex/core/widget/app_text_button.dart';
 import 'package:mohan_impex/core/widget/app_text_field/app_textfield.dart';
 import 'package:mohan_impex/core/widget/app_text_field/custom_drop_down.dart';
+import 'package:mohan_impex/core/widget/app_text_field/custom_search_drop_down.dart';
 import 'package:mohan_impex/core/widget/custom_app_bar.dart';
 import 'package:mohan_impex/core/widget/app_text_field/label_text_textfield.dart';
 import 'package:mohan_impex/features/home_module/requisitions/journey_plan/model/district_model.dart';
@@ -28,6 +29,8 @@ class _AddJourneyPlanScreenState extends ConsumerState<AddJourneyPlanScreen> {
   DateTime? todDate;
   String? selectedDistrictValue;
   String? selectedStateValue;
+  final districtSearchController = TextEditingController();
+  final stateSearchController = TextEditingController();
   @override
   void initState() {
     Future.microtask(() {
@@ -120,11 +123,14 @@ class _AddJourneyPlanScreenState extends ConsumerState<AddJourneyPlanScreen> {
               const SizedBox(
                 height: 8,
               ),
-              CustomDropDown(
+              CustomSearchDropDown(
+                selectedValues: selectedStateValue ?? '',
+                searchController: stateSearchController,
+                height: 300,
                 items: stateItems((refState.stateModel?.data ?? [])),
                 hintText: "Select state",
-                //  selectedValue: selectedStateValue,
                 onChanged: (val) {
+                  districtSearchController.clear();
                   selectedDistrictValue = null;
                   selectedStateValue = val;
                   refNotifier.onChangedState(context, val);
@@ -145,7 +151,9 @@ class _AddJourneyPlanScreenState extends ConsumerState<AddJourneyPlanScreen> {
               const SizedBox(
                 height: 8,
               ),
-              CustomDropDown(
+              CustomSearchDropDown(
+                searchController: districtSearchController,
+                height: 300,
                 items: districtItems((refState.districtModel?.data ?? [])),
                 hintText: "Select district",
                 onChanged: (val) {
@@ -153,7 +161,7 @@ class _AddJourneyPlanScreenState extends ConsumerState<AddJourneyPlanScreen> {
                   selectedDistrictValue = val;
                   setState(() {});
                 },
-                selectedValue: selectedDistrictValue,
+                selectedValues: selectedDistrictValue ?? '',
                 validator: (val) {
                   if ((val ?? "").isEmpty) {
                     return "Please select the district";
@@ -272,7 +280,7 @@ class _AddJourneyPlanScreenState extends ConsumerState<AddJourneyPlanScreen> {
             ),
             AppDateWidget(
               onTap: () {
-                DateTime firstDate = fromDate ?? DateTime.now();
+                DateTime firstDate = fromDate ?? DateTime(1994);
                 DatePickerService.datePicker(context,
                         selectedDate: todDate, firstDate: firstDate)
                     .then((picked) {

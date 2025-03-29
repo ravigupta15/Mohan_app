@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:mohan_impex/core/widget/app_text.dart';
-import 'package:mohan_impex/core/widget/app_text_button.dart';
-import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit/riverpod/new_customer_visit_state.dart';
 import 'package:mohan_impex/res/app_colors.dart';
 
 import '../../../../../res/app_asset_paths.dart';
@@ -11,7 +9,8 @@ import '../../../../../res/app_asset_paths.dart';
 class BookTrialSuccessScreen extends ConsumerStatefulWidget {
   final String id;
   final String route;
-  const BookTrialSuccessScreen({super.key, required this.id, this.route = ''});
+  final int isUpdate;
+  const BookTrialSuccessScreen({super.key, required this.id, this.route = '',required this.isUpdate});
 
   @override
   ConsumerState<BookTrialSuccessScreen> createState() => _BookTrialSuccessScreenState();
@@ -20,7 +19,7 @@ class BookTrialSuccessScreen extends ConsumerStatefulWidget {
 class _BookTrialSuccessScreenState extends ConsumerState<BookTrialSuccessScreen> {
   @override
   Widget build(BuildContext context) {
-    final refNotifier= ref.read(newCustomVisitProvider.notifier);
+    // final refNotifier= ref.read(newCustomVisitProvider.notifier);
     return PopScope(
       canPop: false,
       child: Scaffold(
@@ -46,18 +45,18 @@ class _BookTrialSuccessScreenState extends ConsumerState<BookTrialSuccessScreen>
                   children: [
                     SvgPicture.asset(AppAssetPaths.successIcon),
                     const SizedBox(height: 21,),
-                    AppText(title: "You have successfully created ticket",
+                    AppText(title: "You have successfully ${widget.isUpdate == 0?"created":"updated"} visit order",
                     textAlign: TextAlign.center,fontsize: 15,
                     ),
                     const SizedBox(height: 26,),
-                    AppTextButton(title: "Convert to Order",width: 165,height: 42,color: AppColors.arcticBreeze,
-                    onTap: (){
-                      refNotifier.convertToOrderApiFunction(context, widget.id);
-                      //  Navigator.pop(context);
-                      //  Navigator.pop(context);
-                    }
-                    ),
-                    const SizedBox(height: 12,),
+                    // AppTextButton(title: "Convert to Order",width: 165,height: 42,color: AppColors.arcticBreeze,
+                    // onTap: (){
+                    //   refNotifier.convertToOrderApiFunction(context, widget.id);
+                    //   //  Navigator.pop(context);
+                    //   //  Navigator.pop(context);
+                    // }
+                    // ),
+                    // const SizedBox(height: 12,),
                     GestureDetector(
                       onTap: (){
                         if(widget.route.isEmpty){

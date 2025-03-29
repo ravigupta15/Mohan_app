@@ -41,7 +41,7 @@ callInitFunction(){
   Widget build(BuildContext context) {
     final refState = ref.watch(addComplaintsProvider);
     return Scaffold(
-        appBar: customAppBar(title: "Complaints & Claim"),
+        appBar: customAppBar(title: widget.ticketId),
         body: (refState.viewComplaintModel?.data??[]).isNotEmpty? SingleChildScrollView(
           padding: EdgeInsets.only(left: 17,right: 17,top: 7,bottom: 30),
           child: Column(

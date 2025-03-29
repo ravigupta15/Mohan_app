@@ -49,6 +49,8 @@ class NewCustomerVisitNotifier extends StateNotifier<NewCustomerVisitState> {
   String trialConductType = '';
   List trailItems = [];
   String trialPlanAppointmentDate = '';
+  int isUpdate = 0;
+  String cvmId = '';
 
   Timer? timer;
   String? selectedDistrictValue;
@@ -91,6 +93,7 @@ class NewCustomerVisitNotifier extends StateNotifier<NewCustomerVisitState> {
     timer?.cancel();
     state = state.copyWith(
         currentTimer: 0,
+        hasProductTrial:  0,
         selectedCustomerType: 0,
         selectedVisitType: 0,
         tabBarIndex: 0,
@@ -126,6 +129,8 @@ class NewCustomerVisitNotifier extends StateNotifier<NewCustomerVisitState> {
     trialConductType = '';
     trialType = '';
     trialPlanAppointmentDate = '';
+     isUpdate = 0;
+     cvmId = '';
   }
 
   resetControllers() {
@@ -295,7 +300,6 @@ class NewCustomerVisitNotifier extends StateNotifier<NewCustomerVisitState> {
   }
 
   setResumeData(BuildContext context, VisitItemsModel model) {
-   
     List contactList = (model.contact ?? []).map((e) => e.contact).toList();
     state = state.copyWith(
       tabBarIndex: 2,
@@ -313,7 +317,13 @@ class NewCustomerVisitNotifier extends StateNotifier<NewCustomerVisitState> {
       productTrial: model.hasTrialPlan,
       // uploadedImageList:  model.imageUrl ?? []
     );
-    List list = model.imageUrl!.map((e) => {'url':e.fileUrl}).toList();
+    List list = model.imageUrl!.map((e) => {
+      'name':e.name,
+      "file_name":e.fileName,
+      'file_url':e.fileUrl,
+      'url':e.url,
+    
+    }).toList();
 
 state = state.copyWith(
   uploadedImageList: [
@@ -322,8 +332,6 @@ state = state.copyWith(
   ],
 );
 
-    //  state = state.copyWith(uploadedImageList: [1]);
-    //  state = state.copyWith(uploadedImageList: [...state.uploadedImageList, model.imageUrl ?? []]);
     isEditDetails = model.custEditNeeded.toString() == '1' ? true : false;
     selectedExistingCustomer = (model.verificType ?? '').toString().toLowerCase() =='verified'? (model.customer ?? '') : (model.unvCustomer ??'');
     verifiedCustomerLocation = model.location ?? '';
@@ -348,17 +356,20 @@ state = state.copyWith(
     }
 
     customerNameController.text = (model.verificType ?? '').toString().toLowerCase() =='verified'? (model.customerName ?? '') : (model.unvCustomerName ?? '');
+    searchController.text = model.customerType.toString().toLowerCase() == "existing" ?
+    (model.verificType ?? '').toString().toLowerCase() =='verified'? (model.customerName ?? '') : (model.unvCustomerName ?? '') : '';
     shopNameController.text = model.shopName ?? '';
     addressTypeController.text = model.addressTitle ?? '';
     address1Controller.text = model.addressLine1 ?? '';
     address2Controller.text = model.addressLine2 ?? '';
     pincodeController.text = model.pincode ?? '';
     channelPartnerController.text = model.channelPartner ?? '';
-
     remarksController.text = model.remarksnotes ?? '';
     bookAppointmentController.text = model.appointmentDate ?? '';
     districtController.text = model.district ?? '';
     numberController.text = model.contact?[0].contact;
+    cvmId = model.name ?? '';
+    isUpdate = 1;
     stateController.text = model.state ?? '';
     stateApiFunction(context);
     if ((model.state ?? '').isNotEmpty) {
@@ -618,7 +629,9 @@ state = state.copyWith(
       "product_pitching": formattedData,
       "captured_images": state.uploadedImageList,
       "appointment_date": trialPlanAppointmentDate,
-      "cust_edit_needed": isEditDetails ? 1 : 0
+      "cust_edit_needed": isEditDetails ? 1 : 0,
+      "isupdate": isUpdate,
+    "cvm_id":cvmId
     };
 // print(body);
     log(json.encode(body));
@@ -632,6 +645,7 @@ state = state.copyWith(
       AppRouter.pushCupertinoNavigation(BookTrialSuccessScreen(
         id: model.data?[0].cvm ?? '',
         route: route,
+        isUpdate: isUpdate,
       ));
     }
   }

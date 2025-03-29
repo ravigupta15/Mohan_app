@@ -21,8 +21,7 @@ class SampleNotifier extends StateNotifier<SampleState> {
 String filterDateValue = '';
 String searchText = '';
 String selectedTabbar = "Approved";
-
- List filterStatusList = ["Approved", "Received", "Pending"];
+final searchController = TextEditingController();
 
 List<Items> selectedItem = [];
   final formKey = GlobalKey<FormState>();
@@ -30,9 +29,12 @@ List<Items> selectedItem = [];
   final sampleDateController = TextEditingController();
 
 resetValues(){
+  resetPageCount();
+  resetFilter();
   searchText='';
   selectedTabbar = 'Approved';
  state = state.copyWith(tabBarIndex: 0,page: 1, collateralsReqestModel: null);
+ searchController.clear();
 }
 
   resetAddSampleValues() {
@@ -88,6 +90,9 @@ onChangedSearch(String val){
    if(state.tabBarIndex !=val){
     state = state.copyWith(tabBarIndex: val);
     resetPageCount();
+    resetFilter();
+    searchController.clear();
+    searchText = '';
     sampleRequisitionsListApiFunction();
    }
   }
@@ -127,7 +132,7 @@ increasePageCount(){
     if (response != null) {
       AppRouter.pushCupertinoNavigation(SuccessScreen(
           title: '',
-          des: "You have successfully Submitted",
+          des: "You have successfully submitted the sample requisitions",
           btnTitle: "Track",
           onTap: () {
             Navigator.pop(context);

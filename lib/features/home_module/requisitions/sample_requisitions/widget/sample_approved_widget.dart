@@ -9,11 +9,12 @@ import 'package:mohan_impex/res/no_data_found_widget.dart';
 import 'package:mohan_impex/res/shimmer/list_shimmer.dart';
 
 // ignore: must_be_immutable
-class SampleApprovedWidget extends StatelessWidget {
+class SampleWidget extends StatelessWidget {
   final SampleState refState;
   final SampleNotifier refNotifier;
   ScrollController scrollController;
-   SampleApprovedWidget({required this.refState, required this.refNotifier, required this.scrollController});
+ final int index;
+   SampleWidget({required this.refState, required this.refNotifier, required this.scrollController, required this.index});
 
   @override
   Widget build(BuildContext context) {
@@ -54,14 +55,14 @@ class SampleApprovedWidget extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 9),
                   child:JourneyPlanItemsWidget(
-                         title:"Ticket #${model?.name??''}",
-                        status: "Approved",
-                        statusDes: model?.approvedDate??'',
+                         title:model?.name??"",
+                        status: model?.status ??'',
+                        statusDes: model?.date??'',
                         ),
                 ),
               ),
             ),
-            index == (refState.collateralsReqestModel?.data?[0].records?.length??0) - 1 &&
+             index == (refState.collateralsReqestModel?.data?[0].records?.length??0) - 1 &&
                               refState.isLoadingMore
                           ? Container(
                               padding: const EdgeInsets.all(4),
@@ -74,7 +75,8 @@ class SampleApprovedWidget extends StatelessWidget {
                           : SizedBox.fromSize()
           ],
         );
-    }): NoDataFound(title: "No apporved sample requisitions found");
+    }): NoDataFound(title: index == 0?
+     "No apporved sample requisitions found": "No pending sample requisitions found");
   }
 
 }

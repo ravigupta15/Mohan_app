@@ -13,8 +13,9 @@ class ComplaintItemsWidget extends StatelessWidget {
   final String reasonTitle;
   final String status;
   final int tabBarIndex;
+  final String statusDate;
   const ComplaintItemsWidget({required this.title,required this.name,required this.date,required this.reasonTitle,
-  required this.status, required this.tabBarIndex
+  required this.status, required this.tabBarIndex, required this.statusDate
   });
 
   @override
@@ -86,8 +87,8 @@ class ComplaintItemsWidget extends StatelessWidget {
             AppText(title: status,fontsize: 10,fontFamily: AppFontfamily.poppinsSemibold,color: AppColors.visitItem,):
           Row(
             children: [
-              AppText(title: "Pending : ",fontsize: 10,fontFamily: AppFontfamily.poppinsSemibold,color: AppColors.visitItem,),
-          AppText(title: status,fontsize: 10,fontFamily: AppFontfamily.poppinsRegular,color: AppColors.visitItem,),
+              AppText(title: status,fontsize: 10,fontFamily: AppFontfamily.poppinsSemibold,color: AppColors.visitItem,),
+          AppText(title: statusDate.isEmpty ? '' :" : $statusDate",fontsize: 10,fontFamily: AppFontfamily.poppinsRegular,color: AppColors.visitItem,),
             ],
           )
         ],

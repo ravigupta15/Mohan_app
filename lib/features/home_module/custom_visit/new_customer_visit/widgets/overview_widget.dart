@@ -157,7 +157,7 @@ class _OverviewWidgetState extends State<OverviewWidget> {
             isReadOnly: true,
             controller: widget.refNotifer.bookAppointmentController,
             onTap: () {
-              DatePickerService.datePicker(context, selectedDate: selectedDate)
+              DatePickerService.datePicker(context, selectedDate: selectedDate ?? DateTime.now())
                   .then((picked) {
                 if (picked != null) {
                   var day = picked.day < 10 ? '0${picked.day}' : picked.day;
@@ -631,7 +631,7 @@ class _ProductTrial extends StatelessWidget {
               const Spacer(),
             ],
           ),
-          refState.productTrial == 1
+          refState.productTrial == 1 && refState.hasProductTrial !=1
               ? Padding(
                   padding: const EdgeInsets.only(top: 20),
                   child: AppTextButton(

@@ -44,16 +44,16 @@ class _ComplaintScreenState extends ConsumerState<ComplaintScreen> {
   DateTime? todDate;
   ScrollController _scrollController = ScrollController();
 
-resetValues(){
-  selectedClaimTypeIndex = -1;
-  selectedVisitTypeIndex = -1;
-  filterClaimType = '';
-  filterVisitType = '';
-  filterFromDate = '';
-  filterToDate = '';
-  fromDate = null;
-  todDate = null;
-}
+  resetValues() {
+    selectedClaimTypeIndex = -1;
+    selectedVisitTypeIndex = -1;
+    filterClaimType = '';
+    filterVisitType = '';
+    filterFromDate = '';
+    filterToDate = '';
+    fromDate = null;
+    todDate = null;
+  }
 
   @override
   void initState() {
@@ -132,9 +132,10 @@ resetValues(){
               ),
             ),
             Padding(
-                padding: const EdgeInsets.only(top: 10),
-                child: selectedFiltersWidget(refNotifier: refNotifier, refState: refstate),
-              ),
+              padding: const EdgeInsets.only(top: 10),
+              child: selectedFiltersWidget(
+                  refNotifier: refNotifier, refState: refstate),
+            ),
             const SizedBox(
               height: 16,
             ),
@@ -145,13 +146,13 @@ resetValues(){
                 title1: "Active",
                 title2: "Resolved",
                 onClicked1: () {
-                   if(refstate.tabBarIndex !=0){
+                  if (refstate.tabBarIndex != 0) {
                     resetValues();
                   }
                   refNotifier.updateTabBarIndex(0);
                 },
                 onClicked2: () {
-                  if(refstate.tabBarIndex !=1){
+                  if (refstate.tabBarIndex != 1) {
                     resetValues();
                   }
                   refNotifier.updateTabBarIndex(1);
@@ -162,7 +163,8 @@ resetValues(){
               height: 10,
             ),
             Expanded(
-                child: complaintWidget(refState: refstate, refNotifier: refNotifier))
+                child: complaintWidget(
+                    refState: refstate, refNotifier: refNotifier))
           ],
         ),
       ),
@@ -202,7 +204,9 @@ resetValues(){
                     children: [
                       GestureDetector(
                         onTap: () {
-                          AppRouter.pushCupertinoNavigation(ViewComplaintScreen(ticketId: (model?.name ?? ''),)).then((val){
+                          AppRouter.pushCupertinoNavigation(ViewComplaintScreen(
+                            ticketId: (model?.name ?? ''),
+                          )).then((val) {
                             // refNotifier.complaintListApiFunction();
                           });
                         },
@@ -224,13 +228,14 @@ resetValues(){
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 ComplaintItemsWidget(
-                                  title: "Ticket #${model?.name ?? ''}",
-                                  name: model?.username ?? '',
-                                  date: model?.date ?? '',
-                                  reasonTitle: model?.claimType ?? '',
-                                  status: model?.workflowState ?? '',
-                                  tabBarIndex: refState.tabBarIndex,
-                                ),
+                                    title: model?.name ?? '',
+                                    name: model?.username ?? '',
+                                    date: model?.date ?? '',
+                                    reasonTitle: model?.claimType ?? '',
+                                    status: model?.workflowState ?? '',
+                                    tabBarIndex: refState.tabBarIndex,
+                                    statusDate:
+                                        (model?.statusDate ?? '').toString()),
                               ],
                             ),
                           ),
@@ -427,7 +432,7 @@ resetValues(){
                             ),
                             AppDateWidget(
                               onTap: () {
-                                DateTime firstDate = fromDate ?? DateTime.now();
+                                DateTime firstDate = fromDate ?? DateTime(1994);
                                 DatePickerService.datePicker(context,
                                         selectedDate: todDate,
                                         firstDate: firstDate)
@@ -466,6 +471,12 @@ resetValues(){
                                   filterFromDate.isEmpty &&
                                   filterToDate.isEmpty) {
                                 MessageHelper.showToast("Select any filter");
+                              } else if ((filterFromDate.isNotEmpty &&
+                                      filterToDate.isEmpty) ||
+                                  (filterFromDate.isEmpty &&
+                                      filterToDate.isNotEmpty)) {
+                                MessageHelper.showToast(
+                                    "Please select both From and To dates.");
                               } else {
                                 Navigator.pop(context);
                                 refNotifier.updateFilterValues(
@@ -489,85 +500,87 @@ resetValues(){
         });
   }
 
-
-
- Widget selectedFiltersWidget({required AddComplaintNotifier refNotifier,required AddComplaintState refState}){
+  Widget selectedFiltersWidget(
+      {required AddComplaintNotifier refNotifier,
+      required AddComplaintState refState}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 5),
       child: Row(
         children: [
-         refNotifier.visitTypeFilter.isNotEmpty? customFiltersUI(refNotifier.visitTypeFilter,
-         (){
-          refNotifier.visitTypeFilter='';
-          filterVisitType = '';
-          selectedVisitTypeIndex = -1;
-          refNotifier.complaintListApiFunction();
-          setState(() {
-            
-          });
-         }
-         ): EmptyWidget(),
+          refNotifier.visitTypeFilter.isNotEmpty
+              ? customFiltersUI(refNotifier.visitTypeFilter, () {
+                  refNotifier.visitTypeFilter = '';
+                  filterVisitType = '';
+                  selectedVisitTypeIndex = -1;
+                  refNotifier.complaintListApiFunction();
+                  setState(() {});
+                })
+              : EmptyWidget(),
           // const SizedBox(width: 15,),
-          refNotifier.claimTypeFilter.isNotEmpty? customFiltersUI(refNotifier.claimTypeFilter,
-         (){
-          refNotifier.claimTypeFilter='';
-          filterClaimType = '';
-          selectedClaimTypeIndex = -1;
-          refNotifier.complaintListApiFunction();
-          setState(() {
-            
-          });
-         }
-         ): EmptyWidget(),
-        //  const SizedBox(width: 15,),
-         refNotifier.fromDateFilter.isNotEmpty? customFiltersUI(refNotifier.fromDateFilter,
-         (){
-          refNotifier.fromDateFilter='';
-          filterFromDate = '';
-          refNotifier.complaintListApiFunction();
-          setState(() {
-            
-          });
-         }
-         ): EmptyWidget(),
-        //  const SizedBox(width: 15,),
-         refNotifier.toDateFilter.isNotEmpty? customFiltersUI(refNotifier.toDateFilter,
-         (){
-          refNotifier.toDateFilter='';
-          filterToDate = '';
-          refNotifier.complaintListApiFunction();
-          setState(() {
-            
-          });
-         }
-         ): EmptyWidget(),
+          refNotifier.claimTypeFilter.isNotEmpty
+              ? customFiltersUI(refNotifier.claimTypeFilter, () {
+                  refNotifier.claimTypeFilter = '';
+                  filterClaimType = '';
+                  selectedClaimTypeIndex = -1;
+                  refNotifier.complaintListApiFunction();
+                  setState(() {});
+                })
+              : EmptyWidget(),
+          //  const SizedBox(width: 15,),
+          refNotifier.fromDateFilter.isNotEmpty
+              ? customFiltersUI("${refNotifier.fromDateFilter} - ${refNotifier.toDateFilter}", () {
+                  refNotifier.fromDateFilter = '';
+                  refNotifier.toDateFilter = '';
+                  filterFromDate = '';
+                  filterToDate = '';
+                  fromDate = null;
+                  todDate = null;
+                  refNotifier.complaintListApiFunction();
+                  setState(() {});
+                })
+              : EmptyWidget(),
+          //  const SizedBox(width: 15,),
+          // refNotifier.toDateFilter.isNotEmpty
+          //     ? customFiltersUI(refNotifier.toDateFilter, () {
+          //         refNotifier.toDateFilter = '';
+          //         filterToDate = '';
+          //         refNotifier.complaintListApiFunction();
+          //         setState(() {});
+          //       })
+          //     : EmptyWidget(),
         ],
       ),
     );
   }
-  
-  customFiltersUI(String title, Function()?onTap){
+
+  customFiltersUI(String title, Function()? onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.only(left: 15),
         child: Container(
           decoration: BoxDecoration(
-            border: Border.all(color: AppColors.greenColor),
-            borderRadius: BorderRadius.circular(15)
-          ),
-          padding: EdgeInsets.symmetric(horizontal: 9,vertical: 2),
+              border: Border.all(color: AppColors.greenColor),
+              borderRadius: BorderRadius.circular(15)),
+          padding: EdgeInsets.symmetric(horizontal: 9, vertical: 2),
           child: Row(
             children: [
-              AppText(title: title,fontFamily: AppFontfamily.poppinsSemibold,fontsize: 13,),
-              const SizedBox(width: 5,),
-              Icon(Icons.close,size: 15,)
+              AppText(
+                title: title,
+                fontFamily: AppFontfamily.poppinsSemibold,
+                fontsize: 13,
+              ),
+              const SizedBox(
+                width: 5,
+              ),
+              Icon(
+                Icons.close,
+                size: 15,
+              )
             ],
           ),
         ),
       ),
     );
   }
-
-
 }

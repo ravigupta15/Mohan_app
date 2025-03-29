@@ -9,11 +9,14 @@ import 'package:mohan_impex/res/no_data_found_widget.dart';
 import 'package:mohan_impex/res/shimmer/list_shimmer.dart';
 
 // ignore: must_be_immutable
-class MarkingApprovedWidget extends StatelessWidget {
+class MarkingWidget extends StatelessWidget {
   final CollateralsRequestState refState;
    final CollateralsRequestNotifier refNotifier;
    ScrollController scrollController;
-   MarkingApprovedWidget({required this.refState, required this.refNotifier,required this.scrollController});
+   final int index;
+   MarkingWidget({required this.refState, required this.refNotifier,required this.scrollController,
+   required this.index
+   });
 
   @override
   Widget build(BuildContext context) {
@@ -53,9 +56,9 @@ class MarkingApprovedWidget extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 9),
                   child:JourneyPlanItemsWidget(
-                         title:"Marking Collaterals #${model?.name??''}",
+                         title:model?.name??'',
                         status: model?.status??'',
-                        statusDes: model?.approvedDate??'',
+                        statusDes: model?.date??'',
                         ),
                 ),
               ),
@@ -73,7 +76,9 @@ class MarkingApprovedWidget extends StatelessWidget {
                           : SizedBox.fromSize()
           ],
         );
-    }): NoDataFound(title: "No apporved marketing collarterals found");
+    }): NoDataFound(title: index ==0? "No apporved marketing collarterals found":
+    "No pending marking collaterals found"
+    );
   }
 
 }

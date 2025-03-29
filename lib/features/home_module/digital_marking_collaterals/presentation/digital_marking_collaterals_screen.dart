@@ -17,6 +17,7 @@ import 'package:mohan_impex/res/app_fontfamily.dart';
 import 'package:mohan_impex/res/loader/show_loader.dart';
 import 'package:mohan_impex/res/no_data_found_widget.dart';
 import 'package:mohan_impex/utils/message_helper.dart';
+import 'package:open_file/open_file.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:pdfx/pdfx.dart';
@@ -116,7 +117,7 @@ String downloadStatus = '';
           Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: AppSearchBar(
-                  hintText: "Search by product,campaigns",
+                  hintText: "Search by collateral name",
                   onChanged: refNotifier.onChangedSearch,
                   suffixWidget: Padding(
                     padding: const EdgeInsets.only(right: 10),
@@ -207,7 +208,7 @@ String downloadStatus = '';
                             {
                               downloadAndShareImage(model?.productAttachment ?? '', model?.fileType ??'').then((val)async{
                                 if(val!=null){
-                                  // final result = await OpenFile.open(val,);
+                                  final result = await OpenFile.open(val);
                                 }
                               });
                               //  downloadAndShareImage(model?.productAttachment ?? '', model?.fileType ??'');

@@ -22,6 +22,7 @@ final searchController = TextEditingController();
 String filterNatureOfTravelValue = '';
 String filterModeTravelValue  ='';
 String filterDateValue = '';
+String filterStatusValue = '';
 String searchText = '';
 
   List naturalTravelList = ['HQ', "EX-HQ", "Night Out"];
@@ -57,6 +58,8 @@ resetValues(){
   selectedTabbar = "Approved";
   searchText  ='';
   searchController.clear();
+  resetPageCount();
+  resetFilter();
 }
 
   onChangedNaturalTravl(val) {
@@ -91,6 +94,7 @@ resetValues(){
     filterDateValue='';
     filterNatureOfTravelValue='';
     filterModeTravelValue = '';
+    filterStatusValue ='';
  }
 
 
@@ -124,11 +128,12 @@ increasePageCount(){
   }
 
 
-updateFilterValues({required String date, required String type, required String modeTravel}){
+updateFilterValues({required String date, required String type, required String modeTravel, required String status}){
   resetPageCount();
   filterNatureOfTravelValue = type;
   filterDateValue=date;
   filterModeTravelValue =  modeTravel;
+  filterStatusValue = status;
 }
 
 onChangedSearch(String val){
@@ -167,7 +172,7 @@ onChangedSearch(String val){
     if (response != null) {
       AppRouter.pushCupertinoNavigation(SuccessScreen(
           title: '',
-          des: "You have successfully Submitted",
+          des: "You have successfully submitted the journey plan",
           btnTitle: "Track",
           onTap: () {
             Navigator.pop(context);
@@ -192,7 +197,7 @@ onChangedSearch(String val){
     increasePageCount();
   }
   
-    final response = await ApiService().makeRequest(apiUrl: "${ApiUrls.journeyPlanListUrl}?nature_of_travel=$filterNatureOfTravelValue&date=$filterDateValue&search_text=$searchText&tab=$selectedTabbar&limit=5&current_page=${state.page}&mode_of_travel=$filterModeTravelValue", method: ApiMethod.get.name);
+    final response = await ApiService().makeRequest(apiUrl: "${ApiUrls.journeyPlanListUrl}?nature_of_travel=$filterNatureOfTravelValue&date=$filterDateValue&search_text=$searchText&tab=$selectedTabbar&limit=5&current_page=${state.page}&mode_of_travel=$filterModeTravelValue&status=$filterStatusValue", method: ApiMethod.get.name);
    updateLoading(false);
     if (!isLoadMore) {
     } else {

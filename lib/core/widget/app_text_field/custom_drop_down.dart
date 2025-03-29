@@ -14,8 +14,9 @@ import 'package:mohan_impex/res/app_fontfamily.dart';
     String? Function(String?)? validator;
     bool isfillColor;
     Color hintColor;
+    bool isEnable;
    CustomDropDown({required this.items, this.onChanged,this.selectedValue,this.hintText = '', this.validator,
-   this.height = double.infinity, this.isfillColor=false, this.hintColor =AppColors.lightTextColor
+   this.height = double.infinity, this.isfillColor=false, this.hintColor =AppColors.lightTextColor, this.isEnable = true
    });
 
   @override
@@ -59,10 +60,10 @@ Widget customDropDown(){
             ),
             items: items,
             value: selectedValue,
-            onChanged: onChanged,
+            onChanged:isEnable ? onChanged : null,
             buttonStyleData:const ButtonStyleData(
               width: double.infinity,
-              height: 15,
+              height: 17,
               elevation: 0,
             ),
             iconStyleData: const IconStyleData(

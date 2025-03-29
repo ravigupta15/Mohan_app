@@ -41,6 +41,7 @@ static const imageUploadUrl = "${baseUrl}method/mohan_impex.api.cvm.capture_imag
  static const segementUrl = "${baseUrl}resource/Market Segment";
  static const viewKycUrl = "${baseUrl}method/mohan_impex.api.kyc.kyc_form";
  static const customerCategoryUrl = "${baseUrl}resource/Customer Category";
+ static const kycExistsValidationUrl  = "${baseUrl}method/mohan_impex.api.kyc.kyc_exists_validation";
 
  /// scheme 
  static const schemeListUrl = "${baseUrl}method/mohan_impex.api.scheme.scheme_list";

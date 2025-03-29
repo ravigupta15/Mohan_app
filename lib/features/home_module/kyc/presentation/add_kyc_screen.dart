@@ -9,6 +9,7 @@ import 'package:mohan_impex/core/services/date_picker_service.dart';
 import 'package:mohan_impex/core/services/image_picker_service.dart';
 import 'package:mohan_impex/core/widget/app_date_widget.dart';
 import 'package:mohan_impex/core/widget/app_text_field/custom_drop_down.dart';
+import 'package:mohan_impex/core/widget/app_text_field/custom_search_drop_down.dart';
 import 'package:mohan_impex/core/widget/custom_checkbox.dart';
 import 'package:mohan_impex/core/widget/custom_radio_button.dart';
 import 'package:mohan_impex/core/widget/expandable_widget.dart';
@@ -58,6 +59,8 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
     });
     super.initState();
   }
+  final billingStateSearchController = TextEditingController();
+  final billingDistrictSearchController = TextEditingController();
 
   callInitFunction(){
     final refNotifier = ref.read(addKycProvider.notifier);
@@ -296,69 +299,6 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
             return null;
           },
         ),
-        
-        const SizedBox(height: 15),
-         LabelTextTextfield(title: 'Address', isRequiredStar: true),
-        const SizedBox(height: 5),
-        AppTextfield(
-          hintText: "Enter address",
-          fillColor: false,
-          isReadOnly: widget.route.isEmpty? false : true,
-          controller: refNotifier.addressController,
-          textInputAction: TextInputAction.next,
-          inputFormatters: [
-            emojiRestrict(),
-          ],
-          validator: (val) {
-            if (val!.isEmpty) {
-              return "Enter your address";
-            }
-            return null;
-          },
-        ),
-        const SizedBox(height: 15),
-       
-          LabelTextTextfield(title: 'State', isRequiredStar: true),
-        const SizedBox(height: 5),
-        CustomDropDown(
-          selectedValue: refNotifier.selectedState,
-          items: DropdownItemHelper().stateItems((refState.stateModel?.data??[])),
-          hintText: "state",
-          onChanged: (val){
-            refNotifier.onChangedStateVal(context, val);
-            setState(() {
-              
-            });
-          },
-        validator: (val) {
-            if ((val??'').isEmpty) {
-              return "Select state";
-            }
-            return null;
-          },
-        ),
-        const SizedBox(height: 15),
-      
-        LabelTextTextfield(title: 'District', isRequiredStar: true),
-        const SizedBox(height: 5),
-        CustomDropDown(
-          selectedValue: refNotifier.selectedDistrict,
-          items: DropdownItemHelper().districtItems((refState.districtModel?.data??[])),
-          hintText: "Select district",
-          onChanged: (val){
-            refNotifier.districtController.text = val;
-            refNotifier.selectedDistrict = val;
-            setState(() {
-              
-            });
-          },
-        validator: (val) {
-            if ((val??'').isEmpty) {
-              return "Select district";
-            }
-            return null;
-          },
-        ),
         const SizedBox(height: 15),
         // LabelTextTextfield(title: 'Visit Type', isRequiredStar: true),
         // const SizedBox(height: 5),
@@ -579,8 +519,10 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
         const SizedBox(height: 15),
           LabelTextTextfield(title: 'Shipping state', isRequiredStar: true),
         const SizedBox(height: 5),
-        CustomDropDown(
-          selectedValue:refNotifier.selectedShippingState,
+        CustomSearchDropDown(
+          searchController: billingStateSearchController,
+          selectedValues:refNotifier.selectedShippingState ?? '',
+          height: 300,
           items: DropdownItemHelper().stateItems((refState.shippingStateModel?.data??[])),
           hintText: "Select state",
           onChanged: (val){
@@ -600,8 +542,10 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
       
         LabelTextTextfield(title: 'Shipping District', isRequiredStar: true),
         const SizedBox(height: 5),
-        CustomDropDown(
-          selectedValue: refNotifier.selectedShippingDistrict ,
+        CustomSearchDropDown(
+          searchController: billingDistrictSearchController,
+          selectedValues: refNotifier.selectedShippingDistrict ?? '' ,
+          height: 300,
           items: DropdownItemHelper().districtItems((refState.shippingDistrictModel?.data??[])),
           hintText: "Select district",
           onChanged: (val){
@@ -652,6 +596,7 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
           textCapitalization: TextCapitalization.characters,
           inputFormatters: [
             removeWhiteSpace(),
+            LengthLimitingTextInputFormatter(refState.selectedBusinessType == 0 ?15:10),
             FilteringTextInputFormatter.allow(RegExp('[a-zA-Z0-9 ]')) 
           ],
           controller: refState.selectedBusinessType == 0
@@ -729,7 +674,7 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
             ),
             AppDateWidget(
               onTap: () {
-                 DateTime firstDate = startDate ?? DateTime.now();
+                 DateTime firstDate = startDate ?? DateTime(1994);
                 DatePickerService.datePicker(context, selectedDate: endDate,
                 firstDate: firstDate
                 )
@@ -996,7 +941,7 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
 
 Widget _documentCheckListWidget({required AddKycNotifier refNotifier, required AddKycState refState}){
   return ExpandableWidget(
-        initExpanded: false,
+        initExpanded: true,
         isBorderNoShadow: true,
         collapsedWidget: documentCheckListCollapsedWidget(
           isExpanded: true,refNotifier: refNotifier, refState: refState
@@ -1175,6 +1120,8 @@ _handleCustomerName({required AddKycNotifier refNotifer, required AddKycState re
             )).then((val) {
               if (val != null) {
                 CustomerDetails model = val;
+                refNotifer.kycExistValidationApiFunction(context, model.name ?? '').then((kycValue){
+                  if(kycValue != null){
                       refNotifer.contactList = (model.contact??[]);
                       refNotifer.businessNameController.text = model.shopName?? '';
                       refNotifer.selectedShop = model.shop ?? '';
@@ -1198,6 +1145,9 @@ _handleCustomerName({required AddKycNotifier refNotifer, required AddKycState re
                     refNotifer.billingPincodeController.text = addressModel.data?.pincode ?? '';
                         }
                   });
+                  }
+                });
+                    
                 
                 setState(() {});
               }
@@ -1215,7 +1165,7 @@ class _CustomInfoWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ExpandableWidget(
-        initExpanded: false,
+        initExpanded: true,
         collapsedWidget: collapsedWidget(
           isExpanded: true,
         ),
@@ -1286,8 +1236,6 @@ class _CustomInfoWidget extends StatelessWidget {
           itemsWidget("Customer Name", refNotifier.customerNameController.text),
           const SizedBox(height: 10),
           itemsWidget("Contact", refNotifier.contactNumberController.text),
-          const SizedBox(height: 10),
-          itemsWidget("Address", refNotifier.addressController.text),
           const SizedBox(height: 10),
           itemsWidget("Email", refNotifier.emailController.text),
           const SizedBox(height: 10),

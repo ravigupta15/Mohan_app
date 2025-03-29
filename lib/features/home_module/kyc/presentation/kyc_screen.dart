@@ -226,9 +226,9 @@ Widget approvedKycWidget({required KycState refState, required KycNotifier refNo
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           KycItem(
-                              title:"Ticket #${model?.name??''}",
+                              title: model?.name??'',
                               userIcon: AppAssetPaths.userIcon,
-                              name: model?.username??'',
+                              name: model?.customerName??'',
                               dateIcon: AppAssetPaths.dateIcon,
                               date: AppDateFormat.formatDateYYMMDD((model?.date??'')),),
                         ],
@@ -240,7 +240,7 @@ Widget approvedKycWidget({required KycState refState, required KycNotifier refNo
                         color: AppColors.edColor,
                       ),
                     ),
-                     kycWidget(refState, model?.workflowState ??'')
+                     kycWidget(refState, model?.workflowState ??'', model?.statusDate??'')
                   ],
                 ),
               ),
@@ -262,7 +262,7 @@ Widget approvedKycWidget({required KycState refState, required KycNotifier refNo
  
 }
 
-kycWidget(KycState refState, String status){
+kycWidget(KycState refState, String status, String date){
   return Padding(
     padding: const EdgeInsets.only(left: 10),
     child: Row(
@@ -270,12 +270,13 @@ kycWidget(KycState refState, String status){
         Container(
           height: 5,width: 5,
           decoration: BoxDecoration(
-            color: AppColors.greenColor,shape: BoxShape.circle
+            color:status.toLowerCase() == 'Approved'?
+             AppColors.greenColor : AppColors.redColor,shape: BoxShape.circle
           ),
         ),
         const SizedBox(width: 4,),
-        AppText(title: "${refState.tabBarIndex ==0 ? "Completed" :"Pending"} : ",fontsize: 10,fontFamily: AppFontfamily.poppinsSemibold,color: AppColors.visitItem,),
-        AppText(title: status,fontsize: 10,fontFamily: AppFontfamily.poppinsRegular,color: AppColors.visitItem,),
+        AppText(title: "$status : ",fontsize: 10,fontFamily: AppFontfamily.poppinsSemibold,color: AppColors.visitItem,),
+        AppText(title: date,fontsize: 10,fontFamily: AppFontfamily.poppinsRegular,color: AppColors.visitItem,),
       ],
     ),
   );
@@ -320,18 +321,22 @@ kycWidget(KycState refState, String status){
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(left: 25,right: 25,top: 15),
+                  padding: const EdgeInsets.only(top: 15),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      AppText(title: "Customer Type",fontFamily: AppFontfamily.poppinsSemibold,),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: AppText(title: "Customer Type",fontFamily: AppFontfamily.poppinsSemibold,),
+                      ),
                       const SizedBox(height: 10,),
                       SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: Row(
                           children: List.generate(AppConstants.companyTypeList.length, (val){
                             return  Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 12),
+                              padding: const EdgeInsets.symmetric(horizontal: 10),
                               child: customRadioButton(isSelected:selectedCustomerTypeIndex==val? true:false, title: AppConstants.companyTypeList[val],
                               onTap: (){
                                 setState(() {
@@ -347,15 +352,19 @@ kycWidget(KycState refState, String status){
                         ),
                       ),
                     const SizedBox(height: 25,),
-                      AppText(title: "Business Type",fontFamily: AppFontfamily.poppinsSemibold,),
+                      Padding(
+                       padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: AppText(title: "Business Type",fontFamily: AppFontfamily.poppinsSemibold,),
+                      ),
                       const SizedBox(height: 10,),
 
                       SingleChildScrollView(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
                         scrollDirection: Axis.horizontal,
                         child: Row(
                           children: List.generate(AppConstants.businessList.length, (val){
                             return  Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 12),
+                              padding: const EdgeInsets.symmetric(horizontal: 10),
                               child: customRadioButton(isSelected:selectedBusinessTypeIndex==val? true:false, title: AppConstants.businessList[val],
                               onTap: (){
                                 setState(() {
@@ -371,14 +380,18 @@ kycWidget(KycState refState, String status){
                         ),
                       ),
                       const SizedBox(height: 25,),
-                       AppText(title: "Segment",fontFamily: AppFontfamily.poppinsSemibold,),
+                       Padding(
+                         padding: const EdgeInsets.symmetric(horizontal: 20),
+                         child: AppText(title: "Segment",fontFamily: AppFontfamily.poppinsSemibold,),
+                       ),
                       const SizedBox(height: 10,),
                       SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: Row(
                           children: List.generate(AppConstants.segmentList.length, (val){
                             return  Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 12),
+                              padding: const EdgeInsets.symmetric(horizontal: 10),
                               child: customRadioButton(isSelected:selectedSegmentTypeIndex==val? true:false, title: AppConstants.segmentList[val],
                               onTap: (){
                                 setState(() {
@@ -394,20 +407,24 @@ kycWidget(KycState refState, String status){
                         ),
                       ),
                     const SizedBox(height: 25,),
-                       AppText(title: "Customer Category",fontFamily: AppFontfamily.poppinsSemibold,),
+                       Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                         child: AppText(title: "Customer Category",fontFamily: AppFontfamily.poppinsSemibold,),
+                       ),
                       const SizedBox(height: 10,),
                       SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: Row(
                           children: List.generate(AppConstants.customerCategoryList.length, (val){
                             return  Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 12),
+                              padding: const EdgeInsets.symmetric(horizontal: 10),
                               child: customRadioButton(isSelected:selectedCategoryTypeIndex==val? true:false, title: AppConstants.customerCategoryList[val],
                               onTap: (){
                                 setState(() {
                                   state(() {
                                   selectedCategoryTypeIndex=val;
-                                 filterSegmentType = AppConstants.customerCategoryList[val];
+                                 filterCategoryType = AppConstants.customerCategoryList[val];
                                 });
                                 });
                               }
@@ -450,7 +467,7 @@ kycWidget(KycState refState, String status){
   });
 }
 
- Widget selectedFiltersWidget({required KycNotifier refNotifier,required KycState refState}){
+ Widget selectedFiltersWidget({required KycNotifier refNotifier,required KycState refState}){  
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(

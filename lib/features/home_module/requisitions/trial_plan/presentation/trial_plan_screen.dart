@@ -38,6 +38,7 @@ int selectedConductTypeIndex = -1;
   int selectedTrialLocationIndex = -1;
   int selectedTrialTypeIndex = -1;
   int selectedVisitTypeIndex = -1;
+  int selectedStatusOndex = -1;
   
   String filterConductType = '';
   String filterTrialLocationType = '';
@@ -45,6 +46,7 @@ int selectedConductTypeIndex = -1;
    String filterVisitType = '';
   String filterFromDate = '';
   String filterToDate = '';
+  String filterStatus = '';
   DateTime? fromDate;
   DateTime? todDate;
   String selectedState = '';
@@ -59,6 +61,8 @@ int selectedConductTypeIndex = -1;
    selectedVisitTypeIndex  = -1;
    filterConductType = '';
    filterTrialLocationType = '';
+   filterStatus = '';
+   selectedStatusOndex =-1;
    filterTrialType ='';
   filterVisitType = '';
     fromDate = null;
@@ -206,7 +210,7 @@ int selectedConductTypeIndex = -1;
             GestureDetector(
               onTap: (){
                   AppRouter.pushCupertinoNavigation( ViewTrialPlanScreen(id: (model?.name ?? ''),)).then((val){
-                    refNotifier.trialPlanListApiFunction();
+                    // refNotifier.trialPlanListApiFunction();
                   });
               },
               child: Container(
@@ -228,9 +232,9 @@ int selectedConductTypeIndex = -1;
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       JourneyPlanItemsWidget(
-                      title:"Ticket #${model?.name??''}",
-                      status: refState.tabBarIndex == 0? "Pending" : "Approved",
-                      statusDes: model?.workflowState??'',
+                      title:model?.name??'',
+                      status: model?.workflowState??'',
+                      statusDes: model?.date??'',
                       ),
                     ],
                   ),
@@ -469,7 +473,7 @@ filterBottomSheet(BuildContext context, TrialPlanState refState,
                       ),
                       AppDateWidget(
                         onTap: () {
-                           DateTime firstDate = fromDate ?? DateTime.now();
+                           DateTime firstDate = fromDate ?? DateTime(1994);
                           DatePickerService.datePicker(context,
                                   selectedDate: todDate,
                                   firstDate: firstDate)
@@ -492,7 +496,32 @@ filterBottomSheet(BuildContext context, TrialPlanState refState,
                       ),
                     ],
                   ),
-
+                  const SizedBox(
+                    height: 25,
+                  ),
+                   AppText(title: "Status",fontFamily: AppFontfamily.poppinsSemibold,),
+                      const SizedBox(height: 10,),
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: List.generate( refState.tabBarIndex ==0?
+                           AppConstants.approvedStatusList.length :AppConstants.pendingStatusList.length, (val){
+                            return  Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 12),
+                              child: customRadioButton(isSelected:selectedStatusOndex ==val? true:false, title: refState.tabBarIndex ==0? AppConstants.approvedStatusList[val] :AppConstants.pendingStatusList[val],
+                              onTap: (){
+                                setState(() {
+                                  state(() {
+                                  selectedStatusOndex=val;
+                               filterStatus = refState.tabBarIndex ==0? AppConstants.approvedStatusList[val] :AppConstants.pendingStatusList[val];
+                                });
+                                });
+                              }
+                              ),
+                            );
+                          }).toList() 
+                        ),
+                      ),
                   const SizedBox(
                     height: 25,
                   ),
@@ -510,9 +539,16 @@ filterBottomSheet(BuildContext context, TrialPlanState refState,
                             filterTrialType.isEmpty &&
                             filterVisitType.isEmpty &&
                             filterFromDate.isEmpty &&
-                            filterToDate.isEmpty) {
+                            filterToDate.isEmpty&&
+                            filterStatus.isEmpty) {
                           MessageHelper.showToast("Select any filter");
-                        } else {
+                        }else if ((filterFromDate.isNotEmpty &&
+                                      filterToDate.isEmpty) ||
+                                  (filterFromDate.isEmpty &&
+                                      filterToDate.isNotEmpty)) {
+                                MessageHelper.showToast(
+                                    "Please select both From and To dates.");
+                              }  else {
                           Navigator.pop(context);
                           refNotifier.updateFilterValues(
                               conductType: filterConductType,
@@ -520,7 +556,8 @@ filterBottomSheet(BuildContext context, TrialPlanState refState,
                               trialType: filterTrialType,
                               visitType: filterVisitType,
                               fromDate: filterFromDate,
-                              toDate: filterToDate,);
+                              toDate: filterToDate,
+                              status: filterStatus);
                           setState(() {});
                           refNotifier.trialPlanListApiFunction();
                         }
@@ -592,10 +629,14 @@ filterBottomSheet(BuildContext context, TrialPlanState refState,
          }
          ): EmptyWidget(),
 // const SizedBox(width: 15,),
-          refNotifier.fromDateFilter.isNotEmpty? customFiltersUI(refNotifier.fromDateFilter,
+          refNotifier.fromDateFilter.isNotEmpty? customFiltersUI("${refNotifier.fromDateFilter} - ${refNotifier.toDateFilter}",
          (){
           refNotifier.fromDateFilter='';
           filterFromDate = '';
+          fromDate = null;
+          refNotifier.toDateFilter='';
+          filterToDate = '';
+          todDate = null;
           refNotifier.trialPlanListApiFunction();
           setState(() {
             
@@ -603,16 +644,17 @@ filterBottomSheet(BuildContext context, TrialPlanState refState,
          }
          ): EmptyWidget(),
         //  const SizedBox(width: 15,),
-          refNotifier.toDateFilter.isNotEmpty? customFiltersUI(refNotifier.toDateFilter,
-         (){
-          refNotifier.toDateFilter='';
-          filterToDate = '';
-          refNotifier.trialPlanListApiFunction();
+       
+           refNotifier.filterStatusValue.isNotEmpty? customFiltersUI(refNotifier.filterStatusValue,
+          (){
+            refNotifier.filterStatusValue='';
+            filterStatus = '';
+            selectedStatusOndex=-1;
+            refNotifier.trialPlanListApiFunction();
           setState(() {
-            
           });
-         }
-         ): EmptyWidget(),
+          }
+          ): EmptyWidget(),
         ],
       ),
     );

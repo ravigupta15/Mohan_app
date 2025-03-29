@@ -334,9 +334,9 @@ createKycApiFunction(BuildContext context)async{
     "shop": selectedShop,
     "shop_name":businessNameController.text,
     "segment": segmentController.text,
-    "address": addressController.text,
-    "district": districtController.text,
-    "state": stateController.text,
+    // "address": addressController.text,
+    "district": billingDistrictController.text,
+    "state": billingStateController.text,
     "shipping_address": {
         "title": "SHIPPING ADDRESS",
         "address_line1": shippingAddress1Controller.text,
@@ -412,7 +412,19 @@ Future customerAddressApiFunction(BuildContext context, String searchText, Strin
   }
 }
 
-  
+  Future kycExistValidationApiFunction(BuildContext context, String id)async{
+  // state = state.copyWith(segmentModel: null);
+    ShowLoader.loader(context);
+    final response =await ApiService().makeRequest(apiUrl: "${ApiUrls.kycExistsValidationUrl}?unv_customer=$id", method: ApiMethod.get.name);
+    ShowLoader.hideLoader();
+
+    if(response!=null){
+      // MessageHelper.showToast(response.data['message']??'');
+      return response;
+    // state = state.copyWith(segmentModel:SegmentModel.fromJson(response.data));
+    }
+  }
+
 
 }
 
