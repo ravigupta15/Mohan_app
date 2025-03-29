@@ -98,5 +98,9 @@ static const itemTemplateUrl = "${baseUrl}method/mohan_impex.api.get_item_templa
 static const salesItemVariantUrl = "${baseUrl}method/mohan_impex.api.get_item_variants";
 static const createSalesOrderUrl = "${baseUrl}method/mohan_impex.api.sales_order.create_so";
 
+
+///
+static const createCommentUrl = "${baseUrl}method/mohan_impex.mohan_impex.comment.create_comment";
+
 /// logout
 }

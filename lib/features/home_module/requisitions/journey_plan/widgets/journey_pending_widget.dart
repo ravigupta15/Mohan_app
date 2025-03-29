@@ -60,7 +60,7 @@ class JourneyPendingWidget extends StatelessWidget {
                       JourneyPlanItemsWidget(
                       title:model?.name??'',
                       status: model?.status ?? '',
-                      statusDes: '',
+                      statusDes: model?.statusDate ?? '',
                       ),
                     ],
                   ),

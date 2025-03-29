@@ -5,7 +5,7 @@ import 'package:mohan_impex/res/app_fontfamily.dart';
 
 
 // ignore: must_be_immutable
-class CustomSearchDropDown extends StatefulWidget {
+class CustomSearchDropDown extends StatelessWidget {
   //  final ValueChanged<List<String>>? onChanged;
    final ValueChanged<String>? onChanged;
    String selectedValues;
@@ -22,14 +22,10 @@ class CustomSearchDropDown extends StatefulWidget {
     this.hintText = '',
     this.validator,
     this.searchController,this.height = double.infinity,
-    this.isfillColor = false,this.hintColor = AppColors.lightTextColor
-    });
+    this.isfillColor = false,this.hintColor = AppColors.lightTextColor,
+    Key? key,
+  }) : super(key: key);
 
-  @override
-  State<CustomSearchDropDown> createState() => _CustomSearchDropDownState();
-}
-
-class _CustomSearchDropDownState extends State<CustomSearchDropDown> {
   // final searchController = TextEditingController();
   @override
   Widget build(BuildContext context) {
@@ -38,6 +34,7 @@ class _CustomSearchDropDownState extends State<CustomSearchDropDown> {
 
    Widget customDropDown() {
     return DropdownButtonHideUnderline(
+      key: key,
       child: DropdownButtonFormField2<String>(
         decoration: InputDecoration(
           hintStyle: TextStyle(
@@ -46,7 +43,7 @@ class _CustomSearchDropDownState extends State<CustomSearchDropDown> {
             fontFamily: AppFontfamily.poppinsRegular,
           ),
           isDense: true,
-          fillColor:widget.isfillColor?AppColors.edColor: AppColors.whiteColor,
+          fillColor:isfillColor?AppColors.edColor: AppColors.whiteColor,
           filled: true,
           contentPadding: EdgeInsetsDirectional.only(start: 15, end: 15, top: 15, bottom: 15),
           enabledBorder: textFormFieldEnabledBorder,
@@ -57,16 +54,16 @@ class _CustomSearchDropDownState extends State<CustomSearchDropDown> {
           border: const OutlineInputBorder(),
         ),
         isExpanded: true,
-        validator: widget.validator,
+        validator: validator,
         hint: Row(
           children: [
             Expanded(
               child: Text(
-                widget.hintText,
+                hintText,
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w400,
-                  color: widget.hintColor,
+                  color: hintColor,
                   fontFamily: AppFontfamily.poppinsRegular,
                 ),
               ),
@@ -77,14 +74,14 @@ class _CustomSearchDropDownState extends State<CustomSearchDropDown> {
           fontSize: 14,
           color: AppColors.black,
         ),
-        items: widget.items,
-        value: widget.selectedValues.isEmpty ? null : widget.selectedValues,
+        items: items,
+        value: selectedValues.isEmpty ? null : selectedValues,
         // value: widget.selectedValues.isEmpty ? null : widget.selectedValues.first,  // Select the first value by default
         onChanged: (String? newValue) {
           print(newValue);
-           widget.selectedValues = newValue!;
-           if(widget.onChanged != null){
-            widget.onChanged!(widget.selectedValues);
+           selectedValues = newValue!;
+           if(onChanged != null){
+            onChanged!(selectedValues);
            }
           // if (newValue != null) {
             // setState(() {
@@ -114,7 +111,7 @@ class _CustomSearchDropDownState extends State<CustomSearchDropDown> {
         ),
         dropdownStyleData: DropdownStyleData(
           elevation: 4,
-          maxHeight: widget.height,
+          maxHeight: height,
           // width: MediaQuery.sizeOf(navigatorKey.currentContext!).width - 30,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
@@ -132,7 +129,7 @@ class _CustomSearchDropDownState extends State<CustomSearchDropDown> {
           padding: EdgeInsets.only(left: 16, right: 16),
         ),
         dropdownSearchData: DropdownSearchData(
-          searchController: widget.searchController,
+          searchController: searchController,
           searchInnerWidgetHeight: 50,
           searchInnerWidget: Container(
             height: 60,
@@ -145,7 +142,7 @@ class _CustomSearchDropDownState extends State<CustomSearchDropDown> {
             child: TextFormField(
                 expands: true,
                 maxLines: null,
-                controller: widget.searchController,
+                controller: searchController,
                 decoration: InputDecoration(
                   isDense: true,
                   contentPadding: const EdgeInsets.symmetric(

@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mohan_impex/core/constant/app_constants.dart';
 import 'package:mohan_impex/core/helper/dropdown_item_helper.dart';
 import 'package:mohan_impex/core/services/date_picker_service.dart';
 import 'package:mohan_impex/core/services/image_picker_service.dart';
@@ -14,6 +15,7 @@ import 'package:mohan_impex/core/widget/custom_checkbox.dart';
 import 'package:mohan_impex/core/widget/custom_radio_button.dart';
 import 'package:mohan_impex/core/widget/expandable_widget.dart';
 import 'package:mohan_impex/data/datasources/local_share_preference.dart';
+import 'package:mohan_impex/features/common_widgets/remarks_widgets.dart';
 import 'package:mohan_impex/features/home_module/custom_visit/model/view_visit_model.dart';
 import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit/model/customer_address_model.dart';
 import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit/model/customer_info_model.dart';
@@ -201,6 +203,21 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
           ),
         ),
         const SizedBox(height: 25),
+         LabelTextTextfield(title: 'Customer Type', isRequiredStar: true),
+        const SizedBox(height: 5),
+        CustomDropDown(
+          selectedValue: refNotifier.selectedCustomerType,
+          hintText: "Select customer type",
+          items: DropdownItemHelper().dropdownListt(AppConstants.companyTypeList),
+        onChanged: refNotifier.onChangedCustomerType,
+        validator: (val){
+          if((val??'').isEmpty){
+            return "Select customer type";
+          }
+          return null;
+        },
+        ),
+        const SizedBox(height: 15),
         LabelTextTextfield(title: 'Customer name', isRequiredStar: true),
         const SizedBox(height: 5),
         AppTextfield(
@@ -377,28 +394,6 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
             return null;
           },
         ),
-        // CustomDropDown(
-        //   selectedValue: refNotifier.selectedBillingState,
-        //   items:widget.route.isEmpty? DropdownItemHelper().stateItems((refState.billingStateModel?.data??[])) : [],
-        //   hintText: widget.route.isNotEmpty && refNotifier.billingStateController.text.isNotEmpty
-        //       ? refNotifier.billingStateController.text
-        //       : "Select State",
-        //   hintColor:
-        //       widget.route.isNotEmpty && refNotifier.billingStateController.text.isNotEmpty ? AppColors.black : AppColors.lightTextColor,
-          
-        //   onChanged: (val){
-        //     refNotifier.onChangedBillingStateVal(context, val);
-        //     setState(() {
-              
-        //     });
-        //   },
-        // validator: (val) {
-        //     if ((val??"").isEmpty) {
-        //       return "Select billing state";
-        //     }
-        //     return null;
-        //   },
-        // ),
          const SizedBox(height: 15),
         LabelTextTextfield(title: 'Billing District', isRequiredStar: true),
         const SizedBox(height: 5),
@@ -415,29 +410,6 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
           },
         ),
         
-        //  CustomDropDown(
-        //   selectedValue: refNotifier.selectedBillingDistrict,
-        //   items:widget.route.isEmpty? DropdownItemHelper().districtItems((refState.billingDistrictModel?.data??[])) : [],
-        //   hintText: widget.route.isNotEmpty && refNotifier.billingDistrictController.text.isNotEmpty
-        //       ? refNotifier.billingDistrictController.text
-        //       : "Select District",
-        //   hintColor:
-        //       widget.route.isNotEmpty && refNotifier.billingDistrictController.text.isNotEmpty ? AppColors.black : AppColors.lightTextColor,
-          
-        //   onChanged: (val){
-        //     refNotifier.billingDistrictController.text = val;
-        //     refNotifier.selectedBillingDistrict = val;
-        //     setState(() {
-              
-        //     });
-        //   },
-        // validator: (val) {
-        //     if ((val??"").isEmpty) {
-        //       return "Select billing district";
-        //     }
-        //     return null;
-        //   },
-        // ),
         const SizedBox(height: 15),
         LabelTextTextfield(title: 'Billing pincode', isRequiredStar: true),
         const SizedBox(height: 5),
@@ -695,6 +667,16 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
             ),
           ],
         ),
+    const SizedBox(height: 30,),
+    RemarksWidget(
+      controller: refNotifier.remarksController,
+      validator: (val){
+        if((val??'').isEmpty){
+          return "Enter you remarks";
+        }
+        return null;
+      },
+    )
       ],
     );
   }
@@ -935,6 +917,14 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
           height: 24,
         ),
         _documentCheckListWidget(refNotifier: refNotifier,refState: refState,),
+        const SizedBox(
+          height: 24,
+        ),
+        RemarksWidget(
+          isEditable: false,
+          remarks: refNotifier.remarksController.text,
+          isRequired: false,
+        )
       ],
     );
   }
@@ -1232,6 +1222,8 @@ class _CustomInfoWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           collapsedWidget(isExpanded: isExpanded),
+          const SizedBox(height: 12),
+           itemsWidget("Customer Type", refNotifier.customerTypeController.text),
           const SizedBox(height: 10),
           itemsWidget("Customer Name", refNotifier.customerNameController.text),
           const SizedBox(height: 10),
@@ -1277,7 +1269,6 @@ class _CustomInfoWidget extends StatelessWidget {
           itemsWidget("Proposed credit limit", refNotifier.creditLimitController.text),
           const SizedBox(height: 10),
           itemsWidget("Proposed credit days", refNotifier.calculateCreditDays().toString()),
-         
         ],
       ),
     );
@@ -1286,6 +1277,7 @@ class _CustomInfoWidget extends StatelessWidget {
 
   Widget itemsWidget(String title, String subTitle) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AppText(
           title: "$title : ",
@@ -1293,11 +1285,13 @@ class _CustomInfoWidget extends StatelessWidget {
           fontsize: 14,
           color: Colors.black,
         ),
-        AppText(
-            title: subTitle,
-            fontsize: 14,
-            fontFamily: AppFontfamily.poppinsRegular,
-            color: AppColors.lightTextColor),
+        Flexible(
+          child: AppText(
+              title: subTitle,
+              fontsize: 14,
+              fontFamily: AppFontfamily.poppinsRegular,
+              color: AppColors.lightTextColor),
+        ),
       ],
     );
   }

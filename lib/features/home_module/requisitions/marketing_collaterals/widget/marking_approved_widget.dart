@@ -58,7 +58,7 @@ class MarkingWidget extends StatelessWidget {
                   child:JourneyPlanItemsWidget(
                          title:model?.name??'',
                         status: model?.status??'',
-                        statusDes: model?.date??'',
+                        statusDes: model?.statusDate??'',
                         ),
                 ),
               ),

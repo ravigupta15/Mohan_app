@@ -36,7 +36,7 @@ class SampleWidget extends StatelessWidget {
             GestureDetector(
               onTap: (){
                 AppRouter.pushCupertinoNavigation( ViewSampleRequisitionsScreen(id: model?.name??'',)).then((val){
-                  // refNotifier.sampleRequisitionsListApiFunction();
+                  refNotifier.sampleRequisitionsListApiFunction();
                 });
               },
               child: Container(
@@ -57,7 +57,7 @@ class SampleWidget extends StatelessWidget {
                   child:JourneyPlanItemsWidget(
                          title:model?.name??"",
                         status: model?.status ??'',
-                        statusDes: model?.date??'',
+                        statusDes: model?.statusDate??'',
                         ),
                 ),
               ),

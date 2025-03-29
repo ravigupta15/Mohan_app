@@ -67,7 +67,7 @@ class TrialRecords {
   dynamic location;
   dynamic createdByEmp;
   dynamic workflowState;
-  dynamic date;
+  dynamic statusDate;
   dynamic totalCount;
 
   TrialRecords(
@@ -78,7 +78,7 @@ class TrialRecords {
       this.location,
       this.createdByEmp,
       this.workflowState,
-      this.date,
+      this.statusDate,
       this.totalCount});
 
   TrialRecords.fromJson(Map<String, dynamic> json) {
@@ -89,7 +89,7 @@ class TrialRecords {
     location = json['location'];
     createdByEmp = json['created_by_emp'];
     workflowState = json['workflow_state'];
-    date = json['date'];
+    statusDate = json['status_date'];
     totalCount = json['total_count'];
   }
 
@@ -102,7 +102,7 @@ class TrialRecords {
     data['location'] = location;
     data['created_by_emp'] = createdByEmp;
     data['workflow_state'] = workflowState;
-    data['date'] = date;
+    data['status_date'] = statusDate;
     data['total_count'] = totalCount;
     return data;
   }

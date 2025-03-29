@@ -64,6 +64,7 @@ class Data {
   List<Contact>? contact;
   List<ProductTrialTable>? productTrialTable;
   List<Activities>? activities;
+  TsmInfo? tsmInfo;
 
   Data(
       {this.name,
@@ -99,7 +100,8 @@ class Data {
       this.itemTrialTable,
       this.contact,
       this.productTrialTable,
-      this.activities});
+      this.activities,
+      this.tsmInfo});
 
   Data.fromJson(Map<String, dynamic> json) {
     name = json['name'];
@@ -156,6 +158,9 @@ class Data {
         activities!.add( Activities.fromJson(v));
       });
     }
+     tsmInfo = json['tsm_info'] != null
+        ?  TsmInfo.fromJson(json['tsm_info'])
+        : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -203,6 +208,9 @@ class Data {
     }
     if (activities != null) {
       data['activities'] = activities!.map((v) => v.toJson()).toList();
+    }
+    if (tsmInfo != null) {
+      data['tsm_info'] = tsmInfo!.toJson();
     }
     return data;
   }
@@ -360,6 +368,28 @@ class ItemTrialTable {
     data['parentfield'] = parentfield;
     data['parenttype'] = parenttype;
     data['doctype'] = doctype;
+    return data;
+  }
+}
+
+class TsmInfo {
+  dynamic name;
+  dynamic mobile;
+  dynamic email;
+
+  TsmInfo({this.name, this.mobile, this.email});
+
+  TsmInfo.fromJson(Map<String, dynamic> json) {
+    name = json['name'];
+    mobile = json['mobile'];
+    email = json['email'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data =  Map<String, dynamic>();
+    data['name'] = name;
+    data['mobile'] = mobile;
+    data['email'] = email;
     return data;
   }
 }

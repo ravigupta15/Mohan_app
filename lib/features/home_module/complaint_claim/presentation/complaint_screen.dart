@@ -206,6 +206,7 @@ class _ComplaintScreenState extends ConsumerState<ComplaintScreen> {
                         onTap: () {
                           AppRouter.pushCupertinoNavigation(ViewComplaintScreen(
                             ticketId: (model?.name ?? ''),
+                            ticketStats: (model?.workflowState ?? ''),
                           )).then((val) {
                             // refNotifier.complaintListApiFunction();
                           });
@@ -229,7 +230,7 @@ class _ComplaintScreenState extends ConsumerState<ComplaintScreen> {
                               children: [
                                 ComplaintItemsWidget(
                                     title: model?.name ?? '',
-                                    name: model?.username ?? '',
+                                    name: model?.customerName ?? '',
                                     date: model?.date ?? '',
                                     reasonTitle: model?.claimType ?? '',
                                     status: model?.workflowState ?? '',

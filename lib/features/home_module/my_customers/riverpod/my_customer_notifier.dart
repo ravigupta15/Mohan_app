@@ -21,8 +21,8 @@ class MyCustomerNotifier extends StateNotifier<MyCustomerState> {
 
 List businessTypeList = ["Registered", "UnRegistered"];
 List biilingList = ["Yes","No"];
-String stateStringFilter ='';
-String districtStringFilter = '';
+String stateFilter ='';
+String districtFilter = '';
 String fromDateFilter = '';
 String toDateFilter = '';
 String businessTypeFilter = '';
@@ -40,8 +40,8 @@ String selectedTabbar = "Submitted";
 
 
   resetFilter(){
-   stateStringFilter ='';
- districtStringFilter = '';
+   stateFilter ='';
+ districtFilter = '';
  fromDateFilter = '';
  toDateFilter = '';
   businessTypeFilter = '';
@@ -93,8 +93,8 @@ increasePageCount(){
 
 
 updateFilterValues({required String stateType, required String districtType, required String fromDate, required toDate, required String businessType,required String zeroBilling}){
-   stateStringFilter =stateType;
- districtStringFilter = districtType;
+   stateFilter =stateType;
+ districtFilter = districtType;
  fromDateFilter = fromDate;
  toDateFilter = toDate;
  businessTypeFilter = businessType;
@@ -151,7 +151,7 @@ customerApiFunction({bool isLoadMore = false,bool isShowLoading = true})async{
     increasePageCount();
   }
    
-  final response = await ApiService().makeRequest(apiUrl: "${ApiUrls.myCustomerListUrl}?search_text=$searchText&limit=10&current_page=${state.currentPage}&district=$districtStringFilter&state=$stateStringFilter&business_type=$businessTypeFilter&zero_billing=$zeroBillingFilter&from_date=$fromDateFilter&to_date=$toDateFilter", method: ApiMethod.get.name);
+  final response = await ApiService().makeRequest(apiUrl: "${ApiUrls.myCustomerListUrl}?search_text=$searchText&limit=10&current_page=${state.currentPage}&district=$districtFilter&state=$stateFilter&business_type=$businessTypeFilter&zero_billing=$zeroBillingFilter&from_date=$fromDateFilter&to_date=$toDateFilter", method: ApiMethod.get.name);
  updateLoading(false);
     if (!isLoadMore) {
     } else {
@@ -246,7 +246,7 @@ if(isLoadMore){
   }
 
  Future districtApiFunction(BuildContext context,{required String stateText})async{
-    state = state.copyWith(districtModel: null);
+    state = state.copyWith(districtModel: DistrictModel.fromJson({}));
   ShowLoader.loader(context);
     final response =await ApiService().makeRequest(apiUrl: '${ApiUrls.districtUrl}/?fields=["district", "state"]&filters=[["district", "like", "%%"], ["state", "=", "$stateText"]]&limit=100', method: ApiMethod.get.name);
     ShowLoader.hideLoader();

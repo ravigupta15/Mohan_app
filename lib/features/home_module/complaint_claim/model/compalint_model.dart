@@ -65,7 +65,7 @@ class ComplaintRecords {
   dynamic claimType;
   dynamic workflowState;
   dynamic totalCount;
-  dynamic username;
+  dynamic customerName;
   dynamic statusDate;
   dynamic formUrl;
 
@@ -75,7 +75,7 @@ class ComplaintRecords {
       this.claimType,
       this.workflowState,
       this.totalCount,
-      this.username,
+      this.customerName,
       this.statusDate,
       this.formUrl});
 
@@ -85,7 +85,7 @@ class ComplaintRecords {
     claimType = json['claim_type'];
     workflowState = json['workflow_state'];
     totalCount = json['total_count'];
-    username = json['username'];
+    customerName = json['customer_name'];
     statusDate = json['status_date'];
     formUrl = json['form_url'];
   }
@@ -97,7 +97,7 @@ class ComplaintRecords {
     data['claim_type'] = claimType;
     data['workflow_state'] = workflowState;
     data['total_count'] = totalCount;
-    data['username'] = username;
+    data['customer_name'] = customerName;
     data['status_date'] = statusDate;
     data['form_url'] = formUrl;
     return data;

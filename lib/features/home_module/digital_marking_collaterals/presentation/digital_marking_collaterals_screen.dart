@@ -173,10 +173,13 @@ String downloadStatus = '';
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(model?.name??"",
-                                  style: TextStyle(
-                                    fontSize: 14,fontFamily: AppFontfamily.poppinsMedium,
-                                  ),
+                                  Flexible(
+                                    child: Text(model?.markingCollateralName ?? '',
+                                    style: TextStyle(
+                                      fontSize: 14,fontFamily: AppFontfamily.poppinsMedium,
+                                    ),
+                                    maxLines: 2,overflow: TextOverflow.ellipsis,
+                                    ),
                                   ),
                                   Container(
                                     height: 17,width: 40,
@@ -197,36 +200,29 @@ String downloadStatus = '';
                             Padding(padding: EdgeInsets.all(15),
                             child: buttonWidget(
                               shareTap: (){
-                                print('object');
+                                 if((model?.productAttachment ?? '').isNotEmpty){
                                 downloadAndShareImage(model?.productAttachment ?? '',model?.fileType ??'').then((val){
                                   if(val!=null){
                                     Share.shareXFiles([XFile(val)]);
                                   }
                                 });
+                                 }
+                                else{
+                                MessageHelper.showErrorSnackBar(context, 'Url not found');
+                              }
                               },
                               downloadTap: ()async
                             {
+                              if((model?.productAttachment ?? '').isNotEmpty){
                               downloadAndShareImage(model?.productAttachment ?? '', model?.fileType ??'').then((val)async{
                                 if(val!=null){
-                                  final result = await OpenFile.open(val);
+                                  await OpenFile.open(val);
                                 }
                               });
-                              //  downloadAndShareImage(model?.productAttachment ?? '', model?.fileType ??'');
-                              // MessageHelper.showToast("Not implemented");
-                              //  downloadImageCount = imgIndex;
-                                // String dir = (await getApplicationDocumentsDirectory()).path;
-                                // await FlutterDownloader.enqueue(
-                                //   url: ("${model?.productAttachment??''}?token=${LocalSharePreference.token}"),
-                                //   headers: {}, // optional: header send with url (auth token etc)
-                                //   savedDir: Platform.isAndroid
-                                //       ? '/storage/emulated/0/Download/'
-                                //       : "$dir/",
-                                //   showNotification: true,
-                                //   openFileFromNotification: true,
-                                //   saveInPublicStorage: true,
-                                // );
-                               
-                      
+                              }
+                              else{
+                                MessageHelper.showErrorSnackBar(context, 'Url not found');
+                              }
                             }),
                             ),
                           ],

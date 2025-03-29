@@ -17,8 +17,8 @@ import '../home_module/kyc/model/activity_model.dart';
 // ignore: must_be_immutable
 class StatusWidget extends StatelessWidget {
   List<Activities>? activities;
- final bool isAddComment;
-   StatusWidget({required this.activities, this.isAddComment= false});
+ final Widget? buttonWidget;
+   StatusWidget({required this.activities, this.buttonWidget});
 
   @override
   Widget build(BuildContext context) {
@@ -79,6 +79,7 @@ class StatusWidget extends StatelessWidget {
                 var model = activities?[index];
               return contentWidget(model);
             }),
+            buttonWidget ?? EmptyWidget()
            ],
       ),
   );
@@ -93,6 +94,8 @@ class StatusWidget extends StatelessWidget {
         colorFilter: ColorFilter.mode(
          (model?.status??'').isEmpty|| (model?.status??'').toString().toLowerCase().contains('pending')?
          AppColors.light92Color:
+         (model?.status??'').toString().toLowerCase().contains('rejected')?
+         AppColors.redColor:
           AppColors.greenColor, BlendMode.srcIn),
         ),
         const SizedBox(width: 7,),
@@ -106,10 +109,7 @@ class StatusWidget extends StatelessWidget {
         )
         ],
       ),
-      //  (model?.commentType ?? '').toString().toLowerCase() =='workflow' && (model?.status??'').isEmpty|| (model?.status??'').toLowerCase() =='pending'? 
 
-      // (model?.status??'').isEmpty || (model?.status??'').toLowerCase() =='pending'?
-      // EmptyWidget():
       commentWidget(model),
     ],
   );

@@ -153,6 +153,7 @@ saveImge(value){
 
 onChangedInvoiceNo(BuildContext context, searchVal){
 invoiceNoController.text = searchVal ?? '';
+selectedInvoice =searchVal;
 updateSelectedItemsList();
 state.invoiceModel?.data?.forEach((val){
   if(val.name==searchVal){
@@ -408,7 +409,7 @@ complaintListApiFunction({bool isLoadMore = false, String search = '',bool isSho
  }
 
 
-viewComplaintApiFunction(BuildContext context, String ticketId)async{
+viewComplaintApiFunction(BuildContext context, String ticketId,)async{
   state = state.copyWith(viewComplaintModel: ViewComplaintModel.fromJson({}));
   ShowLoader.loader(context);
   final response = await ApiService().makeRequest(apiUrl: "${ApiUrls.viewComplaintUrl}?name=$ticketId", method: ApiMethod.get.name);
@@ -450,5 +451,22 @@ invoiceItemListApiFunction(BuildContext context, String invoiceId)async{
   }
 }
 
+createCommentApiFunction(BuildContext context,{required String id, required String comment})async{
+    ShowLoader.loader(context);
+    var body = {
+    "doctype": "issue",
+    "docname": id,
+    "comment": comment,
+    "status": ""
+    };
+    print(body);
+    final response = await ApiService().makeRequest(apiUrl: ApiUrls.createCommentUrl, method: ApiMethod.post.name,
+    data: body
+    );
+    ShowLoader.hideLoader();
+    if(response!=null){
+      viewComplaintApiFunction(context, id);
+    }
+  }
 
 }

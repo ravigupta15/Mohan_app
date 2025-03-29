@@ -61,6 +61,7 @@ class Data {
 
 class DigitalRecords {
   dynamic name;
+  dynamic markingCollateralName;
   dynamic productName;
   dynamic productAttachment;
   dynamic thumbnailImage;
@@ -69,6 +70,7 @@ class DigitalRecords {
 
   DigitalRecords(
       {this.name,
+      this.markingCollateralName,
       this.productName,
       this.productAttachment,
       this.thumbnailImage,
@@ -77,8 +79,9 @@ class DigitalRecords {
 
   DigitalRecords.fromJson(Map<String, dynamic> json) {
     name = json['name'];
+    markingCollateralName = json['marketing_collateral_name'];
     productName = json['product_name'];
-    productAttachment = json['product_attachment'];
+    productAttachment = json['collateral_attachment'];
     thumbnailImage = json['thumbnail_image'];
     totalCount = json['total_count'];
     fileType = json['file_type'];
@@ -87,8 +90,9 @@ class DigitalRecords {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['name'] = name;
+    data['marketing_collateral_name'] = markingCollateralName;
     data['product_name'] = productName;
-    data['product_attachment'] = productAttachment;
+    data['collateral_attachment'] = productAttachment;
     data['thumbnail_image'] = thumbnailImage;
     data['total_count'] = totalCount;
     data['file_type'] = fileType;

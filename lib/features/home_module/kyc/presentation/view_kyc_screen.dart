@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mohan_impex/core/widget/app_text.dart';
 import 'package:mohan_impex/core/widget/custom_app_bar.dart';
 import 'package:mohan_impex/core/widget/expandable_widget.dart';
+import 'package:mohan_impex/features/common_widgets/remarks_widgets.dart';
 import 'package:mohan_impex/features/home_module/kyc/model/view_kyc_model.dart';
 import 'package:mohan_impex/features/home_module/kyc/riverpod/kyc_state.dart';
 import 'package:mohan_impex/res/app_cashed_network.dart';
@@ -53,7 +54,16 @@ class _ViewKycScreenState extends ConsumerState<ViewKycScreen> {
             const SizedBox(height: 15,),
             _CustomInfoWidget(refState: refState),
             const SizedBox(height: 15,),
-            _DocumentCheckListWidget(refState: refState)
+            _DocumentCheckListWidget(refState: refState),
+            (refState.viewKycModel?.data?[0].customerDetails ?? '').isEmpty?
+            EmptyWidget():
+            Padding(
+              padding: const EdgeInsets.only(top: 15),
+              child: RemarksWidget(
+                remarks: refState.viewKycModel?.data?[0].customerDetails ??'',
+                isEditable: false,
+              ),
+            )
           ],
         ),
       ):EmptyWidget(),
@@ -133,6 +143,8 @@ class _CustomInfoWidget extends StatelessWidget {
         children: [
           collapsedWidget(isExpanded: isExpanded),
           const SizedBox(height: 10),
+          itemsWidget("Customer Type", model?.customerType??''),
+         const SizedBox(height: 10),          
           itemsWidget("Customer Name", model?.customerName??''),
           const SizedBox(height: 10),
           itemsWidget("Contact", (model?.contact?.isEmpty ?? true) 
@@ -183,6 +195,7 @@ class _CustomInfoWidget extends StatelessWidget {
 
   Widget itemsWidget(String title, String subTitle) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AppText(
           title: "$title : ",
@@ -190,11 +203,13 @@ class _CustomInfoWidget extends StatelessWidget {
           fontsize: 14,
           color: Colors.black,
         ),
-        AppText(
-            title: subTitle,
-            fontsize: 14,
-            fontFamily: AppFontfamily.poppinsRegular,
-            color: AppColors.lightTextColor),
+        Flexible(
+          child: AppText(
+              title: subTitle,
+              fontsize: 14,
+              fontFamily: AppFontfamily.poppinsRegular,
+              color: AppColors.lightTextColor),
+        ),
       ],
     );
   }

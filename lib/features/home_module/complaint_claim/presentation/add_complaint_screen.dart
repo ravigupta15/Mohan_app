@@ -59,7 +59,6 @@ class _AddComplaintScreenState extends ConsumerState<AddComplaintScreen>
   callInitFunction(){
     final refNotifier = ref.read(addComplaintsProvider.notifier);
     refNotifier.resetValues();
-    refNotifier.increaseSelectedItemsList();
     refNotifier.channelPartnerApiFunction();
     setState(() {
       

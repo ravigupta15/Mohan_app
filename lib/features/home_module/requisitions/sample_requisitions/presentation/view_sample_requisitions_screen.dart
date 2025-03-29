@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mohan_impex/core/widget/app_text.dart';
+import 'package:mohan_impex/core/widget/app_text_button.dart';
 import 'package:mohan_impex/core/widget/custom_app_bar.dart';
 import 'package:mohan_impex/core/widget/dotted_divider.dart';
 import 'package:mohan_impex/core/widget/expandable_widget.dart';
 import 'package:mohan_impex/features/common_widgets/remarks_widgets.dart';
 import 'package:mohan_impex/features/common_widgets/status_activity.dart';
+import 'package:mohan_impex/features/home_module/requisitions/sample_requisitions/riverpod/sample_notifier.dart';
 import 'package:mohan_impex/features/home_module/requisitions/sample_requisitions/riverpod/sample_state.dart';
 import 'package:mohan_impex/res/app_colors.dart';
 import 'package:mohan_impex/res/app_fontfamily.dart';
@@ -39,6 +41,7 @@ class _ViewSampleRequisitionsScreenState extends ConsumerState<ViewSampleRequisi
   @override
   Widget build(BuildContext context) {
     final refState =ref.watch(sampleProvider);
+    final refNotifier = ref.read(sampleProvider.notifier);
     return Scaffold(  
        appBar: customAppBar(title: widget.id),
       body: (refState.viewSampleRequisitionsModel?.data?[0])!=null? SingleChildScrollView(
@@ -46,7 +49,10 @@ class _ViewSampleRequisitionsScreenState extends ConsumerState<ViewSampleRequisi
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            StatusWidget(activities: refState.viewSampleRequisitionsModel?.data?[0].activities,),
+            StatusWidget(activities: refState.viewSampleRequisitionsModel?.data?[0].activities,
+            buttonWidget: (refState.viewSampleRequisitionsModel?.data?[0].workflowState ?? '').toString().toLowerCase() == 'approved'?
+             receivedButtonWidget(refNotifier) : EmptyWidget(),
+            ),
             const SizedBox(height: 15,),
             _ItemRequestedWidget(refState: refState,),
             const SizedBox(height: 15,),
@@ -59,6 +65,119 @@ class _ViewSampleRequisitionsScreenState extends ConsumerState<ViewSampleRequisi
       ):EmptyWidget(),
     );
   }
+
+  Widget receivedButtonWidget(SampleNotifier refNotifier){
+    return Padding(
+      padding: const EdgeInsets.only(top: 20),
+      child: GestureDetector(
+        onTap: (){
+          dialogBox(refNotifier);
+        },
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(
+              color: AppColors.black1.withValues(alpha: .3)
+            )
+          ),
+          padding: EdgeInsets.symmetric(horizontal: 15,vertical: 4),
+          child: AppText(title: "Received",
+          color: AppColors.black,fontFamily: AppFontfamily.poppinsSemibold,
+          ),
+        ),
+      ),
+    );
+  }
+
+
+dialogBox(SampleNotifier refNotifier) {
+    showGeneralDialog(
+      context: context,
+      barrierLabel: "Barrier",
+      barrierDismissible: true,
+      barrierColor: Colors.black.withOpacity(0.5),
+      transitionDuration: const Duration(milliseconds: 400),
+      pageBuilder: (_, __, ___) {
+        return Center(
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 40),
+            decoration: BoxDecoration(
+                color: Colors.white, borderRadius: BorderRadius.circular(12)),
+            child: Padding(
+              padding: const EdgeInsets.only(
+                  top: 15, left: 20, right: 20, bottom: 33),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AppText(
+                    title: "Received",
+                    color: AppColors.black,
+                    fontsize: 18,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  const SizedBox(height: 25,),
+                  Align(
+                    alignment: Alignment.center,
+                    child: AppText(
+                      title:"Are you sure you want to received?",
+                      fontsize: 14,
+                      fontFamily: AppFontfamily.poppinsMedium,
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  const SizedBox(height: 30,),
+                  Row(
+                    children: [
+                      Flexible(
+                        child: AppTextButton(
+                            title: "No",
+                            height: 50,
+                            color: AppColors.redColor,
+                            width: double.infinity,
+                            onTap: () {
+                              Navigator.pop(context);
+                            }),
+                      ),
+                      const SizedBox(width: 20,),
+                      Flexible(
+                        child: AppTextButton(
+                            title: "Yes",
+                            height: 50,
+                            width: double.infinity,
+                            onTap: (){
+                              Navigator.pop(context);
+                              refNotifier.createCommentApiFunction(context, id: widget.id);
+                              // ref.read(appNavigationProvider.notifier).logoutApiFunction(context);
+                            }),
+                      ),
+                    ],
+                  )
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+      transitionBuilder: (_, anim, __, child) {
+        Tween<Offset> tween;
+        if (anim.status == AnimationStatus.reverse) {
+          tween = Tween(begin: const Offset(0, 1), end: Offset.zero);
+        } else {
+          tween = Tween(begin: const Offset(0, 1), end: Offset.zero);
+        }
+
+        return SlideTransition(
+          position: tween.animate(anim),
+          child: FadeTransition(
+            opacity: anim,
+            child: child,
+          ),
+        );
+      },
+    );
+  }
+
 }
 
 // ignore: must_be_immutable
@@ -156,5 +275,7 @@ class _ItemRequestedWidget extends StatelessWidget {
       ),
     );
   }
+
+
 
 }

@@ -50,7 +50,7 @@ class JourneyPlanItemsWidget extends StatelessWidget {
           Container(
             height: 5,width: 5,
             decoration: BoxDecoration(
-              color: status.toLowerCase() == 'approved'?
+              color: status.toLowerCase() == 'approved' || status.toLowerCase() == 'received'?
                AppColors.greenColor : AppColors.redColor,shape: BoxShape.circle
             ),
           ),

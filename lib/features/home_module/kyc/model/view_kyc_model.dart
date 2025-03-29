@@ -101,7 +101,6 @@ class Data {
   List<BillingAddress>? shippingAddress;
   List<Activities>? activities;
   List<String>? contact;
-
   Data(
       {this.name,
       this.workflowState,

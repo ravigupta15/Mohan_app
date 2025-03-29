@@ -153,7 +153,7 @@ onChangedSearch(String val){
 
   viewTrialPlanApiFunction(BuildContext context,{required String id})async{
     ShowLoader.loader(context);
-    state = state.copyWith(viewTrialPlanModel: null);
+    state = state.copyWith(viewTrialPlanModel: ViewTrialPlanModel.fromJson({}));
     final response = await ApiService().makeRequest(apiUrl: "${ApiUrls.viewTrailPlanUrl}?name=$id", method: ApiMethod.get.name);
     ShowLoader.hideLoader();
     if(response!=null){

@@ -83,8 +83,6 @@ class ComplaintItemsWidget extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 4,),
-          tabBarIndex == 1?
-            AppText(title: status,fontsize: 10,fontFamily: AppFontfamily.poppinsSemibold,color: AppColors.visitItem,):
           Row(
             children: [
               AppText(title: status,fontsize: 10,fontFamily: AppFontfamily.poppinsSemibold,color: AppColors.visitItem,),

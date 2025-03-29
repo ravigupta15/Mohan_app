@@ -30,6 +30,9 @@ String selectedShop = '';
 String unvCustomerId = '';
 String? selectedVisitTypeValue;
   String? selectedSegmentTypeValue;
+
+String? selectedCustomerType;
+
  String selectedTabbar = "KYC Completed";
  List list = ["Primary", "Secondary"];
 
@@ -46,6 +49,7 @@ String? selectedDistrict;
 
 final formKey = GlobalKey<FormState>();
 
+final customerTypeController = TextEditingController();
 final customerNameController = TextEditingController();
 final contactNumberController = TextEditingController();
 final addressController = TextEditingController();
@@ -75,6 +79,8 @@ final creditStartDaysController = TextEditingController();
 final creditEndDaysController = TextEditingController();
 final panNumberController = TextEditingController();
 
+final remarksController = TextEditingController();
+
 
 resetControllers(){
   selectedBillingDistrict = null;
@@ -88,10 +94,12 @@ resetControllers(){
   unvCustomerId = '';
   selectedShop = '';
   contactList.clear();
+  selectedCustomerType = null;
   state = state.copyWith(isSameBillingAddress: false,addKycTabBarIndex: 0,billingDistrictModel: null,
   segmentModel: null,shippingDistrictModel: null,selectedBusinessType: 0,districtModel: null,
   billingStateModel: null,stateModel: null,shippingStateModel: null, cdImageList: [], clImageList: []
   );
+  customerTypeController.clear();
   customerNameController.clear();
  contactNumberController.clear();
  addressController.clear();
@@ -116,6 +124,7 @@ resetControllers(){
  creditStartDaysController.clear();
  creditEndDaysController.clear();
  panNumberController.clear();
+ remarksController.clear();
 }
 
 onChangedCheckBox(BuildContext context, bool value){
@@ -188,6 +197,10 @@ MessageHelper.showToast("Please upload customer license image");
 }
 
 
+onChangedCustomerType(val){
+  selectedCustomerType = val;
+customerTypeController.text = val;
+}
 
 saveCDImge(value){
   state = state.copyWith(cdImageList: [...state.cdImageList, value]);
@@ -270,6 +283,7 @@ billingAddress1Controller.text = visitItemsModel?.addressLine1 ??'';
  billingDistrictController.text = visitItemsModel?.district ?? '';
  billingStateController.text = visitItemsModel?.state ?? '';
  billingPincodeController.text = visitItemsModel?.pincode ?? '';
+ remarksController.text = visitItemsModel?.remarksnotes?? '';
  if((visitItemsModel?.state??'').isNotEmpty){
   stateApiFunction(context).then((val){
     state = state.copyWith(billingStateModel: StateModel.fromJson(val));
@@ -359,7 +373,9 @@ createKycApiFunction(BuildContext context)async{
     "gst_no": state.selectedBusinessType==0? gstNumberController.text :"",
     "pan": state.selectedBusinessType==1? panNumberController.text :"",
     "cust_decl": state.cdImageList,
-    "cust_license": state.clImageList
+    "cust_license": state.clImageList,
+    "remarks":remarksController.text,
+    "customer_type": customerTypeController.text
   };
 log(json.encode(body));
   final response = await ApiService().makeRequest(apiUrl: ApiUrls.createKycUrl, method: ApiMethod.post.name,data: body);

@@ -1,3 +1,5 @@
+import 'package:mohan_impex/features/home_module/kyc/model/activity_model.dart';
+
 class ViewComplaintModel {
   dynamic status;
   String? message;
@@ -45,6 +47,7 @@ class ComplaintData {
   dynamic description;
   List<ComplaintItem>? complaintItem;
 List<ImageUrl>? imageUrl;
+List<Activities>? activities;
   ComplaintData(
       {
         this.subject,
@@ -63,7 +66,8 @@ List<ImageUrl>? imageUrl;
         this.pincode,
         this.description,
         this.complaintItem,
-      this.imageUrl
+      this.imageUrl,
+      this.activities
       });
 
   ComplaintData.fromJson(Map<String, dynamic> json) {
@@ -94,6 +98,12 @@ List<ImageUrl>? imageUrl;
         imageUrl!.add(new ImageUrl.fromJson(v));
       });
     }
+    if (json['activities'] != null) {
+      activities = <Activities>[];
+      json['activities'].forEach((v) {
+        activities!.add(new Activities.fromJson(v));
+      });
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -119,6 +129,9 @@ List<ImageUrl>? imageUrl;
     }
     if (imageUrl != null) {
       data['image_url'] = imageUrl!.map((v) => v.toJson()).toList();
+    }
+   if (this.activities != null) {
+      data['activities'] = this.activities!.map((v) => v.toJson()).toList();
     }
     return data;
   }

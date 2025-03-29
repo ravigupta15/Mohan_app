@@ -234,7 +234,7 @@ int selectedConductTypeIndex = -1;
                       JourneyPlanItemsWidget(
                       title:model?.name??'',
                       status: model?.workflowState??'',
-                      statusDes: model?.date??'',
+                      statusDes: model?.statusDate??'',
                       ),
                     ],
                   ),

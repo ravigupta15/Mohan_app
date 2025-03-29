@@ -185,12 +185,30 @@ increasePageCount(){
 
   viewSampleRequiitionsApiFunction(BuildContext context,{required String id})async{
     ShowLoader.loader(context);
-    state = state.copyWith(viewSampleRequisitionsModel: null);
+    state = state.copyWith(viewSampleRequisitionsModel: ViewSampleRequisitionsModel.fromJson({}));
     final response = await ApiService().makeRequest(apiUrl: "${ApiUrls.viewSampleRequisitionsUrl}?name=$id", method: ApiMethod.get.name);
     ShowLoader.hideLoader();
     if(response!=null){
       state = state.copyWith(viewSampleRequisitionsModel: ViewSampleRequisitionsModel.fromJson(response.data));
 
+    }
+  }
+
+  createCommentApiFunction(BuildContext context,{required String id})async{
+    ShowLoader.loader(context);
+    var body = {
+    "doctype": "Sample Requisition",
+    "docname": id,
+    "comment": '',
+    "status": "Receive"
+    };
+    print(body);
+    final response = await ApiService().makeRequest(apiUrl: ApiUrls.createCommentUrl, method: ApiMethod.post.name,
+    data: body
+    );
+    ShowLoader.hideLoader();
+    if(response!=null){
+      viewSampleRequiitionsApiFunction(context, id: id);
     }
   }
 }

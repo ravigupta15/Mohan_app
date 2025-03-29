@@ -2,28 +2,35 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:mohan_impex/core/widget/app_text.dart';
+import 'package:mohan_impex/core/widget/app_text_button.dart';
+import 'package:mohan_impex/core/widget/app_text_field/app_textfield.dart';
 import 'package:mohan_impex/core/widget/custom_app_bar.dart';
 import 'package:mohan_impex/core/widget/dotted_divider.dart';
 import 'package:mohan_impex/core/widget/expandable_widget.dart';
 import 'package:mohan_impex/core/widget/view_img.dart';
 import 'package:mohan_impex/features/common_widgets/status_activity.dart';
 import 'package:mohan_impex/features/home_module/complaint_claim/model/view_complaint_model.dart';
+import 'package:mohan_impex/features/home_module/complaint_claim/riverpod/add_complaint_notifier.dart';
 import 'package:mohan_impex/features/home_module/complaint_claim/riverpod/add_complaint_state.dart';
 import 'package:mohan_impex/res/app_asset_paths.dart';
 import 'package:mohan_impex/res/app_colors.dart';
 import 'package:mohan_impex/res/app_fontfamily.dart';
 import 'package:mohan_impex/res/app_router.dart';
+import 'package:mohan_impex/res/empty_widget.dart';
 import 'package:mohan_impex/res/no_data_found_widget.dart';
 
 class ViewComplaintScreen extends ConsumerStatefulWidget {
   final String ticketId;
-  const ViewComplaintScreen({super.key, required this.ticketId});
+  final String ticketStats;
+  const ViewComplaintScreen({super.key, required this.ticketId, required this.ticketStats});
 
   @override
   ConsumerState<ViewComplaintScreen> createState() => _ViewComplaintScreenState();
 }
 
 class _ViewComplaintScreenState extends ConsumerState<ViewComplaintScreen> {
+
+final commentController = TextEditingController();
 
  @override
   void initState() {
@@ -37,23 +44,133 @@ callInitFunction(){
   ref.read(addComplaintsProvider.notifier).viewComplaintApiFunction(context, widget.ticketId);
 }
 
+final formKey  = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
+    
     final refState = ref.watch(addComplaintsProvider);
+    final refNotifier = ref.read(addComplaintsProvider.notifier);
     return Scaffold(
         appBar: customAppBar(title: widget.ticketId),
         body: (refState.viewComplaintModel?.data??[]).isNotEmpty? SingleChildScrollView(
           padding: EdgeInsets.only(left: 17,right: 17,top: 7,bottom: 30),
           child: Column(
             children: [
-              StatusWidget(activities: []),
+              StatusWidget(activities: refState.viewComplaintModel?.data?[0].activities,
+              buttonWidget: widget.ticketStats == 'Active'? commentButtonWidget(refNotifier) :
+              EmptyWidget(),
+              ),
               const SizedBox(height: 15,),
               _ComplaintDetailsWidget(model: refState.viewComplaintModel?.data?[0],),
-              _complaintItems(model: refState.viewComplaintModel?.data?[0],)
+              _complaintItems(model: refState.viewComplaintModel?.data?[0],),
             ],
           ),
         ): NoDataFound(title: "No data found"),
     );
+  }
+  
+  Widget commentButtonWidget(AddComplaintNotifier refNotifier){
+    return Padding(
+      padding: const EdgeInsets.only(top: 20),
+      child: GestureDetector(
+        onTap: (){
+         commentBottomSheet(refNotifier);
+        },
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(
+              color: AppColors.black1.withValues(alpha: .3)
+            )
+          ),
+          padding: EdgeInsets.symmetric(horizontal: 15,vertical: 4),
+          child: AppText(title: "Comment",
+          color: AppColors.black,fontFamily: AppFontfamily.poppinsSemibold,
+          ),
+        ),
+      ),
+    );
+  }
+
+
+
+  commentBottomSheet(AddComplaintNotifier refNotifier){
+    showModalBottomSheet(
+      backgroundColor: AppColors.whiteColor,
+      isScrollControlled: true,
+      context: context, builder: (context){
+      return Padding(
+        padding:  EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        child: Form(
+          key: formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+               Padding(
+                        padding: const EdgeInsets.only(right: 11,top: 20),
+                        child: Row(
+                          children: [
+                            const Spacer(),
+                            AppText(
+                              title: "Comment",
+                              fontsize: 16,
+                              fontFamily: AppFontfamily.poppinsSemibold,
+                            ),
+                            const Spacer(),
+                            InkWell(
+                              onTap: () {
+                                Navigator.pop(context);
+                              },
+                              child: Container(
+                                height: 24,
+                                width: 24,
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                    color: AppColors.edColor,
+                                    shape: BoxShape.circle),
+                                child: Icon(
+                                  Icons.close,
+                                  size: 19,
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 20,),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 20,right: 20),
+                        child: AppTextfield(
+                          controller: commentController,
+                          fillColor: false,
+                          hintText: "Enter your comments",
+                          validator: (val){
+                            if((val ?? '').isEmpty){
+                              return "Enter your comments";
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 20,),
+                      AppTextButton(title: "Submit",
+                      color: AppColors.black,
+                      width: 120,
+                      height: 40,
+                      onTap: (){
+                        if(formKey.currentState!.validate()){
+                          Navigator.pop(context);
+                          refNotifier.createCommentApiFunction(context, id: widget.ticketId, comment: commentController.text);
+                        }
+                      },
+                      ),
+                      const SizedBox(height: 20,),
+            ],
+          ),
+        ),
+      );
+    });
   }
 }
 
@@ -125,6 +242,10 @@ return Container(
             const SizedBox(height: 18,),
             itemsWidget("Pincode", model?.pincode??''),
             const SizedBox(height: 18,),
+            itemsWidget("Invoice No", model?.invoiceNo??''),
+            const SizedBox(height: 18,),
+            itemsWidget("Invoice Date", model?.invoiceDate??''),
+            const SizedBox(height: 18,),
             itemsWidget("Reason for Complaint",model?.description??''),
             const SizedBox(height: 18,),
             itemsWidget("Attach images", ""),
@@ -186,6 +307,7 @@ Widget imageVideoWidget(String img, String fileName){
   }
 }
 
+// ignore: must_be_immutable
 class _complaintItems extends StatelessWidget {
   ComplaintData? model;
    _complaintItems({super.key, this.model});

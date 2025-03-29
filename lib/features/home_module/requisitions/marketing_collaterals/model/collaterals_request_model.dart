@@ -62,7 +62,7 @@ class Data {
 class CollateralsItems {
   dynamic name;
   dynamic approvedDate;
-  dynamic date;
+  dynamic statusDate;
   dynamic status;
   dynamic totalCount;
   dynamic formUrl;
@@ -70,7 +70,7 @@ class CollateralsItems {
   CollateralsItems(
       {this.name,
       this.approvedDate,
-      this.date,
+      this.statusDate,
       this.status,
       this.totalCount,
       this.formUrl});
@@ -78,7 +78,7 @@ class CollateralsItems {
   CollateralsItems.fromJson(Map<String, dynamic> json) {
     name = json['name'];
     approvedDate = json['approved_date'];
-    date = json['date'];
+    statusDate = json['status_date'];
     status = json['status'];
     totalCount = json['total_count'];
     formUrl = json['form_url'];
@@ -88,7 +88,7 @@ class CollateralsItems {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['name'] = name;
     data['approved_date'] = approvedDate;
-    data['date'] = date;
+    data['status_date'] = statusDate;
     data['status'] = status;
     data['total_count'] = totalCount;
     data['form_url'] = formUrl;
