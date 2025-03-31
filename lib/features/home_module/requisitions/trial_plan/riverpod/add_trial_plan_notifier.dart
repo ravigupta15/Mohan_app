@@ -24,7 +24,6 @@ String? selectedStateValue;
 String? selectedDistrictValue;
 String? selectedVisitType;
 String? selectedVerifyType;
-String channelPartner = '';
 
 bool isEditDetails = false;
 List<Items> selectedItem = [];
@@ -37,6 +36,7 @@ String customer = '';
 String selectedShop = '';
 String verifiedCustomerLocation = '';
   final remarksController = TextEditingController();
+  final channelPartnerController = TextEditingController();
   final dateController = TextEditingController();
   final timeController = TextEditingController();
   final trialLocationController = TextEditingController();
@@ -57,10 +57,8 @@ String verifiedCustomerLocation = '';
 
   resetAddTrialValues() {
     state =state.copyWith(selectedConductType: 0,verifiedCustomerLocation: '',unvName: '',selectedExistingCustomer: '');
-    print("sdfgh...${state.selectedConductType}");
     customer = '';
     unvName = '';
-    channelPartner = '';
     selectedShop ='';
     isEditDetails = false;
     selectedItem.clear();
@@ -72,6 +70,7 @@ String verifiedCustomerLocation = '';
     selectedStateValue = null;
     selectedItem.clear(); 
     remarksController.clear();
+    channelPartnerController.clear();
   dateController.clear();
   timeController.clear();
    trialLocationController.clear();
@@ -112,6 +111,7 @@ String verifiedCustomerLocation = '';
   onChangedVisitType(val){
     if(visitTypeController.text !=val){
     resetOnChangedVerifyType();
+    channelPartnerController.clear();
     }
     visitTypeController.text = val;
   }
@@ -206,7 +206,7 @@ increasePageCount(){
       "contact": contactNumberList.map((e) {
         return {"contact": e.toString()};
       }).toList(),
-      "channel_partner": channelPartner,
+      "channel_partner": channelPartnerController.text,
       "location": verifiedCustomerLocation,
       "address_title": addressTypeController.text,
       "address_line1": address1Controller.text,

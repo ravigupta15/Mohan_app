@@ -199,11 +199,10 @@ increasePageCount(){
     var body = {
     "doctype": "Sample Requisition",
     "docname": id,
-    "comment": '',
     "status": "Receive"
     };
     print(body);
-    final response = await ApiService().makeRequest(apiUrl: ApiUrls.createCommentUrl, method: ApiMethod.post.name,
+    final response = await ApiService().makeRequest(apiUrl: ApiUrls.statusUpdateUrl, method: ApiMethod.post.name,
     data: body
     );
     ShowLoader.hideLoader();

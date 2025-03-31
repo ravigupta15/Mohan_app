@@ -231,7 +231,7 @@ class _ComplaintScreenState extends ConsumerState<ComplaintScreen> {
                                 ComplaintItemsWidget(
                                     title: model?.name ?? '',
                                     name: model?.customerName ?? '',
-                                    date: model?.date ?? '',
+                                    date: model?.createdDate ?? '',
                                     reasonTitle: model?.claimType ?? '',
                                     status: model?.workflowState ?? '',
                                     tabBarIndex: refState.tabBarIndex,

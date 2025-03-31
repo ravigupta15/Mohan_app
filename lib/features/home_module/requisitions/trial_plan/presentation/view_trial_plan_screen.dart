@@ -109,21 +109,32 @@ class _AssignedPersonDetailsWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
 
       ),
-      child: Column(
+      child:
+      Column(
         children: [
           collapsedWidget(isExpanded: isExpanded),
             const SizedBox(height: 10,),
-          dotteDivierWidget(dividerColor: AppColors.edColor,),
-            const SizedBox(height: 9,),
-             itemsWidget("Name", model?.tsmInfo?.name ?? ''),
+            dotteDivierWidget(dividerColor: AppColors.edColor,),
+             const SizedBox(height: 9,),
+             (refState.viewTrialPlanModel?.data?[0].tsmInfo?.name) != null?
+          Column(
+            children: [
+               itemsWidget("Name", model?.tsmInfo?.name ?? ''),
             const SizedBox(height: 16,),
             itemsWidget("Contact No.", model?.tsmInfo?.mobile?? ''),
             const SizedBox(height: 16,),
             itemsWidget("Email", model?.tsmInfo?.email?? ''),
             const SizedBox(height: 16,),
+            ],
+          ):
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: AppText(title: "Not Assigned",fontFamily: AppFontfamily.poppinsMedium,fontsize: 15,),
+          ),
+          
+          
         ],
-      )
-    );
+      ));
   }
 
    Widget itemsWidget(String title, String subTitle){

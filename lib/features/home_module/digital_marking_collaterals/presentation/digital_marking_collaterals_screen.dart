@@ -18,6 +18,7 @@ import 'package:mohan_impex/res/loader/show_loader.dart';
 import 'package:mohan_impex/res/no_data_found_widget.dart';
 import 'package:mohan_impex/utils/message_helper.dart';
 import 'package:open_file/open_file.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:pdfx/pdfx.dart';
@@ -48,6 +49,7 @@ class _DigitalMarkingCollateralsScreenState extends ConsumerState<DigitalMarking
   callInitFunction(){
     final refNotifier = ref.read(digitalMarkingProvider.notifier);
     refNotifier.resetValues();
+    requestPermission();
        _scrollController.addListener(_scrollListener);
     refNotifier.digitalMarkingApiFunction();
   }
@@ -214,11 +216,12 @@ String downloadStatus = '';
                               downloadTap: ()async
                             {
                               if((model?.productAttachment ?? '').isNotEmpty){
-                              downloadAndShareImage(model?.productAttachment ?? '', model?.fileType ??'').then((val)async{
-                                if(val!=null){
-                                  await OpenFile.open(val);
-                                }
-                              });
+                              downloadFile(model?.productAttachment ?? '',  model?.fileType ??'');
+                              // .then((val)async{
+                              //   if(val!=null){
+                              //     await OpenFile.open(val,);
+                              //   }
+                              // });
                               }
                               else{
                                 MessageHelper.showErrorSnackBar(context, 'Url not found');
@@ -326,47 +329,100 @@ String downloadStatus = '';
                         );
   }
 
-Future downloadAndShareImage(String imgUrl,String filetype) async {
-  print("imafe...$imgUrl");
-    try {
-      ShowLoader.loader(context);
-      final response = await http.get(Uri.parse(imgUrl),headers: {
-    'Authorization':"Bearer ${LocalSharePreference.token}"  
-  });
-  ShowLoader.hideLoader();
-      if (response.statusCode == 200) {
-        final directory = await getApplicationDocumentsDirectory();
-        if(filetype.toLowerCase() == 'pdf'){
-          final imagePath = '${directory.path}/downloaded_image.pdf';
-        final file = File(imagePath);
-        await file.writeAsBytes(response.bodyBytes);
-        return imagePath;
-        }
-        else if(filetype.toLowerCase() == 'video'){
-          final imagePath = '${directory.path}/downloaded_image.mp4';
-        final file = File(imagePath);
-        await file.writeAsBytes(response.bodyBytes);
-        return imagePath;
-        }
-        else if(filetype.toLowerCase() == 'mp3'){
-          final imagePath = '${directory.path}/downloaded_image.mp3';
-        final file = File(imagePath);
-        await file.writeAsBytes(response.bodyBytes);
-        return imagePath;
-        }
-        else{
-          final imagePath = '${directory.path}/downloaded_image.png';
-        final file = File(imagePath);
-        await file.writeAsBytes(response.bodyBytes);
-        return imagePath;
-        }
-      } else {
-        print('Failed to download image.');
-      }
-    } catch (e) {
-      ShowLoader.hideLoader();
-      print('Error: $e');
-    }
+Future<bool> requestPermission() async {
+  var status = await Permission.manageExternalStorage.request();
+  print(status);
+  if (!status.isGranted) {
+    status = await Permission.manageExternalStorage.request();
   }
+  return status.isGranted;
+}
+
+Future<void> downloadFile(String url, String fileType) async {
+  ShowLoader.loader(context);
+  try {
+    // Request permission
+    if (await Permission.manageExternalStorage.request().isDenied) {
+      print('❌ Permission denied');
+      return;
+    }
+
+    // Directory Path
+    final directory = Directory('/storage/emulated/0/Download/Mohan');
+    if (!directory.existsSync()) {
+      directory.createSync(recursive: true);
+    }
+
+    // Determine the file extension based on the file type
+    String fileExtension = '';
+    if (fileType.toLowerCase() == 'pdf') {
+      fileExtension = '.pdf';
+    } else if (fileType.toLowerCase() == 'video') {
+      fileExtension = '.mp4';
+    } else if (fileType.toLowerCase() == 'mp3') {
+      fileExtension = '.mp3';
+    } else {
+      fileExtension = '.png'; // Default to PNG if unknown
+    }
+    final filePath = '${directory.path}/download$fileExtension';
+    final response = await http.get(Uri.parse(url));
+
+    if (response.statusCode == 200) {
+      final file = File(filePath);
+      await file.writeAsBytes(response.bodyBytes);
+       await OpenFile.open(filePath);
+      ShowLoader.hideLoader();
+      print('✅ File saved at: $filePath');
+    } else {
+      ShowLoader.hideLoader();
+      print('❌ Failed to download file. Status code: ${response.statusCode}');
+    }
+  } catch (e) {
+    ShowLoader.hideLoader();
+    print('❌ Error: $e');
+  }
+}
+
+
+  Future downloadAndShareImage(String imgUrl, String filetype) async {
+    
+  try {
+    ShowLoader.loader(context);
+
+    final response = await http.get(
+      Uri.parse(imgUrl),
+      headers: {
+        'Authorization': "Bearer ${LocalSharePreference.token}"
+      },
+    );
+    ShowLoader.hideLoader();
+
+    if (response.statusCode == 200) {
+      final directory = await getApplicationDocumentsDirectory();
+      String filePath;
+
+      if (filetype.toLowerCase() == 'pdf') {
+        filePath = '${directory.path}/downloaded_image.pdf';
+      } else if (filetype.toLowerCase() == 'video') {
+        filePath = '${directory.path}/downloaded_image.mp4';
+      } else if (filetype.toLowerCase() == 'mp3') {
+        filePath = '${directory.path}/downloaded_image.mp3';
+      } else {
+        filePath = '${directory.path}/downloaded_image.png';
+      }
+
+      final file = File(filePath);
+      await file.writeAsBytes(response.bodyBytes);
+
+      print('File saved to: $filePath');
+      return filePath;
+    } else {
+      print('Failed to download image.');
+    }
+  } catch (e) {
+    ShowLoader.hideLoader();
+    print('Error: $e');
+  }
+}
 
 }

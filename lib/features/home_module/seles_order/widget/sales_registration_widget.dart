@@ -391,22 +391,6 @@ class _SalesRegistrationWidgetState extends State<SalesRegistrationWidget>
                 color: AppColors.light92Color,
               ),
             ),
-            suffixWidget: InkWell(
-              onTap: () {
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                    color: AppColors.greenColor,
-                    borderRadius: BorderRadius.only(
-                        topRight: Radius.circular(8),
-                        bottomRight: Radius.circular(8))),
-                child: Icon(
-                  Icons.add,
-                  color: AppColors.whiteColor,
-                  size: 30,
-                ),
-              ),
-            ),
             validator: numberValidation),
         (widget.refState.contactNumberList).isNotEmpty
             ? SingleChildScrollView(

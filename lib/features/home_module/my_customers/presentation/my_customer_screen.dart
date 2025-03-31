@@ -11,6 +11,7 @@ import 'package:mohan_impex/core/widget/app_text_field/custom_search_drop_down.d
 import 'package:mohan_impex/core/widget/custom_app_bar.dart';
 import 'package:mohan_impex/core/widget/custom_radio_button.dart';
 import 'package:mohan_impex/features/home_module/custom_visit/presentation/widgets/visit_item.dart';
+import 'package:mohan_impex/features/home_module/my_customers/model/my_customer_modle.dart';
 import 'package:mohan_impex/features/home_module/my_customers/presentation/view_customer_screen.dart';
 import 'package:mohan_impex/features/home_module/my_customers/riverpod/my_customer_notifier.dart';
 import 'package:mohan_impex/features/home_module/my_customers/riverpod/my_customer_state.dart';
@@ -219,7 +220,7 @@ class _MyCustomerScreenState extends ConsumerState<MyCustomerScreen> {
                                           ),
                                           VisitItem(
                                               title: "Location",
-                                              subTitle: model?.location ?? ''),
+                                              subTitle: customerAddress(model!)),
                                         ],
                                       ),
                                     ),
@@ -270,20 +271,9 @@ class _MyCustomerScreenState extends ConsumerState<MyCustomerScreen> {
                   setState(() {});
                 })
               : EmptyWidget(),
-          refNotifier.zeroBillingFilter.isNotEmpty &&
-                  selectedBillingTypeIndex != -1
-              ? customFiltersUI(
-                  refNotifier.biilingList[selectedBillingTypeIndex], () {
-                  refNotifier.zeroBillingFilter = '';
-                  filterbillingType = '';
-                  selectedBillingTypeIndex = -1;
-                  refNotifier.customerApiFunction();
-                  setState(() {});
-                })
-              : EmptyWidget(),
           refNotifier.fromDateFilter.isNotEmpty
               ? customFiltersUI(
-                  "${refNotifier.fromDateFilter} - ${refNotifier.toDateFilter}",
+                  "${refNotifier.fromDateFilter} - ${refNotifier.toDateFilter} (${refNotifier.biilingList[selectedBillingTypeIndex]})",
                   () {
                   refNotifier.fromDateFilter = '';
                   filterFromDate = '';
@@ -291,7 +281,10 @@ class _MyCustomerScreenState extends ConsumerState<MyCustomerScreen> {
                   refNotifier.toDateFilter = '';
                   filterToDate = '';
                   todDate = null;
-
+                  //
+                   refNotifier.zeroBillingFilter = '';
+                  filterbillingType = '';
+                  selectedBillingTypeIndex = -1;
                   refNotifier.customerApiFunction();
                   setState(() {});
                 })
@@ -440,41 +433,6 @@ class _MyCustomerScreenState extends ConsumerState<MyCustomerScreen> {
                           height: 25,
                         ),
                         AppText(
-                          title: "Billing Text",
-                          fontFamily: AppFontfamily.poppinsSemibold,
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Row(
-                              children: List.generate(
-                                  refNotifier.biilingList.length, (val) {
-                            return Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 12),
-                              child: customRadioButton(
-                                  isSelected: selectedBillingTypeIndex == val
-                                      ? true
-                                      : false,
-                                  title: refNotifier.biilingList[val],
-                                  onTap: () {
-                                    setState(() {
-                                      state(() {
-                                        selectedBillingTypeIndex = val;
-                                        filterbillingType =
-                                            refNotifier.biilingList[val];
-                                      });
-                                    });
-                                  }),
-                            );
-                          }).toList()),
-                        ),
-                        const SizedBox(
-                          height: 25,
-                        ),
-                        AppText(
                           title: "Date",
                           fontFamily: AppFontfamily.poppinsSemibold,
                         ),
@@ -544,6 +502,47 @@ class _MyCustomerScreenState extends ConsumerState<MyCustomerScreen> {
                           const SizedBox(
                     height: 25,
                   ),
+                   AppText(
+                          title: "Zero Billing",
+                          fontFamily: AppFontfamily.poppinsSemibold,
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                              children: List.generate(
+                                  refNotifier.biilingList.length, (val) {
+                            return Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 12),
+                              child: customRadioButton(
+                                  isSelected: selectedBillingTypeIndex == val
+                                      ? true
+                                      : false,
+                                  title: refNotifier.biilingList[val],
+                                  onTap: () {
+                                    if(filterFromDate.isNotEmpty && filterToDate.isNotEmpty){
+                                    setState(() {
+                                      state(() {
+                                        selectedBillingTypeIndex = val;
+                                        filterbillingType =
+                                            refNotifier.biilingList[val];
+                                      });
+                                    });
+                                    }
+                                    else{
+                                      MessageHelper.showToast("Please select the date range first");
+                                    }
+                                  }),
+                            );
+                          }).toList()),
+                        ),
+                        const SizedBox(
+                          height: 25,
+                        ),
+                       
                   CustomSearchDropDown(
                     searchController: stateSearchController,
                     selectedValues: selectedState,
@@ -639,6 +638,19 @@ class _MyCustomerScreenState extends ConsumerState<MyCustomerScreen> {
           });
         });
   }
+
+
+String customerAddress(MyCustomerRecords model){
+  String address = [
+  model.location?.addressLine1 ??'',
+  model.location?.addressLine2 ?? '',
+  model.location?.city ?? '',
+  model.location?.state ?? '',
+  model.location?.pincode ?? '',
+].where((element) => element != null).join(', ');
+  return address;
+}
+
 }
 
 class _myCustomerShimmer extends StatelessWidget {

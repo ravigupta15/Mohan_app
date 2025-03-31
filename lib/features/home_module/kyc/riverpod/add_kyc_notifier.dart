@@ -28,6 +28,8 @@ updateLoading(bool value){
 String searchText = '';
 String selectedShop = '';
 String unvCustomerId = '';
+String addressTitle = '';
+String addressName = '';
 String? selectedVisitTypeValue;
   String? selectedSegmentTypeValue;
 
@@ -52,7 +54,6 @@ final formKey = GlobalKey<FormState>();
 final customerTypeController = TextEditingController();
 final customerNameController = TextEditingController();
 final contactNumberController = TextEditingController();
-final addressController = TextEditingController();
 final emailController = TextEditingController();
 final businessNameController = TextEditingController();
 final visitTypeController = TextEditingController();
@@ -67,6 +68,7 @@ final billingDistrictController = TextEditingController();
 final billingStateController = TextEditingController();
 final billingPincodeController = TextEditingController();
 
+final shippingAddressTitleController = TextEditingController();
 final shippingAddress1Controller = TextEditingController();
 final shippingAddress2Controller = TextEditingController();
 final shippingDistrictController = TextEditingController();
@@ -83,6 +85,8 @@ final remarksController = TextEditingController();
 
 
 resetControllers(){
+  addressTitle = '';
+  addressName = '';
   selectedBillingDistrict = null;
   selectedBillingState = null;
   selectedShippingDistrict = null;
@@ -95,14 +99,13 @@ resetControllers(){
   selectedShop = '';
   contactList.clear();
   selectedCustomerType = null;
-  state = state.copyWith(isSameBillingAddress: false,addKycTabBarIndex: 0,billingDistrictModel: null,
-  segmentModel: null,shippingDistrictModel: null,selectedBusinessType: 0,districtModel: null,
-  billingStateModel: null,stateModel: null,shippingStateModel: null, cdImageList: [], clImageList: []
+  state = state.copyWith(isSameBillingAddress: false,addKycTabBarIndex: 0,billingDistrictModel:  DistrictModel.fromJson({}),
+  segmentModel: null,shippingDistrictModel:  DistrictModel.fromJson({}),selectedBusinessType: 0,districtModel: DistrictModel.fromJson({}),
+  billingStateModel: StateModel.fromJson({}),stateModel: StateModel.fromJson({}),shippingStateModel: StateModel.fromJson({}), cdImageList: [], clImageList: []
   );
   customerTypeController.clear();
   customerNameController.clear();
  contactNumberController.clear();
- addressController.clear();
  districtController.clear();
  stateController.clear();
  emailController.clear();
@@ -114,6 +117,7 @@ resetControllers(){
  billingDistrictController.clear();
  billingStateController.clear();
  billingPincodeController.clear();
+ shippingAddressTitleController.clear();
  shippingAddress1Controller.clear();
  shippingAddress2Controller.clear();
  shippingDistrictController.clear();
@@ -196,6 +200,9 @@ MessageHelper.showToast("Please upload customer license image");
  }
 }
 
+updateBillingDistrictModel(val){
+  state = state.copyWith(billingDistrictModel: DistrictModel.fromJson(val));
+}
 
 onChangedCustomerType(val){
   selectedCustomerType = val;
@@ -274,7 +281,6 @@ String businessTypeTitle(index){
  unvCustomerId = visitItemsModel?.unvCustomer ?? '';
  selectedShop = visitItemsModel?.shop ?? '';
  contactNumberController.text = visitItemsModel?.contact?[0].contact ?? '';
- addressController.text = visitItemsModel?.location ?? '';
  businessNameController.text  =visitItemsModel?.shopName  ??"";
  visitTypeController.text = visitItemsModel?.customerLevel ??"";
  segmentController.text = '';
@@ -283,11 +289,14 @@ billingAddress1Controller.text = visitItemsModel?.addressLine1 ??'';
  billingDistrictController.text = visitItemsModel?.district ?? '';
  billingStateController.text = visitItemsModel?.state ?? '';
  billingPincodeController.text = visitItemsModel?.pincode ?? '';
+ addressTitle = visitItemsModel?.addressTitle ?? '';
+ addressName = visitItemsModel?.location?? '';
  remarksController.text = visitItemsModel?.remarksnotes?? '';
  if((visitItemsModel?.state??'').isNotEmpty){
   stateApiFunction(context).then((val){
     state = state.copyWith(billingStateModel: StateModel.fromJson(val));
     selectedBillingState = visitItemsModel?.state;
+    print("asdgfgh...$selectedBillingState");
   });
   districtApiFunction(context, stateText: visitItemsModel?.state).then((val){
     if(val!=null){
@@ -348,11 +357,10 @@ createKycApiFunction(BuildContext context)async{
     "shop": selectedShop,
     "shop_name":businessNameController.text,
     "segment": segmentController.text,
-    // "address": addressController.text,
     "district": billingDistrictController.text,
     "state": billingStateController.text,
     "shipping_address": {
-        "title": "SHIPPING ADDRESS",
+        "title": shippingAddressTitleController.text,
         "address_line1": shippingAddress1Controller.text,
         "address_line2": shippingAddress2Controller.text,
        "city": shippingDistrictController.text,
@@ -360,7 +368,8 @@ createKycApiFunction(BuildContext context)async{
         "pincode": shippingPincodeController.text
     },
     "billing_address": {
-        "title":"BILLING ADDRESS",
+         "title": addressTitle,
+        "address":addressName,
         "address_line1": billingAddress1Controller.text,
         "address_line2": billingAddress2Controller.text,
        "city": billingDistrictController.text,

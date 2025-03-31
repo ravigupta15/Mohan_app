@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mohan_impex/camera_test_screen.dart';
 import 'package:mohan_impex/core/constant/app_constants.dart';
 import 'package:mohan_impex/core/helper/dropdown_item_helper.dart';
 import 'package:mohan_impex/core/services/image_picker_service.dart';
@@ -221,16 +222,7 @@ class _AddComplaintScreenState extends ConsumerState<AddComplaintScreen>
                       LengthLimitingTextInputFormatter(10)
                     ],
                     validator: numberValidation,
-                    suffix: Container(
-                      decoration: BoxDecoration(
-                          color: AppColors.greenColor,
-                          borderRadius: BorderRadius.circular(6)),
-                      child: Icon(
-                        Icons.add,
-                        color: AppColors.whiteColor,
-                        size: 30,
-                      ),
-                    )),
+                  ),
                 const SizedBox(
                   height: 15,
                 ),
@@ -680,12 +672,12 @@ expandedWidget({required AddComplaintNotifier refNotifer, required AddComplaintS
               title: "Camera",
               subtitle: "Take a photo",
               onTap: (){
-                 ImagePickerService.imagePicker(ImageSource.camera).then((val) {
-                  if (val != null) {
-                    refNotifier.imageUploadApiFunction(context, val,
+                AppRouter.pushCupertinoNavigation( CameraScreen()).then((val){
+                if(val!=null){
+                      refNotifier.imageUploadApiFunction(context, val,
                         isCLImage: false);
-                  }
-                });
+                }
+              });
               },
             )),
             SizedBox(

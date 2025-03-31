@@ -10,6 +10,7 @@ import 'package:mohan_impex/res/app_router.dart';
 import 'package:mohan_impex/res/loader/custom_navigtion_obserrve.dart';
 import 'package:mohan_impex/test_screen.dart';
 import 'package:mohan_impex/utils/textfield_utils.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,6 +19,7 @@ void main() async{
       debug: true,
       ignoreSsl: true
   );
+  await Permission.storage.request();
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,

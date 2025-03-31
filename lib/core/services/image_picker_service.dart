@@ -20,9 +20,7 @@ class ImagePickerService {
       final ImagePicker picker = ImagePicker();
       final XFile? img = await picker.pickImage(
         source: source, 
-        imageQuality: 50, 
-         maxWidth: 800,  // Resize image to reduce memory usage
-        maxHeight: 800, // Resize image to reduce memory usage
+        imageQuality: 80, 
       );
 
       // Check if an image was selected

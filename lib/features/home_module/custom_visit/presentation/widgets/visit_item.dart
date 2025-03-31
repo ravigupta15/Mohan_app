@@ -12,9 +12,10 @@ class VisitItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AppText(title: "$title : ",fontsize: 10,fontFamily: AppFontfamily.poppinsSemibold,color: AppColors.visitItem,),
-        AppText(title: subTitle,fontsize: 8,fontFamily: AppFontfamily.poppinsRegular,color: AppColors.visitItem,),
+        Flexible(child: AppText(title: subTitle,fontsize: 8,fontFamily: AppFontfamily.poppinsRegular,color: AppColors.visitItem,)),
       ],
     );
   }

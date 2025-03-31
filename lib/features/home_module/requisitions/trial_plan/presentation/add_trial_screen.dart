@@ -94,10 +94,10 @@ callInitFunction() {
     trialPlanNotifier.customer = newVisitNotifier.selectedExistingCustomer;
     trialPlanNotifier.selectedVisitType = AppConstants.visitTypeList[newVisitState.selectedVisitType];
     trialPlanNotifier.selectedVerifyType =  newVisitNotifier.selectedVerificationType;
-    trialPlanNotifier.channelPartner = newVisitNotifier.channelPartnerController.text;
     trialPlanNotifier.selectedShop = newVisitNotifier.selectedshop;
     
     trialPlanNotifier.addressTypeController.text = newVisitNotifier.addressTypeController.text;
+    trialPlanNotifier.channelPartnerController.text = newVisitNotifier.channelPartnerController.text;
     trialPlanNotifier.address1Controller.text = newVisitNotifier.address1Controller.text;
     trialPlanNotifier.address2Controller.text = newVisitNotifier.address2Controller.text;
     trialPlanNotifier.districtController.text = newVisitNotifier.districtController.text;
@@ -358,7 +358,27 @@ callInitFunction() {
               return null;
             },
           ),
+          if(refNotifier.visitTypeController.text == 'Secondary')...[
           const SizedBox(height: 15,),
+           LabelTextTextfield(title: 'Channel Partner', isRequiredStar: false),
+            const SizedBox(height: 5),
+            AppTextfield(
+              fillColor: false,
+              isReadOnly: true,
+              hintText: "channel partner",
+              onTap: () {
+                _handleChannelPartner(refNotifier);
+              },
+            controller: refNotifier.channelPartnerController,
+            validator: (val){
+              if((val??'').isEmpty){
+                return "Required";
+              }
+              return null;
+            },
+            ),
+          ],
+            const SizedBox(height: 15,),
            LabelTextTextfield(title: 'Customer Name', isRequiredStar: false),
             const SizedBox(height: 5),
             AppTextfield(
@@ -369,10 +389,6 @@ callInitFunction() {
               _handleCustomerName(refNotifer: refNotifier, refState: refState);
               },
             controller: refNotifier.customerNameController,
-            textInputAction: TextInputAction.next,
-            inputFormatters: [
-              removeLeadingWhiteSpace(),
-            ],
             validator: (val){
               if((val??'').isEmpty){
                 return "Required";
@@ -1222,11 +1238,28 @@ Future itemsApiFunction(BuildContext context, {required String searchText})async
   setState((){});
 }
 
+_handleChannelPartner(AddTrialPlanNotifier refNotifier){
+   AppRouter.pushCupertinoNavigation(SearchScreen(
+              route: 'channel',
+            )).then((val) {
+              if (val != null) {
+                if(refNotifier.channelPartnerController.text != val){
+                  refNotifier.resetOnChangedVerifyType();
+                }
+                refNotifier.channelPartnerController.text = val;
+                setState(() {});
+              }
+            });
+}
+
 
 _handleCustomerName({required AddTrialPlanNotifier refNotifer, required AddTrialPlanState refState,}){
-  if (refNotifer.visitTypeController.text.isEmpty) {
+        if (refNotifer.visitTypeController.text.isEmpty) {
             MessageHelper.showToast("Please select the visit type");
-          } else {
+          } else if(refNotifer.visitTypeController.text == "Secondary" && refNotifer.channelPartnerController.text.isEmpty){
+              MessageHelper.showToast("Please select the channel partner");
+          }
+           else {
             refState.customerInfoModel = null;
             refState.unvCustomerModel = null;
             AppRouter.pushCupertinoNavigation(SearchScreen(

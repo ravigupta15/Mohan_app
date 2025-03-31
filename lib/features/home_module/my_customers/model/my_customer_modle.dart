@@ -64,7 +64,7 @@ class MyCustomerRecords {
   dynamic customerName;
   dynamic customShop;
   dynamic contact;
-  dynamic location;
+  Location? location;
   dynamic createdBy;
   dynamic workflowState;
   dynamic totalCount;
@@ -86,7 +86,9 @@ class MyCustomerRecords {
     customerName = json['customer_name'];
     customShop = json['custom_shop'];
     contact = json['contact'];
-    location = json['location'];
+       location = json['location'] != null
+        ? new Location.fromJson(json['location'])
+        : null;
     createdBy = json['created_by'];
     workflowState = json['workflow_state'];
     totalCount = json['total_count'];
@@ -99,11 +101,55 @@ class MyCustomerRecords {
     data['customer_name'] = this.customerName;
     data['custom_shop'] = this.customShop;
     data['contact'] = this.contact;
-    data['location'] = this.location;
+     if (this.location != null) {
+      data['location'] = this.location!.toJson();
+    }
     data['created_by'] = this.createdBy;
     data['workflow_state'] = this.workflowState;
     data['total_count'] = this.totalCount;
     data['form_url'] = this.formUrl;
     return data;
   }
+}
+class Location {
+  dynamic name;
+  dynamic addressTitle;
+  dynamic addressLine1;
+  dynamic addressLine2;
+  dynamic city;
+  dynamic state;
+  dynamic pincode;
+
+  Location(
+      {this.name,
+      this.addressTitle,
+      this.addressLine1,
+      this.addressLine2,
+      this.city,
+      this.state,
+      this.pincode});
+
+  Location.fromJson(Map<String, dynamic> json) {
+    name = json['name'];
+    addressTitle = json['address_title'];
+    addressLine1 = json['address_line1'];
+    addressLine2 = json['address_line2'];
+    city = json['city'];
+    state = json['state'];
+    pincode = json['pincode'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data =  Map<String, dynamic>();
+    data['name'] = name;
+    data['address_title'] = addressTitle;
+    data['address_line1'] = addressLine1;
+    data['address_line2'] = addressLine2;
+    data['city'] = city;
+    data['state'] = state;
+    data['pincode'] = pincode;
+    return data;
+  }
+
+  
 }

@@ -61,7 +61,7 @@ class Data {
 
 class ComplaintRecords {
   dynamic name;
-  dynamic date;
+  dynamic createdDate;
   dynamic claimType;
   dynamic workflowState;
   dynamic totalCount;
@@ -71,7 +71,7 @@ class ComplaintRecords {
 
   ComplaintRecords(
       {this.name,
-      this.date,
+      this.createdDate,
       this.claimType,
       this.workflowState,
       this.totalCount,
@@ -81,7 +81,7 @@ class ComplaintRecords {
 
   ComplaintRecords.fromJson(Map<String, dynamic> json) {
     name = json['name'];
-    date = json['date'];
+    createdDate = json['created_date'];
     claimType = json['claim_type'];
     workflowState = json['workflow_state'];
     totalCount = json['total_count'];
@@ -93,7 +93,7 @@ class ComplaintRecords {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data =  Map<String, dynamic>();
     data['name'] = name;
-    data['date'] = date;
+    data['created_date'] = createdDate;
     data['claim_type'] = claimType;
     data['workflow_state'] = workflowState;
     data['total_count'] = totalCount;

@@ -230,7 +230,7 @@ Widget approvedKycWidget({required KycState refState, required KycNotifier refNo
                               userIcon: AppAssetPaths.userIcon,
                               name: model?.customerName??'',
                               dateIcon: AppAssetPaths.dateIcon,
-                              date: AppDateFormat.formatDateYYMMDD((model?.date??'')),),
+                              date:model?.createdDate ?? '',),
                         ],
                       ),
                     ),
@@ -270,7 +270,7 @@ kycWidget(KycState refState, String status, String date){
         Container(
           height: 5,width: 5,
           decoration: BoxDecoration(
-            color:status.toLowerCase() == 'Approved'?
+            color:status.toLowerCase() == 'approved'?
              AppColors.greenColor : AppColors.redColor,shape: BoxShape.circle
           ),
         ),

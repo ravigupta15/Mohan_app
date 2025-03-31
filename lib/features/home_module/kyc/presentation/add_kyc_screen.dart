@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mohan_impex/camera_test_screen.dart';
 import 'package:mohan_impex/core/constant/app_constants.dart';
 import 'package:mohan_impex/core/helper/dropdown_item_helper.dart';
 import 'package:mohan_impex/core/services/date_picker_service.dart';
@@ -23,6 +24,7 @@ import 'package:mohan_impex/features/home_module/kyc/riverpod/add_kyc_notifier.d
 import 'package:mohan_impex/features/home_module/kyc/riverpod/add_kyc_state.dart';
 import 'package:mohan_impex/features/home_module/kyc/widgets/documents_widget.dart';
 import 'package:mohan_impex/features/home_module/kyc/widgets/kyc_page_number.dart';
+import 'package:mohan_impex/features/home_module/requisitions/journey_plan/model/district_model.dart';
 import 'package:mohan_impex/features/home_module/search/presentation/search_screen.dart';
 import 'package:mohan_impex/res/app_asset_paths.dart';
 import 'package:mohan_impex/res/app_cashed_network.dart';
@@ -41,7 +43,7 @@ import '../../../../res/app_router.dart';
 class AddKycScreen extends ConsumerStatefulWidget {
   VisitItemsModel? visitItemsModel;
   final String route;
-   AddKycScreen({super.key, this.visitItemsModel, this.route = ''});
+  AddKycScreen({super.key, this.visitItemsModel, this.route = ''});
 
   @override
   ConsumerState<AddKycScreen> createState() => _AddKycScreenState();
@@ -56,25 +58,26 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
 
   @override
   void initState() {
-    Future.microtask((){
+    Future.microtask(() {
       callInitFunction();
     });
     super.initState();
   }
+
   final billingStateSearchController = TextEditingController();
   final billingDistrictSearchController = TextEditingController();
+  final shippingStateSearchController = TextEditingController();
+  final shippingDistrictSearchController = TextEditingController();
 
-  callInitFunction(){
+  callInitFunction() {
     final refNotifier = ref.read(addKycProvider.notifier);
     refNotifier.resetControllers();
     refNotifier.segementApiFunction(context);
     refNotifier.stateApiFunction(context);
-    if(widget.visitItemsModel!=null){
-     refNotifier.setVisitValues(context,widget.visitItemsModel);
+    if (widget.visitItemsModel != null) {
+      refNotifier.setVisitValues(context, widget.visitItemsModel);
     }
-    setState(() {
-      
-    });
+    setState(() {});
   }
 
   @override
@@ -82,29 +85,32 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
     final refState = ref.watch(addKycProvider);
     final refNotifier = ref.read(addKycProvider.notifier);
     return WillPopScope(
-      onWillPop: ()async{
+      onWillPop: () async {
         _handleBackButton(refNotifier: refNotifier, refState: refState);
         return false;
       },
       child: Scaffold(
-        appBar: customAppBar(title: 'KYC',isBackTap: (){
-          _handleBackButton(refNotifier: refNotifier, refState: refState);
-        }),
+        appBar: customAppBar(
+            title: 'KYC',
+            isBackTap: () {
+              _handleBackButton(refNotifier: refNotifier, refState: refState);
+            }),
         body: SingleChildScrollView(
           child: Form(
             key: refNotifier.formKey,
             child: Padding(
-              padding:
-                  const EdgeInsets.only(left: 18, right: 19, top: 14, bottom: 30),
+              padding: const EdgeInsets.only(
+                  left: 18, right: 19, top: 14, bottom: 30),
               child: Column(
                 children: [
-                  refState.addKycTabBarIndex==0
+                  refState.addKycTabBarIndex == 0
                       ? customerDetailsWidget(
                           refNotifier: refNotifier, refState: refState)
                       : refState.addKycTabBarIndex == 1
                           ? documentUploadWidget(
                               refNotifer: refNotifier, refState: refState)
-                          : kycReviewWidget(refNotifier: refNotifier,refState: refState),
+                          : kycReviewWidget(
+                              refNotifier: refNotifier, refState: refState),
                   const SizedBox(
                     height: 40,
                   ),
@@ -118,7 +124,8 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
                           height: 40,
                           color: Colors.black,
                           onPressed: () {
-                          _handleBackButton(refNotifier: refNotifier, refState: refState);
+                            _handleBackButton(
+                                refNotifier: refNotifier, refState: refState);
                           },
                           title: "Back",
                         ),
@@ -131,17 +138,16 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
                               onPressed: () {
                                 if (refState.addKycTabBarIndex == 0) {
                                   refNotifier.checkValidation(context);
-                                }
-                                else if(refState.addKycTabBarIndex == 1){
+                                } else if (refState.addKycTabBarIndex == 1) {
                                   refNotifier.checkDocumentValidation();
-                                }
-                                else if(refState.addKycTabBarIndex==2){
-                                  
+                                } else if (refState.addKycTabBarIndex == 2) {
                                   refNotifier.createKycApiFunction(context);
                                 }
                               },
                               height: 40,
-                              title: refState.addKycTabBarIndex ==2 ?"Submit": "Next")),
+                              title: refState.addKycTabBarIndex == 2
+                                  ? "Submit"
+                                  : "Next")),
                     ],
                   ),
                 ],
@@ -152,12 +158,13 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
       ),
     );
   }
+
   Widget businessTypeWidget(
       {required AddKycNotifier refNotifier, required AddKycState refState}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-         LabelTextTextfield(title: 'Business Type', isRequiredStar: true),
+        LabelTextTextfield(title: 'Business Type', isRequiredStar: true),
         const SizedBox(
           height: 10,
         ),
@@ -185,7 +192,6 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
 
   Widget customerDetailsWidget(
       {required AddKycNotifier refNotifier, required AddKycState refState}) {
-        
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -203,19 +209,20 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
           ),
         ),
         const SizedBox(height: 25),
-         LabelTextTextfield(title: 'Customer Type', isRequiredStar: true),
+        LabelTextTextfield(title: 'Customer Type', isRequiredStar: true),
         const SizedBox(height: 5),
         CustomDropDown(
           selectedValue: refNotifier.selectedCustomerType,
           hintText: "Select customer type",
-          items: DropdownItemHelper().dropdownListt(AppConstants.companyTypeList),
-        onChanged: refNotifier.onChangedCustomerType,
-        validator: (val){
-          if((val??'').isEmpty){
-            return "Select customer type";
-          }
-          return null;
-        },
+          items:
+              DropdownItemHelper().dropdownListt(AppConstants.companyTypeList),
+          onChanged: refNotifier.onChangedCustomerType,
+          validator: (val) {
+            if ((val ?? '').isEmpty) {
+              return "Select customer type";
+            }
+            return null;
+          },
         ),
         const SizedBox(height: 15),
         LabelTextTextfield(title: 'Customer name', isRequiredStar: true),
@@ -223,7 +230,7 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
         AppTextfield(
           hintText: "Enter customer name",
           fillColor: false,
-          isReadOnly:  true,
+          isReadOnly: true,
           controller: refNotifier.customerNameController,
           textInputAction: TextInputAction.next,
           validator: (val) {
@@ -232,8 +239,8 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
             }
             return null;
           },
-          onTap: (){
-            if(widget.route.isEmpty){
+          onTap: () {
+            if (widget.route.isEmpty) {
               _handleCustomerName(refNotifer: refNotifier, refState: refState);
             }
           },
@@ -245,30 +252,19 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
         ),
         const SizedBox(height: 5),
         AppTextfield(
-            hintText: "Enter contact number",
-            fillColor: false,
-            isReadOnly: true,
-            controller: refNotifier.contactNumberController,
-            textInputAction: TextInputAction.next,
-            textInputType: TextInputType.number,
-            inputFormatters: [
-              FilteringTextInputFormatter.digitsOnly,
-              LengthLimitingTextInputFormatter(10)
-            ],
-            validator: numberValidation,
-            suffixWidget: Container(
-              decoration: BoxDecoration(
-                  color: AppColors.greenColor,
-                  borderRadius: BorderRadius.only(
-                      topRight: Radius.circular(8),
-                      bottomRight: Radius.circular(8))),
-              child: Icon(
-                Icons.add,
-                color: AppColors.whiteColor,
-                size: 30,
-              ),
-            )),
-              (refNotifier.contactList).isNotEmpty
+          hintText: "Enter contact number",
+          fillColor: false,
+          isReadOnly: true,
+          controller: refNotifier.contactNumberController,
+          textInputAction: TextInputAction.next,
+          textInputType: TextInputType.number,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+            LengthLimitingTextInputFormatter(10)
+          ],
+          validator: numberValidation,
+        ),
+        (refNotifier.contactList).isNotEmpty
             ? SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 padding: EdgeInsets.only(top: 10),
@@ -276,8 +272,8 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
                   children: refNotifier.contactList.map((e) {
                     return Container(
                         margin: EdgeInsets.symmetric(horizontal: 6),
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 2),
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
                             color: AppColors.lightEBColor,
                             borderRadius: BorderRadius.circular(25)),
@@ -306,7 +302,7 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
         AppTextfield(
           hintText: "Enter business name",
           fillColor: false,
-          isReadOnly:  true,
+          isReadOnly: true,
           textInputAction: TextInputAction.next,
           controller: refNotifier.businessNameController,
           validator: (val) {
@@ -337,7 +333,8 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
         CustomDropDown(
           hintText: "Select segment type",
           selectedValue: refNotifier.selectedSegmentTypeValue,
-          items: DropdownItemHelper().segmentList((refState.segmentModel?.data??[])),
+          items: DropdownItemHelper()
+              .segmentList((refState.segmentModel?.data ?? [])),
           onChanged: refNotifier.onChangedSegment,
           validator: (val) {
             if ((val ?? "").isEmpty) {
@@ -352,11 +349,10 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
         AppTextfield(
           hintText: "Enter billing address1",
           fillColor: false,
-          isReadOnly:  true,
           controller: refNotifier.billingAddress1Controller,
           textInputAction: TextInputAction.next,
           validator: (val) {
-            if ((val??'').isEmpty) {
+            if ((val ?? '').isEmpty) {
               return "Enter your billing addres1";
             }
             return null;
@@ -368,7 +364,6 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
         AppTextfield(
           hintText: "Enter billing address2",
           fillColor: false,
-          isReadOnly: true,
           controller: refNotifier.billingAddress2Controller,
           textInputAction: TextInputAction.next,
           // validator: (val) {
@@ -378,45 +373,61 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
           //   return null;
           // },
         ),
-       
+
         const SizedBox(height: 15),
         LabelTextTextfield(title: 'Billing state', isRequiredStar: true),
         const SizedBox(height: 5),
-        AppTextfield(
-          controller: refNotifier.billingStateController,
-          isReadOnly: true,
-          fillColor: false,
+        CustomSearchDropDown(
+          items: DropdownItemHelper()
+              .stateItems(refState.billingStateModel?.data ?? []),
+          selectedValues: refNotifier.selectedBillingState ?? '',
+          height: 300,
+          onChanged: (val) {
+            if(refNotifier.selectedBillingState != val){
+             refNotifier.billingPincodeController.clear(); 
+            }
+            refNotifier.onChangedBillingStateVal(context, val);
+          },
           hintText: "Select billing state",
-          validator: (val){
-             if ((val??"").isEmpty) {
+          validator: (val) {
+            if ((val ?? "").isEmpty) {
               return "Select billing state";
             }
             return null;
           },
         ),
-         const SizedBox(height: 15),
+        const SizedBox(height: 15),
         LabelTextTextfield(title: 'Billing District', isRequiredStar: true),
         const SizedBox(height: 5),
-        AppTextfield(
-          controller: refNotifier.billingDistrictController,
-          isReadOnly: true,
-          fillColor: false,
+        CustomSearchDropDown(
+          searchController: billingDistrictSearchController,
+          selectedValues: refNotifier.selectedBillingDistrict ?? '',
+          height: 300,
+          items: DropdownItemHelper()
+              .districtItems(refState.billingDistrictModel?.data ?? []),
+          onChanged: (val) {
+            if(refNotifier.selectedBillingDistrict != val){
+             refNotifier.billingPincodeController.clear(); 
+            }
+            refNotifier.shippingDistrictController.text = val;
+            refNotifier.selectedBillingDistrict = val;
+            setState(() {});
+          },
           hintText: "Select billing district",
-          validator: (val){
-             if ((val??"").isEmpty) {
+          validator: (val) {
+            if ((val ?? "").isEmpty) {
               return "Select billing district";
             }
             return null;
           },
         ),
-        
+
         const SizedBox(height: 15),
         LabelTextTextfield(title: 'Billing pincode', isRequiredStar: true),
         const SizedBox(height: 5),
         AppTextfield(
           hintText: "Enter billing pincode",
           fillColor: false,
-          isReadOnly: true,
           controller: refNotifier.billingPincodeController,
           textInputAction: TextInputAction.next,
           textInputType: TextInputType.number,
@@ -439,9 +450,7 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
                   isCheckbox: refState.isSameBillingAddress,
                   onChanged: (val) {
                     refNotifier.onChangedCheckBox(context, val!);
-                    setState(() {
-                      
-                    });
+                    setState(() {});
                   }),
               AppText(
                 title: "Same as shipping address",
@@ -451,6 +460,23 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
               )
             ],
           ),
+        ),const SizedBox(height: 15),
+        LabelTextTextfield(title: 'Shipping Address Title', isRequiredStar: true),
+        const SizedBox(height: 5),
+        AppTextfield(
+          hintText: "Enter shipping address title",
+          fillColor: false,
+          controller: refNotifier.shippingAddressTitleController,
+          textInputAction: TextInputAction.next,
+          inputFormatters: [
+            emojiRestrict(),
+          ],
+          validator: (val) {
+            if ((val ?? "").isEmpty) {
+              return "Enter shipping address title";
+            }
+            return null;
+          },
         ),
         const SizedBox(height: 15),
         LabelTextTextfield(title: 'Shipping Address1', isRequiredStar: true),
@@ -464,7 +490,7 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
             emojiRestrict(),
           ],
           validator: (val) {
-            if ((val??"").isEmpty) {
+            if ((val ?? "").isEmpty) {
               return "Enter shipping address1";
             }
             return null;
@@ -489,52 +515,56 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
           // },
         ),
         const SizedBox(height: 15),
-          LabelTextTextfield(title: 'Shipping state', isRequiredStar: true),
+        LabelTextTextfield(title: 'Shipping state', isRequiredStar: true),
         const SizedBox(height: 5),
         CustomSearchDropDown(
-          searchController: billingStateSearchController,
-          selectedValues:refNotifier.selectedShippingState ?? '',
+          searchController: shippingStateSearchController,
+          selectedValues: refNotifier.selectedShippingState ?? '',
           height: 300,
-          items: DropdownItemHelper().stateItems((refState.shippingStateModel?.data??[])),
+          items: DropdownItemHelper()
+              .stateItems((refState.shippingStateModel?.data ?? [])),
           hintText: "Select state",
-          onChanged: (val){
+          onChanged: (val) {
+            if(refNotifier.selectedShippingState != val){
+              refNotifier.shippingPincodeController.clear();
+            }
             refNotifier.onChangedShippingStateVal(context, val);
-            setState(() {
-              
-            });
+            setState(() {});
           },
-        validator: (val) {
-            if ((val??"").isEmpty) {
+          validator: (val) {
+            if ((val ?? "").isEmpty) {
               return "Select shipping state";
             }
             return null;
           },
         ),
         const SizedBox(height: 15),
-      
+
         LabelTextTextfield(title: 'Shipping District', isRequiredStar: true),
         const SizedBox(height: 5),
         CustomSearchDropDown(
-          searchController: billingDistrictSearchController,
-          selectedValues: refNotifier.selectedShippingDistrict ?? '' ,
+          searchController: shippingDistrictSearchController,
+          selectedValues: refNotifier.selectedShippingDistrict ?? '',
           height: 300,
-          items: DropdownItemHelper().districtItems((refState.shippingDistrictModel?.data??[])),
+          items: DropdownItemHelper()
+              .districtItems((refState.shippingDistrictModel?.data ?? [])),
           hintText: "Select district",
-          onChanged: (val){
+          onChanged: (val) {
+            if(refNotifier.selectedShippingDistrict != val){
+              refNotifier.shippingPincodeController.clear();
+            }
             refNotifier.shippingDistrictController.text = val;
             refNotifier.selectedShippingDistrict = val;
-            setState(() {
-              
-            });
+            setState(() {});
           },
-        validator: (val) {
-            if ((val??"").isEmpty) {
+          validator: (val) {
+            if ((val ?? "").isEmpty) {
               return "Select shipping district";
             }
             return null;
           },
         ),
-        
+
         const SizedBox(height: 15),
         LabelTextTextfield(title: 'Shipping pincode', isRequiredStar: true),
         const SizedBox(height: 5),
@@ -549,7 +579,7 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
             FilteringTextInputFormatter.digitsOnly
           ],
           validator: (val) {
-            if ((val??"").isEmpty) {
+            if ((val ?? "").isEmpty) {
               return "Enter shipping pincode";
             }
             return null;
@@ -568,13 +598,13 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
           textCapitalization: TextCapitalization.characters,
           inputFormatters: [
             removeWhiteSpace(),
-            LengthLimitingTextInputFormatter(refState.selectedBusinessType == 0 ?15:10),
-            FilteringTextInputFormatter.allow(RegExp('[a-zA-Z0-9 ]')) 
+            LengthLimitingTextInputFormatter(
+                refState.selectedBusinessType == 0 ? 15 : 10),
+            FilteringTextInputFormatter.allow(RegExp('[a-zA-Z0-9 ]'))
           ],
           controller: refState.selectedBusinessType == 0
               ? refNotifier.gstNumberController
               : refNotifier.panNumberController,
-              
           textInputAction: TextInputAction.next,
           validator: (val) {
             if (val!.isEmpty) {
@@ -627,11 +657,10 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
                         "${picked.year}-$month-$day";
                     setState(() {
                       startDate = picked;
-                       if (endDate != null &&
-                                          startDate!.isAfter(endDate!)) {
-                                        endDate = null;
-                                        refNotifier.creditEndDaysController.clear();
-                                      } 
+                      if (endDate != null && startDate!.isAfter(endDate!)) {
+                        endDate = null;
+                        refNotifier.creditEndDaysController.clear();
+                      }
                     });
                   }
                 });
@@ -646,10 +675,9 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
             ),
             AppDateWidget(
               onTap: () {
-                 DateTime firstDate = startDate ?? DateTime(1994);
-                DatePickerService.datePicker(context, selectedDate: endDate,
-                firstDate: firstDate
-                )
+                DateTime firstDate = startDate ?? DateTime(1994);
+                DatePickerService.datePicker(context,
+                        selectedDate: endDate, firstDate: firstDate)
                     .then((picked) {
                   if (picked != null) {
                     var day = picked.day < 10 ? '0${picked.day}' : picked.day;
@@ -667,16 +695,18 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
             ),
           ],
         ),
-    const SizedBox(height: 30,),
-    RemarksWidget(
-      controller: refNotifier.remarksController,
-      validator: (val){
-        if((val??'').isEmpty){
-          return "Enter you remarks";
-        }
-        return null;
-      },
-    )
+        const SizedBox(
+          height: 30,
+        ),
+        RemarksWidget(
+          controller: refNotifier.remarksController,
+          validator: (val) {
+            if ((val ?? '').isEmpty) {
+              return "Enter you remarks";
+            }
+            return null;
+          },
+        )
       ],
     );
   }
@@ -724,7 +754,7 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
               title: "Camera",
               subtitle: "Take a photo",
               onTap: () {
-                ImagePickerService.imagePicker(ImageSource.camera).then((val) {
+                AppRouter.pushCupertinoNavigation(CameraScreen()).then((val) {
                   if (val != null) {
                     refNotifer.imageUploadApiFunction(context, val,
                         isCLImage: false);
@@ -751,8 +781,9 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
             )),
           ],
         ),
-        refState.cdImageList.isNotEmpty?
-        viewUploadedImage( refState.cdImageList): EmptyWidget(),
+        refState.cdImageList.isNotEmpty
+            ? viewUploadedImage(refState.cdImageList)
+            : EmptyWidget(),
         const SizedBox(
           height: 24,
         ),
@@ -778,7 +809,7 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
               title: "Camera",
               subtitle: "Take a photo",
               onTap: () {
-                ImagePickerService.imagePicker(ImageSource.camera).then((val) {
+                AppRouter.pushCupertinoNavigation(CameraScreen()).then((val) {
                   if (val != null) {
                     refNotifer.imageUploadApiFunction(context, val,
                         isCLImage: true);
@@ -805,8 +836,9 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
             )),
           ],
         ),
-        refState.clImageList.isNotEmpty?
-        viewUploadedImage(refState.clImageList): EmptyWidget(),
+        refState.clImageList.isNotEmpty
+            ? viewUploadedImage(refState.clImageList)
+            : EmptyWidget(),
         //  Spacer(),
         //   Row(
         //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -843,57 +875,51 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
     );
   }
 
-
-
-
-  viewUploadedImage(List list){
-    return  GridView.builder(
-      padding: EdgeInsets.only(top: 10),
-                  itemCount: list.length,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      mainAxisSpacing: 15,
-                      crossAxisSpacing: 15,
-                      childAspectRatio: 2.9 / 3),
-                  itemBuilder: (ctx, index) {
-                    return Stack(
-                            fit: StackFit.expand,
-                            children: [
-                              AppNetworkImage(
-                                imgUrl: 
-                                list[index]['url'],
-                                height: 79,
-                                width: 100,
-                                boxFit: BoxFit.cover,borderRadius:10
-                              ),
-                              Align(
-                                  alignment: Alignment.topRight,
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      list.removeAt(index);
-                                      setState(() {
-                                        
-                                      });
-                                    },
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: AppColors.redColor),
-                                      child: Icon(
-                                        Icons.close,
-                                        color: AppColors.whiteColor,
-                                        size: 15,
-                                      ),
-                                    ),
-                                  ))
-                            ],
-                          );
-                  })
-              ;
+  viewUploadedImage(List list) {
+    return GridView.builder(
+        padding: EdgeInsets.only(top: 10),
+        itemCount: list.length,
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+            mainAxisSpacing: 15,
+            crossAxisSpacing: 15,
+            childAspectRatio: 2.9 / 3),
+        itemBuilder: (ctx, index) {
+          return Stack(
+            fit: StackFit.expand,
+            children: [
+              AppNetworkImage(
+                  imgUrl: list[index]['url'],
+                  height: 79,
+                  width: 100,
+                  boxFit: BoxFit.cover,
+                  borderRadius: 10),
+              Align(
+                  alignment: Alignment.topRight,
+                  child: GestureDetector(
+                    onTap: () {
+                      list.removeAt(index);
+                      setState(() {});
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                          shape: BoxShape.circle, color: AppColors.redColor),
+                      child: Icon(
+                        Icons.close,
+                        color: AppColors.whiteColor,
+                        size: 15,
+                      ),
+                    ),
+                  ))
+            ],
+          );
+        });
   }
-  Widget kycReviewWidget({required AddKycNotifier refNotifier, required AddKycState refState}) {
+
+  Widget kycReviewWidget(
+      {required AddKycNotifier refNotifier, required AddKycState refState}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -912,11 +938,17 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
         const SizedBox(
           height: 24,
         ),
-        _CustomInfoWidget(refNotifier: refNotifier,refState: refState,),
+        _CustomInfoWidget(
+          refNotifier: refNotifier,
+          refState: refState,
+        ),
         const SizedBox(
           height: 24,
         ),
-        _documentCheckListWidget(refNotifier: refNotifier,refState: refState,),
+        _documentCheckListWidget(
+          refNotifier: refNotifier,
+          refState: refState,
+        ),
         const SizedBox(
           height: 24,
         ),
@@ -929,18 +961,21 @@ class _AddKycScreenState extends ConsumerState<AddKycScreen>
     );
   }
 
-Widget _documentCheckListWidget({required AddKycNotifier refNotifier, required AddKycState refState}){
-  return ExpandableWidget(
+  Widget _documentCheckListWidget(
+      {required AddKycNotifier refNotifier, required AddKycState refState}) {
+    return ExpandableWidget(
         initExpanded: true,
         isBorderNoShadow: true,
         collapsedWidget: documentCheckListCollapsedWidget(
-          isExpanded: true,refNotifier: refNotifier, refState: refState
-        ),
-        expandedWidget: documentCheckListExpandedWidget(isExpanded: false, refNotifier: refNotifier, refState: refState));
-}
+            isExpanded: true, refNotifier: refNotifier, refState: refState),
+        expandedWidget: documentCheckListExpandedWidget(
+            isExpanded: false, refNotifier: refNotifier, refState: refState));
+  }
 
-
-  Widget documentCheckListCollapsedWidget({required bool isExpanded, required AddKycNotifier refNotifier, required AddKycState refState}) {
+  Widget documentCheckListCollapsedWidget(
+      {required bool isExpanded,
+      required AddKycNotifier refNotifier,
+      required AddKycState refState}) {
     return Container(
       padding: isExpanded
           ? EdgeInsets.symmetric(horizontal: 10, vertical: 12)
@@ -982,7 +1017,10 @@ Widget _documentCheckListWidget({required AddKycNotifier refNotifier, required A
     );
   }
 
-  Widget documentCheckListExpandedWidget({required bool isExpanded, required AddKycNotifier refNotifier, required AddKycState refState}) {
+  Widget documentCheckListExpandedWidget(
+      {required bool isExpanded,
+      required AddKycNotifier refNotifier,
+      required AddKycState refState}) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10, vertical: 14),
       decoration: BoxDecoration(
@@ -997,78 +1035,96 @@ Widget _documentCheckListWidget({required AddKycNotifier refNotifier, required A
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          documentCheckListCollapsedWidget(isExpanded: isExpanded,refNotifier: refNotifier, refState: refState),
+          documentCheckListCollapsedWidget(
+              isExpanded: isExpanded,
+              refNotifier: refNotifier,
+              refState: refState),
           SizedBox(
             height: 10,
           ),
           LabelTextTextfield(
               title: "Customer Declaration (CD)", isRequiredStar: true),
-             refState.cdImageList.isNotEmpty?
-             Padding(
-               padding: const EdgeInsets.only(top: 6),
-               child: viewImage(refState.cdImageList)
-             ): EmptyWidget() ,
-             const SizedBox(height: 15,),
-             LabelTextTextfield(
+          refState.cdImageList.isNotEmpty
+              ? Padding(
+                  padding: const EdgeInsets.only(top: 6),
+                  child: viewImage(refState.cdImageList))
+              : EmptyWidget(),
+          const SizedBox(
+            height: 15,
+          ),
+          LabelTextTextfield(
               title: "Customer License (CL)", isRequiredStar: true),
-              refState.clImageList.isNotEmpty?
-             Padding(
-               padding: const EdgeInsets.only(top: 6),
-               child: viewImage(refState.clImageList),
-             ) : EmptyWidget(),
+          refState.clImageList.isNotEmpty
+              ? Padding(
+                  padding: const EdgeInsets.only(top: 6),
+                  child: viewImage(refState.clImageList),
+                )
+              : EmptyWidget(),
         ],
       ),
     );
   }
 
-
-  viewImage(List list,){
-    return  ListView.separated(
-      separatorBuilder: (ctx, sb){
-        return const SizedBox(height: 10,);
-      },
-      itemCount: list.length,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemBuilder: (ctx,index){
-        return Container(
-          padding: EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: AppColors.whiteColor,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: AppColors.edColor
-            )
-          ),
-          child: Row(
-            children: [
-              SvgPicture.asset(AppAssetPaths.documentIcon,height: 20,),
-              const SizedBox(width: 7,),
-              Expanded(
-                child: Text(list[index]['file_name'],maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 10,fontWeight: FontWeight.w400,
-                  color: Color(0xff6F7482)
+  viewImage(
+    List list,
+  ) {
+    return ListView.separated(
+        separatorBuilder: (ctx, sb) {
+          return const SizedBox(
+            height: 10,
+          );
+        },
+        itemCount: list.length,
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemBuilder: (ctx, index) {
+          return Container(
+            padding: EdgeInsets.all(10),
+            decoration: BoxDecoration(
+                color: AppColors.whiteColor,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: AppColors.edColor)),
+            child: Row(
+              children: [
+                SvgPicture.asset(
+                  AppAssetPaths.documentIcon,
+                  height: 20,
                 ),
+                const SizedBox(
+                  width: 7,
                 ),
-              ),
-              const SizedBox(width: 5,),
-              list.length>1 ?
-              InkWell(
-                onTap: (){
-                  if(list.length>1){
-                    list.removeAt(index);
-                  }
-                  setState(() {
-                    
-                  });
-                },
-                child: Icon(Icons.close, size: 20,color: Color(0xff193238),)) : EmptyWidget()
-            ],
-          ),
-        );
-    });
+                Expanded(
+                  child: Text(
+                    list[index]['file_name'],
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w400,
+                        color: Color(0xff6F7482)),
+                  ),
+                ),
+                const SizedBox(
+                  width: 5,
+                ),
+                list.length > 1
+                    ? InkWell(
+                        onTap: () {
+                          if (list.length > 1) {
+                            list.removeAt(index);
+                          }
+                          setState(() {});
+                        },
+                        child: Icon(
+                          Icons.close,
+                          size: 20,
+                          color: Color(0xff193238),
+                        ))
+                    : EmptyWidget()
+              ],
+            ),
+          );
+        });
     // GridView.builder(
     //               itemCount: list.length,
     //               shrinkWrap: true,
@@ -1080,7 +1136,7 @@ Widget _documentCheckListWidget({required AddKycNotifier refNotifier, required A
     //                   childAspectRatio: 2.9 / 3),
     //               itemBuilder: (ctx, index) {
     //                 return    AppNetworkImage(
-    //                             imgUrl: 
+    //                             imgUrl:
     //                             list[index]['url'],
     //                             height: 79,
     //                             width: 100,
@@ -1090,67 +1146,100 @@ Widget _documentCheckListWidget({required AddKycNotifier refNotifier, required A
     //           ;
   }
 
-  _handleBackButton({required AddKycNotifier refNotifier, required AddKycState refState}){
-      if (refState.addKycTabBarIndex == 0) {
-                              print(LocalSharePreference.token);
-                              Navigator.pop(context);
-                            } else {
-                              refNotifier
-                                  .addKycTabBarIndex(refState.addKycTabBarIndex - 1);
-                            }
+  _handleBackButton(
+      {required AddKycNotifier refNotifier, required AddKycState refState}) {
+    if (refState.addKycTabBarIndex == 0) {
+      print(LocalSharePreference.token);
+      Navigator.pop(context);
+    } else {
+      refNotifier.addKycTabBarIndex(refState.addKycTabBarIndex - 1);
+    }
   }
 
+  _handleCustomerName({
+    required AddKycNotifier refNotifer,
+    required AddKycState refState,
+  }) {
+    refState.customerInfoModel = null;
+    AppRouter.pushCupertinoNavigation(SearchScreen(
+      route: 'verified',
+      visitType: 'Primary',
+      verificationType: 'Unverified',
+    )).then((val) {
+      if (val != null) {
+        CustomerDetails model = val;
+        refNotifer
+            .kycExistValidationApiFunction(context, model.name ?? '')
+            .then((kycValue) {
+          if (kycValue != null) {
+            refNotifer.contactList = (model.contact ?? []);
+            refNotifer.businessNameController.text = model.shopName ?? '';
+            refNotifer.selectedShop = model.shop ?? '';
+            refNotifer.unvCustomerId = model.name ?? '';
+            refNotifer.customerNameController.text = model.customerName ?? '';
+            if (refNotifer.contactList.isNotEmpty) {
+              refNotifer.contactNumberController.text =
+                  refNotifer.contactList[0];
+            }
 
-_handleCustomerName({required AddKycNotifier refNotifer, required AddKycState refState,}){
-            refState.customerInfoModel = null;
-            AppRouter.pushCupertinoNavigation(SearchScreen(
-              route: 'verified',
-              visitType: 'Primary',
-              verificationType: 'Unverified',
-            )).then((val) {
-              if (val != null) {
-                CustomerDetails model = val;
-                refNotifer.kycExistValidationApiFunction(context, model.name ?? '').then((kycValue){
-                  if(kycValue != null){
-                      refNotifer.contactList = (model.contact??[]);
-                      refNotifer.businessNameController.text = model.shopName?? '';
-                      refNotifer.selectedShop = model.shop ?? '';
-                      refNotifer.unvCustomerId = model.name ?? '';
-                    refNotifer.customerNameController.text = model.customerName ?? '';
-                    if (refNotifer.contactList.isNotEmpty) {
-                      refNotifer.contactNumberController.text =
-                          refNotifer.contactList[0];
-                    }
-                    /// calling address api
-                  refNotifer
-                      .customerAddressApiFunction(context, model.name ?? '', model.verificType ?? '')
-                      .then((response) {
-                        if(response!=null&& response['data'].isNotEmpty){
-                    CustomerAddressModel addressModel =
-                        CustomerAddressModel.fromJson(response);
-                    refNotifer.billingAddress1Controller.text = addressModel.data?.addressLine1 ?? '';
-                    refNotifer.billingAddress2Controller.text = addressModel.data?.addressLine2 ?? '';
-                    refNotifer.billingDistrictController.text = addressModel.data?.district ?? '';
-                    refNotifer.billingStateController.text = addressModel.data?.state ?? '';
-                    refNotifer.billingPincodeController.text = addressModel.data?.pincode ?? '';
-                        }
+            /// calling address api
+            refNotifer
+                .customerAddressApiFunction(
+                    context, model.name ?? '', model.verificType ?? '')
+                .then((response) {
+              if (response != null && response['data'].isNotEmpty) {
+                //reset
+                refNotifer.selectedBillingState = null;
+                refNotifer.selectedBillingDistrict = null;
+                refState.billingDistrictModel = DistrictModel.fromJson({});
+                CustomerAddressModel addressModel =
+                    CustomerAddressModel.fromJson(response);
+                refNotifer.billingAddress1Controller.text =
+                    addressModel.data?.addressLine1 ?? '';
+                refNotifer.billingAddress2Controller.text =
+                    addressModel.data?.addressLine2 ?? '';
+                refNotifer.billingDistrictController.text =
+                    addressModel.data?.district ?? '';
+                refNotifer.billingStateController.text =
+                    addressModel.data?.state ?? '';
+                refNotifer.billingPincodeController.text =
+                    addressModel.data?.pincode ?? '';
+                refNotifer.addressName = addressModel.data?.name ?? '';
+                refNotifer.addressTitle = addressModel.data?.addressTitle ?? '';
+                if ((addressModel.data?.state ?? '').isNotEmpty) {
+                  refNotifer.stateApiFunction(context).then((val) {
+                    // state = state.copyWith(
+                    //     billingStateModel: StateModel.fromJson(val));
+                    refNotifer.selectedBillingState = addressModel.data?.state ?? '';
+                    // print("asdgfgh...$selectedBillingState");
                   });
-                  }
-                });
-                    
-                
-                setState(() {});
+                  refNotifer.districtApiFunction(context,
+                          stateText: addressModel.data?.state ?? '')
+                      .then((val) {
+                    if (val != null) {
+                     setState(() {
+                      refNotifer.updateBillingDistrictModel(val);
+
+                     });
+                      refNotifer.selectedBillingDistrict = addressModel.data?.district ?? '';
+                    }
+                  });
+                }
               }
             });
-          
-}
+          }
+        });
 
+        setState(() {});
+      }
+    });
+  }
 }
 
 class _CustomInfoWidget extends StatelessWidget {
   final AddKycNotifier refNotifier;
   final AddKycState refState;
-   _CustomInfoWidget({required this.refNotifier,required this.refState});
+  _CustomInfoWidget({required this.refNotifier, required this.refState});
 
   @override
   Widget build(BuildContext context) {
@@ -1223,7 +1312,7 @@ class _CustomInfoWidget extends StatelessWidget {
         children: [
           collapsedWidget(isExpanded: isExpanded),
           const SizedBox(height: 12),
-           itemsWidget("Customer Type", refNotifier.customerTypeController.text),
+          itemsWidget("Customer Type", refNotifier.customerTypeController.text),
           const SizedBox(height: 10),
           itemsWidget("Customer Name", refNotifier.customerNameController.text),
           const SizedBox(height: 10),
@@ -1239,41 +1328,54 @@ class _CustomInfoWidget extends StatelessWidget {
           // const SizedBox(height: 10),
           itemsWidget("Segment", refNotifier.segmentController.text),
           const SizedBox(height: 10),
-          itemsWidget("Shipping address-1", refNotifier.shippingAddress1Controller.text),
+          itemsWidget("Shipping address title",
+              refNotifier.shippingAddressTitleController.text),
           const SizedBox(height: 10),
-          itemsWidget("Shipping address-2", refNotifier.shippingAddress2Controller.text),
+          itemsWidget("Shipping address-1",
+              refNotifier.shippingAddress1Controller.text),
           const SizedBox(height: 10),
-          itemsWidget("Shipping District", refNotifier.shippingDistrictController.text),
+          itemsWidget("Shipping address-2",
+              refNotifier.shippingAddress2Controller.text),
           const SizedBox(height: 10),
-          itemsWidget("Shipping state", refNotifier.shippingStateController.text),
+          itemsWidget(
+              "Shipping District", refNotifier.shippingDistrictController.text),
           const SizedBox(height: 10),
-          itemsWidget("Shipping pincode", refNotifier.shippingPincodeController.text),
+          itemsWidget(
+              "Shipping state", refNotifier.shippingStateController.text),
           const SizedBox(height: 10),
-          itemsWidget("Billing address-1", refNotifier.billingAddress1Controller.text),
+          itemsWidget(
+              "Shipping pincode", refNotifier.shippingPincodeController.text),
           const SizedBox(height: 10),
-          itemsWidget("Billing address-2", refNotifier.billingAddress2Controller.text),
+          itemsWidget(
+              "Billing address-1", refNotifier.billingAddress1Controller.text),
           const SizedBox(height: 10),
-          itemsWidget("Billing District", refNotifier.billingDistrictController.text),
+          itemsWidget(
+              "Billing address-2", refNotifier.billingAddress2Controller.text),
+          const SizedBox(height: 10),
+          itemsWidget(
+              "Billing District", refNotifier.billingDistrictController.text),
           const SizedBox(height: 10),
           itemsWidget("Billing state", refNotifier.billingStateController.text),
           const SizedBox(height: 10),
-          itemsWidget("Billing pincode", refNotifier.billingPincodeController.text),
+          itemsWidget(
+              "Billing pincode", refNotifier.billingPincodeController.text),
           const SizedBox(height: 10),
-          itemsWidget("Business type", refNotifier.businessTypeTitle(refState.selectedBusinessType)),
-         const SizedBox(height: 10),
-           refState.selectedBusinessType == 0?
-          itemsWidget("GST No", refNotifier.gstNumberController.text):
-          itemsWidget("PAN No", refNotifier.panNumberController.text)
-          ,
+          itemsWidget("Business type",
+              refNotifier.businessTypeTitle(refState.selectedBusinessType)),
           const SizedBox(height: 10),
-          itemsWidget("Proposed credit limit", refNotifier.creditLimitController.text),
+          refState.selectedBusinessType == 0
+              ? itemsWidget("GST No", refNotifier.gstNumberController.text)
+              : itemsWidget("PAN No", refNotifier.panNumberController.text),
           const SizedBox(height: 10),
-          itemsWidget("Proposed credit days", refNotifier.calculateCreditDays().toString()),
+          itemsWidget(
+              "Proposed credit limit", refNotifier.creditLimitController.text),
+          const SizedBox(height: 10),
+          itemsWidget("Proposed credit days",
+              refNotifier.calculateCreditDays().toString()),
         ],
       ),
     );
   }
-
 
   Widget itemsWidget(String title, String subTitle) {
     return Row(

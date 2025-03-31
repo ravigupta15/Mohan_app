@@ -61,7 +61,7 @@ class Data {
 
 class KycRecords {
   dynamic name;
-  dynamic date;
+  dynamic createdDate;
   dynamic workflowState;
   dynamic totalCount;
   dynamic customerName;
@@ -70,7 +70,7 @@ class KycRecords {
 
   KycRecords(
       {this.name,
-      this.date,
+      this.createdDate,
       this.workflowState,
       this.totalCount,
       this.customerName,
@@ -79,7 +79,7 @@ class KycRecords {
 
   KycRecords.fromJson(Map<String, dynamic> json) {
     name = json['name'];
-    date = json['date'];
+    createdDate = json['created_date'];
     workflowState = json['workflow_state'];
     totalCount = json['total_count'];
     customerName = json['customer_name'];
@@ -90,7 +90,7 @@ class KycRecords {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data =  Map<String, dynamic>();
     data['name'] = name;
-    data['date'] = date;
+    data['created_date'] = createdDate;
     data['workflow_state'] = workflowState;
     data['total_count'] = totalCount;
     data['customer_name'] = customerName;

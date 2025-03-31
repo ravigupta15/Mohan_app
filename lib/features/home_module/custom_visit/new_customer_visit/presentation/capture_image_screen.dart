@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mohan_impex/camera_test_screen.dart';
 import 'package:mohan_impex/core/services/image_picker_service.dart';
 import 'package:mohan_impex/core/widget/app_text.dart';
 import 'package:mohan_impex/core/widget/app_text_button.dart';
@@ -9,6 +10,7 @@ import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit
 import 'package:mohan_impex/res/app_asset_paths.dart';
 import 'package:mohan_impex/res/app_colors.dart';
 import 'package:mohan_impex/res/app_fontfamily.dart';
+import 'package:mohan_impex/res/app_router.dart';
 
 import '../riverpod/new_customer_visit_state.dart';
 
@@ -41,11 +43,12 @@ class CaptureImageScreen extends StatelessWidget {
             alignment: Alignment.center,
             child: AppTextButton(title: "Capture",color: AppColors.arcticBreeze,
             height: 40,width: 120,onTap: (){
-              ImagePickerService.imagePicker(ImageSource.camera).then((val){
+              AppRouter.pushCupertinoNavigation( CameraScreen()).then((val){
                 if(val!=null){
-                  Navigator.pop(context, val);
+                    Navigator.pop(context, val);
                 }
               });
+              
             },
             ),
           )

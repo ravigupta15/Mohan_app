@@ -101,6 +101,6 @@ static const createSalesOrderUrl = "${baseUrl}method/mohan_impex.api.sales_order
 
 ///
 static const createCommentUrl = "${baseUrl}method/mohan_impex.mohan_impex.comment.create_comment";
-
+static const statusUpdateUrl = "${baseUrl}method/mohan_impex.mohan_impex.comment.workflow_status_update";
 /// logout
 }
