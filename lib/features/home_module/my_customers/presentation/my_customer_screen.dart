@@ -177,7 +177,7 @@ class _MyCustomerScreenState extends ConsumerState<MyCustomerScreen> {
                                     onTap: () {
                                       AppRouter.pushCupertinoNavigation(
                                           ViewCustomerScreen(
-                                        id: model?.name ?? '',
+                                        id: model.name ?? '',
                                       ));
                                     },
                                     child: Container(
@@ -273,7 +273,7 @@ class _MyCustomerScreenState extends ConsumerState<MyCustomerScreen> {
               : EmptyWidget(),
           refNotifier.fromDateFilter.isNotEmpty
               ? customFiltersUI(
-                  "${refNotifier.fromDateFilter} - ${refNotifier.toDateFilter} (${refNotifier.biilingList[selectedBillingTypeIndex]})",
+                  "${refNotifier.fromDateFilter} - ${refNotifier.toDateFilter} ${refNotifier.zeroBillingFilter.isNotEmpty? "(${refNotifier.biilingList[selectedBillingTypeIndex]})":""}",
                   () {
                   refNotifier.fromDateFilter = '';
                   filterFromDate = '';

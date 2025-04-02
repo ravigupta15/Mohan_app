@@ -51,8 +51,8 @@ class _NewCustomerVisitScreenState
     refState.visitStartDate =
         DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now()).toString();
     LocationService().startLocationUpdates().then((val) {
-      refState.visitStartLatitude = val.latitude.toString();
-      refState.visitStartLetitude = val.longitude.toString();
+      refNotifier.visitStartLat = val.latitude.toString();
+      refNotifier.visitStartLng = val.longitude.toString();
     });
     setState(() {});
   }
@@ -145,6 +145,7 @@ class _NewCustomerVisitScreenState
                                 height: 44,
                                 width: 120,
                                 onTap: () {
+
                                   if (refState.tabBarIndex == 0) {
                                     refNotifier.checkRegistrationValidation();
                                   } else if (refState.tabBarIndex == 1) {

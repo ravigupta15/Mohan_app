@@ -487,9 +487,10 @@ class _VisitItemsWidget extends StatelessWidget {
 
 Widget visitItem({required String title, required String subTitle}){
   return Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AppText(title: "$title : ",fontsize: 12,fontFamily: AppFontfamily.poppinsSemibold,color: AppColors.visitItem,),
-        AppText(title: subTitle,fontsize: 10,fontFamily: AppFontfamily.poppinsRegular,color: AppColors.visitItem,),
+        Flexible(child: AppText(title: subTitle,fontsize: 10,fontFamily: AppFontfamily.poppinsRegular,color: AppColors.visitItem,)),
       ],
     );
 }

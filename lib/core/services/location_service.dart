@@ -62,43 +62,7 @@ Future<Position> startLocationUpdates() async {
   }
 }
 
-  // Future<Position> startLocationUpdates() async {
-  //   try {
-  //     bool serviceEnabled = await isLocationServiceEnabled();
-  //     if (!serviceEnabled) {
-  //       throw Exception("Location services are disabled.");
-  //     }
-
-  //     LocationPermission permission = await requestLocationPermission();
-  //     if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
-  //       throw Exception("Location permission denied.");
-  //     }
-
-  //     // Listen to position stream every 5 seconds
-  //     Geolocator.getCurrentPosition(
-  //     locationSettings: LocationSettings(
-  //       distanceFilter: 10,accuracy: LocationAccuracy.high
-  //     )
-  //     ).then((Position position)async{
-  //         await saveLocation(position.latitude, position.longitude);
-  //      await _getAddressFromLatLng(position.latitude, position.longitude);
-  //      return position;
-  //     });
-  //     // _positionStreamSubscription = Geolocator.getPositionStream(
-  //     //   locationSettings: LocationSettings(
-  //     //   distanceFilter: 10,accuracy: LocationAccuracy.high    
-  //     //   ),
-  //     // ).listen((Position position) async {
-  //     //   await saveLocation(position.latitude, position.longitude);
-  //     //   _getAddressFromLatLng(position.latitude, position.longitude);
-  //     // });
-  //   } catch (e) {
-  //     print("Error while starting location updates: $e");
-  //     throw Exception("Failed to start location updates: $e");
-  //   }
-  // }
-
-  // Stop the location stream when not needed
+ // Stop the location stream when not needed
   void stopLocationUpdates() {
     _positionStreamSubscription?.cancel();
     print("Location updates stopped.");

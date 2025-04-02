@@ -64,7 +64,7 @@ class MyCustomerRecords {
   dynamic customerName;
   dynamic customShop;
   dynamic contact;
-  Location? location;
+  MyCustomerLocationModel? location;
   dynamic createdBy;
   dynamic workflowState;
   dynamic totalCount;
@@ -87,7 +87,7 @@ class MyCustomerRecords {
     customShop = json['custom_shop'];
     contact = json['contact'];
        location = json['location'] != null
-        ? new Location.fromJson(json['location'])
+        ? new MyCustomerLocationModel.fromJson(json['location'])
         : null;
     createdBy = json['created_by'];
     workflowState = json['workflow_state'];
@@ -111,7 +111,7 @@ class MyCustomerRecords {
     return data;
   }
 }
-class Location {
+class MyCustomerLocationModel {
   dynamic name;
   dynamic addressTitle;
   dynamic addressLine1;
@@ -120,7 +120,7 @@ class Location {
   dynamic state;
   dynamic pincode;
 
-  Location(
+  MyCustomerLocationModel(
       {this.name,
       this.addressTitle,
       this.addressLine1,
@@ -129,7 +129,7 @@ class Location {
       this.state,
       this.pincode});
 
-  Location.fromJson(Map<String, dynamic> json) {
+  MyCustomerLocationModel.fromJson(Map<String, dynamic> json) {
     name = json['name'];
     addressTitle = json['address_title'];
     addressLine1 = json['address_line1'];

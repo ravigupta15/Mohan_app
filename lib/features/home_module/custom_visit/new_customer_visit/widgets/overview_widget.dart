@@ -2,6 +2,7 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:mohan_impex/core/services/date_picker_service.dart';
+import 'package:mohan_impex/core/services/location_service.dart';
 import 'package:mohan_impex/core/widget/app_text.dart';
 import 'package:mohan_impex/core/widget/app_text_button.dart';
 import 'package:mohan_impex/core/widget/app_text_field/app_textfield.dart';
@@ -60,6 +61,10 @@ class _OverviewWidgetState extends State<OverviewWidget> {
   @override
   void initState() {
     _sliderValue = getSliderValue(double.parse(widget.refState.dealTypeValue.toString()));
+    LocationService().startLocationUpdates().then((val) {
+     widget.refNotifer.visitEndLat  = val.latitude.toString();
+     widget.refNotifer.visitEndLng = val.longitude.toString();
+    });
     super.initState();
   }
 
@@ -647,6 +652,7 @@ class _ProductTrial extends StatelessWidget {
                           refNotifer.updatehasProductTrial(1);
                         }
                       });
+
                       // AppRouter.pushCupertinoNavigation(ProductTrialScreen(
                       //   refNotifer: refNotifer,
                       //   refState: refState,
@@ -654,11 +660,137 @@ class _ProductTrial extends StatelessWidget {
                     },
                   ),
                 )
-              : SizedBox.shrink()
+              : refState.productTrial == 1 && refState.hasProductTrial ==1?
+              addedTrialPlanWidget():
+              SizedBox.shrink()
         ],
       ),
     );
   }
+
+
+  Widget addedTrialPlanWidget(){
+   return Column(
+     children: [  
+     Column(
+       children: [
+         const SizedBox(height: 19,),
+        Row(
+         children: [
+           AppText(title: "Conduct Type :",fontFamily: AppFontfamily.poppinsSemibold,
+           fontWeight: FontWeight.w600,
+           ),
+           const SizedBox(width: 5,),
+              AppText(title: refNotifer.trialConductType,fontFamily: AppFontfamily.poppinsMedium,
+           fontWeight: FontWeight.w600,
+           ),
+         ],
+        ),
+        const SizedBox(height: 15,),
+        Row(
+         children: [
+           AppText(title: "Trial Type :",fontFamily: AppFontfamily.poppinsSemibold,
+           fontWeight: FontWeight.w600,
+           ),
+           const SizedBox(width: 5,),
+              AppText(title: refNotifer.trialType,fontFamily: AppFontfamily.poppinsMedium,
+           fontWeight: FontWeight.w600,
+           ),
+         ],
+        ),
+        const SizedBox(height: 15,),
+        Row(
+         children: [
+           AppText(title: "Appointment :",fontFamily: AppFontfamily.poppinsSemibold,
+           fontWeight: FontWeight.w600,
+           ),
+           const SizedBox(width: 5,),
+              AppText(title: refNotifer.trialPlanAppointmentDate,fontFamily: AppFontfamily.poppinsMedium,
+           fontWeight: FontWeight.w600,
+           ),
+         ],
+        ),
+         const SizedBox(height: 15,),
+         Align(
+           alignment: Alignment.centerRight,
+           child: AppText(
+             title: "Added ${refNotifer.trialType}s",
+             color: Color(0xff696974),
+             fontsize: 12,fontFamily: AppFontfamily.poppinsMedium,
+             fontWeight: FontWeight.w600,
+           ),
+       
+         ),
+         const SizedBox(height: 8,),
+         Container(
+           padding: EdgeInsets.symmetric(horizontal: 16,vertical: 12),
+           decoration: BoxDecoration(
+             color: AppColors.whiteColor,
+             border: Border.all(
+               color: AppColors.e2Color,
+             ),
+             borderRadius: BorderRadius.circular(10)
+           ),
+           child: (refNotifer.trialType).toString().toLowerCase() == "product"?
+         productViewWidget() : itemViewWidget(),
+         )
+       ],
+     )
+     ],
+   );
+  }
+  Widget productViewWidget(){
+    return   ListView.separated(
+       separatorBuilder: (ctx,sb){
+                return const SizedBox(height: 15,);
+              }, 
+              itemCount: refNotifer.trailItems.length,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemBuilder: (ctx,index){
+                return GestureDetector(
+                  onTap: (){
+                    // AppRouter.pushCupertinoNavigation(TrialProductItemScreen());
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                     Flexible(child:  AppText(title: refNotifer.trailItems[index]['product'] ?? '',fontWeight: FontWeight.w400,),),
+                    const SizedBox(width: 5,),
+                     SvgPicture.asset(AppAssetPaths.deleteIcon)
+                    ],
+                  ),
+                );
+            });
+  }
+
+
+  Widget itemViewWidget(){
+    return   ListView.separated(
+              separatorBuilder: (ctx,sb){
+                return const SizedBox(height: 15,);
+              },
+              itemCount: refNotifer.trailItems.length,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemBuilder: (ctx,index){
+                return GestureDetector(
+                  onTap: (){
+                    // AppRouter.pushCupertinoNavigation(TrialProductItemScreen());
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Flexible(child: AppText(title: refNotifer.trailItems[index]['item_name'] ?? '',fontWeight: FontWeight.w400,)),
+                     const SizedBox(width: 5,),
+                      SvgPicture.asset(AppAssetPaths.deleteIcon)
+                    ],
+                  ),
+                );
+            });
+  }
+
+
 }
 
 class _CaptureImage extends StatefulWidget {

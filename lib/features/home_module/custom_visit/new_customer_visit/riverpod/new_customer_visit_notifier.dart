@@ -72,7 +72,7 @@ class NewCustomerVisitNotifier extends StateNotifier<NewCustomerVisitState> {
   final bookAppointmentController = TextEditingController();
 //  final verfiyTypeController = TextEditingController();
 
-  String verifiedCustomerLocation = '';
+  String locationName = '';
 
   ///
 //  String unvName = '';
@@ -82,6 +82,12 @@ class NewCustomerVisitNotifier extends StateNotifier<NewCustomerVisitState> {
   final districtController = TextEditingController();
   final stateController = TextEditingController();
   final pincodeController = TextEditingController();
+
+
+String visitStartLat = '';
+ String visitStartLng = '';
+ String visitEndLat = '';
+ String visitEndLng = ''; 
 
   final formKey = GlobalKey<FormState>();
 
@@ -111,10 +117,6 @@ class NewCustomerVisitNotifier extends StateNotifier<NewCustomerVisitState> {
         contactNumberList: [],
         channelParterName: '',
         productModel: null,
-        visitEndLatitude: '',
-        visitEndLetitude: '',
-        visitStartLatitude: '',
-        visitStartLetitude: '',
         dealTypeValue: 1);
     isEditDetails = false;
     resetControllers();
@@ -123,7 +125,7 @@ class NewCustomerVisitNotifier extends StateNotifier<NewCustomerVisitState> {
     isReadOnlyFields = false;
     selectedshop = '';
     // selectedUNVCustomer = '';
-    verifiedCustomerLocation = '';
+    locationName = '';
     selectedExistingCustomer = '';
     trailItems = [];
     trialConductType = '';
@@ -131,11 +133,15 @@ class NewCustomerVisitNotifier extends StateNotifier<NewCustomerVisitState> {
     trialPlanAppointmentDate = '';
      isUpdate = 0;
      cvmId = '';
+     visitEndLat = '';
+     visitEndLng = '';
+     visitStartLat = '';
+     visitStartLng = '';
   }
 
   resetControllers() {
     state = state.copyWith(customerInfoModel: null, unvCustomerModel: null);
-    verifiedCustomerLocation = '';
+    locationName = '';
     selectedshop = '';
     selectedVerificationType = '';
     customerNameController.clear();
@@ -248,9 +254,8 @@ class NewCustomerVisitNotifier extends StateNotifier<NewCustomerVisitState> {
   checkOverViewValidation(BuildContext context,
       {required String actionType, required String route}) {
     LocationService().startLocationUpdates().then((val) {
-      state = state.copyWith(
-          visitEndLatitude: val.latitude.toString(),
-          visitEndLetitude: val.longitude.toString());
+      visitEndLat  = val.latitude.toString();
+      visitEndLng = val.longitude.toString();
     });
     if (state.selectedProductList.isEmpty) {
       MessageHelper.showErrorSnackBar(context, "Please add your product");
@@ -268,7 +273,12 @@ class NewCustomerVisitNotifier extends StateNotifier<NewCustomerVisitState> {
       } else if (state.productTrial == 1 && state.hasProductTrial == 0) {
         MessageHelper.showErrorSnackBar(context, "Please book the trial");
       } else {
-        createProductApiFunction(context, actionType: actionType, route: route);
+        locationValidationApiFunction(context).then((locationVal){
+          if((locationVal ?? false)==true){
+             createProductApiFunction(context, actionType: actionType, route: route);
+          }
+        });
+        
       }
     }
   }
@@ -314,7 +324,7 @@ class NewCustomerVisitNotifier extends StateNotifier<NewCustomerVisitState> {
       dealTypeValue: int.parse((model.dealType ?? '0').toString()),
       contactNumberList: contactList,
       hasProductTrial: model.hasTrialPlan,
-      productTrial: model.hasTrialPlan,
+      productTrial: model.hasTrialPlan == 0 ?2:1,
       // uploadedImageList:  model.imageUrl ?? []
     );
     List list = model.imageUrl!.map((e) => {
@@ -334,7 +344,7 @@ state = state.copyWith(
 
     isEditDetails = model.custEditNeeded.toString() == '1' ? true : false;
     selectedExistingCustomer = (model.verificType ?? '').toString().toLowerCase() =='verified'? (model.customer ?? '') : (model.unvCustomer ??'');
-    verifiedCustomerLocation = model.location ?? '';
+    locationName = model.location ?? '';
     selectedshop = model.shop ?? '';
     selectedVerificationType = model.verificType ?? '';
     trialConductType = model.conductBy ?? '';
@@ -425,10 +435,11 @@ state = state.copyWith(
       {required String searchText,
       String channelPartern = '',
       String visitType = '',
-      String verificationType = ''}) async {
+      String verificationType = '',
+      String kycStatus = ''}) async {
     final response = await ApiService().makeRequest(
         apiUrl:
-            "${ApiUrls.customerUrl}?search_text=$searchText&customer_level=$visitType&channel_partner=$channelPartern&verification_type=$verificationType",
+            "${ApiUrls.customerUrl}?search_text=$searchText&customer_level=$visitType&channel_partner=$channelPartern&verification_type=$verificationType&kyc_status=$kycStatus",
         method: ApiMethod.get.name);
     if (response != null) {
       state = state.copyWith(
@@ -600,8 +611,9 @@ state = state.copyWith(
         return {"contact": e.toString()};
       }).toList(),
       "location": state.selectedCustomerType == 1
-          ? verifiedCustomerLocation
-          : LocalSharePreference.currentAddress,
+          ? locationName
+          : '',
+          "google_address":LocalSharePreference.currentAddress,
       "address_title": addressTypeController.text,
       "address_line1": address1Controller.text,
       "address_line2": address2Controller.text,
@@ -631,7 +643,7 @@ state = state.copyWith(
       "appointment_date": trialPlanAppointmentDate,
       "cust_edit_needed": isEditDetails ? 1 : 0,
       "isupdate": isUpdate,
-    "cvm_id":cvmId
+     "cvm_id":cvmId
     };
 // print(body);
     log(json.encode(body));
@@ -693,13 +705,17 @@ state = state.copyWith(
     }
   }
 
-  locationValidationApiFunction(BuildContext context) async {
+  Future locationValidationApiFunction(BuildContext context) async {
+    // print(state.visitStartLatitude);
     ShowLoader.loader(context);
     final response = await ApiService().makeRequest(
         apiUrl:
-            "${ApiUrls.locationValidationurl}?destination=${state.visitStartLatitude}, ${state.visitStartLetitude}&origin=${state.visitEndLatitude}, ${state.visitEndLetitude}",
+            "${ApiUrls.locationValidationurl}?destination=$visitEndLat,$visitEndLng&origin=$visitStartLat,$visitStartLng",
         method: ApiMethod.get.name);
     ShowLoader.hideLoader();
-    if (response != null) {}
+    if(response != null){
+      return response.data['data']?['valid'] ?? false;
+    }
+    return response;
   }
 }

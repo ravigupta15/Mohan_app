@@ -17,8 +17,9 @@ class SearchScreen extends ConsumerStatefulWidget {
   final String visitType;
   final String verificationType;
   final bool showCustomerStatus;
+  final String kycStatus; /// from sales order (Completed) 
   const SearchScreen({super.key, required this.route, this.channelParter = '', this.visitType = '',
-  this.verificationType = '',this.showCustomerStatus = false
+  this.verificationType = '',this.showCustomerStatus = false, this.kycStatus = ''
   });
 
   @override
@@ -52,7 +53,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     } else if (widget.route == 'product') {
       refNotifier.productApiFunction('');
     } else if(widget.route=='verified') {
-      refNotifier.customerInfoApiFunction(searchText: '', channelPartern: widget.channelParter, visitType: widget.visitType,verificationType: widget.verificationType );
+      refNotifier.customerInfoApiFunction(searchText: '', channelPartern: widget.channelParter, visitType: widget.visitType,verificationType: widget.verificationType, kycStatus: widget.kycStatus);
     }
     else if(widget.route == 'itemTemplateSalesOrder'){
       addSalesNotifier.itemTemplateApiFunction('');
@@ -258,9 +259,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   _handleCustomInfoSearch(String val) {
     isInit = false; 
     if (val.isNotEmpty) {
-      ref.read(newCustomVisitProvider.notifier).customerInfoApiFunction(searchText: val,channelPartern: widget.channelParter, visitType: widget.visitType, verificationType: widget.verificationType);
+      ref.read(newCustomVisitProvider.notifier).customerInfoApiFunction(searchText: val,channelPartern: widget.channelParter, visitType: widget.visitType, verificationType: widget.verificationType, kycStatus: widget.kycStatus);
     } else {
-        ref.read(newCustomVisitProvider.notifier).customerInfoApiFunction(searchText: '',channelPartern: widget.channelParter, visitType: widget.visitType, verificationType: widget.visitType);
+        ref.read(newCustomVisitProvider.notifier).customerInfoApiFunction(searchText: '',channelPartern: widget.channelParter, visitType: widget.visitType, verificationType: widget.visitType,kycStatus : widget.kycStatus);
       // ref.read(newCustomVisitProvider.notifier).customerInfoApiFunction('');
     }
   }

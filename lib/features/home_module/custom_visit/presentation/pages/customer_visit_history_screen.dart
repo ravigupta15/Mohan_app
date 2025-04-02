@@ -547,15 +547,17 @@ class _VisitItemsWidget extends StatelessWidget {
                          AppNetworkImage(imgUrl: model?.imageUrl??'',height: 64,width: 70,boxFit: BoxFit.cover,),
                       ),
                       const SizedBox(width: 13,),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          visitItem(title: 'Shop name', subTitle: model?.shopName??''),
-                          const SizedBox(height: 9,),
-                          visitItem(title:"Contact",subTitle: model?.contact??''),
-                          const SizedBox(height: 9,),
-                          visitItem(title:"Location",subTitle: model?.location??''),
-                        ],
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            visitItem(title: 'Shop name', subTitle: model?.shopName??''),
+                            const SizedBox(height: 9,),
+                            visitItem(title:"Contact",subTitle: model?.contact??''),
+                            const SizedBox(height: 9,),
+                            visitItem(title:"Location",subTitle: model?.location??''),
+                          ],
+                        ),
                       )
                     ],
                   ),
@@ -581,9 +583,10 @@ class _VisitItemsWidget extends StatelessWidget {
 
 Widget visitItem({required String title, required String subTitle}){
   return Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AppText(title: "$title : ",fontsize: 12,fontFamily: AppFontfamily.poppinsSemibold,color: AppColors.visitItem,),
-        AppText(title: subTitle,fontsize: 10,fontFamily: AppFontfamily.poppinsRegular,color: AppColors.visitItem,),
+        Flexible(child: AppText(title: subTitle,fontsize: 10,fontFamily: AppFontfamily.poppinsRegular,color: AppColors.visitItem,)),
       ],
     );
 }

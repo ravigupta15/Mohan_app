@@ -67,6 +67,7 @@ class DigitalRecords {
   dynamic thumbnailImage;
   dynamic totalCount;
   dynamic fileType;
+  dynamic filename;
 
   DigitalRecords(
       {this.name,
@@ -75,7 +76,8 @@ class DigitalRecords {
       this.productAttachment,
       this.thumbnailImage,
       this.totalCount,
-      this.fileType});
+      this.fileType,
+      this.filename});
 
   DigitalRecords.fromJson(Map<String, dynamic> json) {
     name = json['name'];
@@ -85,6 +87,7 @@ class DigitalRecords {
     thumbnailImage = json['thumbnail_image'];
     totalCount = json['total_count'];
     fileType = json['file_type'];
+    filename = json['filename'];
   }
 
   Map<String, dynamic> toJson() {
@@ -96,6 +99,7 @@ class DigitalRecords {
     data['thumbnail_image'] = thumbnailImage;
     data['total_count'] = totalCount;
     data['file_type'] = fileType;
+    data['filename'] = filename;
     return data;
   }
 }

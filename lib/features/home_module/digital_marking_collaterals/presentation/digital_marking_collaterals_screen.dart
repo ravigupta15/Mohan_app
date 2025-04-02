@@ -216,7 +216,7 @@ String downloadStatus = '';
                               downloadTap: ()async
                             {
                               if((model?.productAttachment ?? '').isNotEmpty){
-                              downloadFile(model?.productAttachment ?? '',  model?.fileType ??'');
+                              downloadFile(model?.productAttachment ?? '',  model?.fileType ??'', model?.filename ??'');
                               // .then((val)async{
                               //   if(val!=null){
                               //     await OpenFile.open(val,);
@@ -338,7 +338,7 @@ Future<bool> requestPermission() async {
   return status.isGranted;
 }
 
-Future<void> downloadFile(String url, String fileType) async {
+Future<void> downloadFile(String url, String fileType, String fileName) async {
   ShowLoader.loader(context);
   try {
     // Request permission
@@ -364,7 +364,7 @@ Future<void> downloadFile(String url, String fileType) async {
     } else {
       fileExtension = '.png'; // Default to PNG if unknown
     }
-    final filePath = '${directory.path}/download$fileExtension';
+    final filePath = '${directory.path}/${fileName.split('.').first}$fileExtension';
     final response = await http.get(Uri.parse(url));
 
     if (response.statusCode == 200) {

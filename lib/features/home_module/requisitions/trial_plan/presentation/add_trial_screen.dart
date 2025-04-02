@@ -90,7 +90,7 @@ callInitFunction() {
       trialPlanNotifier.customerNameController.text = newVisitNotifier.customerNameController.text;
     trialPlanNotifier.visitTypeController.text = AppConstants.visitTypeList[newVisitState.selectedVisitType];
     trialPlanNotifier.businessNameController.text = newVisitNotifier.shopNameController.text;
-    trialPlanNotifier.verifiedCustomerLocation = AppConstants.customerType[newVisitState.selectedCustomerType] == "new"? '' : newVisitNotifier.verifiedCustomerLocation;
+    trialPlanNotifier.verifiedCustomerLocation = AppConstants.customerType[newVisitState.selectedCustomerType] == "new"? '' : newVisitNotifier.locationName;
     trialPlanNotifier.customer = newVisitNotifier.selectedExistingCustomer;
     trialPlanNotifier.selectedVisitType = AppConstants.visitTypeList[newVisitState.selectedVisitType];
     trialPlanNotifier.selectedVerifyType =  newVisitNotifier.selectedVerificationType;

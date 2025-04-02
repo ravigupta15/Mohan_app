@@ -245,7 +245,7 @@ class _SalesRegistrationWidgetState extends State<SalesRegistrationWidget>
               route: 'verified',
               verificationType: 'Verified',
                 visitType: AppConstants.visitTypeList[widget.refState.selectedVisitType],
-              channelParter:widget.refState.selectedVisitType ==1 ? widget.refNotifer.channelPartnerController.text : ''
+              channelParter:widget.refState.selectedVisitType ==1 ? widget.refNotifer.channelPartnerController.text : '',kycStatus: "Completed",
             )).then((val) {
               if (val != null) {
                   CustomerDetails model = val;

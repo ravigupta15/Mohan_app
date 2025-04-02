@@ -9,6 +9,8 @@ import 'package:mohan_impex/core/widget/app_text_button.dart';
 import 'package:mohan_impex/core/widget/custom_app_bar.dart';
 import 'package:mohan_impex/core/widget/dotted_divider.dart';
 import 'package:mohan_impex/core/widget/expandable_widget.dart';
+import 'package:mohan_impex/features/common_widgets/card_item_widget.dart';
+import 'package:mohan_impex/features/home_module/my_customers/model/view_my_custom_model.dart';
 import 'package:mohan_impex/features/home_module/my_customers/riverpod/my_customer_notifier.dart';
 import 'package:mohan_impex/features/home_module/my_customers/riverpod/my_customer_state.dart';
 import 'package:mohan_impex/res/app_asset_paths.dart';
@@ -89,6 +91,7 @@ class _ViewCustomerScreenState extends ConsumerState<ViewCustomerScreen> {
                 children: [
                   _CustomInfoWidget(
                     refState: refState,
+                    refNotifier: refNotifier,
                   ),
                   const SizedBox(
                     height: 15,
@@ -543,7 +546,8 @@ class _ViewCustomerScreenState extends ConsumerState<ViewCustomerScreen> {
 
 class _CustomInfoWidget extends StatelessWidget {
   final MyCustomerState refState;
-  _CustomInfoWidget({required this.refState});
+  final MyCustomerNotifier refNotifier;
+  _CustomInfoWidget({required this.refState, required this.refNotifier});
 
   @override
   Widget build(BuildContext context) {
@@ -599,39 +603,34 @@ class _CustomInfoWidget extends StatelessWidget {
           const SizedBox(
             height: 8,
           ),
-          itemsWidget("Customer Name", model?.customerName ?? ''),
+          cardItemsWidget("Customer Name", model?.customerName ?? ''),
           const SizedBox(
             height: 10,
           ),
-          itemsWidget("Shop Name", model?.shopName ?? ''),
+          cardItemsWidget("Shop Name", model?.shopName ?? ''),
           const SizedBox(
             height: 10,
           ),
-          itemsWidget("Contact", model?.contact ?? ''),
+          cardItemsWidget("Contact", model?.contact ?? ''),
           const SizedBox(
             height: 10,
           ),
-          itemsWidget("Location", model?.location ?? ''),
+          model!= null?
+          cardItemsWidget("Location", customerAddress(model.location!)) : EmptyWidget(),
         ],
       ),
     );
   }
 
-  Widget itemsWidget(String title, String subTitle) {
-    return Row(
-      children: [
-        AppText(
-          title: "$title : ",
-          fontFamily: AppFontfamily.poppinsRegular,
-          fontsize: 13,
-        ),
-        AppText(
-          title: subTitle,
-          fontsize: 13,
-          fontFamily: AppFontfamily.poppinsRegular,
-          color: AppColors.lightTextColor,
-        ),
-      ],
-    );
-  }
+ customerAddress(Location model){
+  String address = [
+  model.addressLine1 ??'',
+  model.addressLine2 ?? '',
+  model.city ?? '',
+  model.state ?? '',
+  model.pincode ?? '',
+].where((element) => element != null).join(', ');
+  return address;
+}
+
 }

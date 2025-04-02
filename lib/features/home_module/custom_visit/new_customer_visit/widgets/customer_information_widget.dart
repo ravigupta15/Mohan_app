@@ -72,7 +72,7 @@ Widget expandedWidget({required bool isExpanded}){
             const SizedBox(height: 10,),
             itemsWidget("Location", LocalSharePreference.currentAddress),
             const SizedBox(height: 10,),
-            itemsWidget("Address Type", refNotifier.addressTypeController.text),
+            itemsWidget("Address Type", "BILLING"),
             const SizedBox(height: 10,),
             itemsWidget("Address-1", refNotifier.address1Controller.text),
             refNotifier.address2Controller.text.isEmpty ?EmptyWidget():

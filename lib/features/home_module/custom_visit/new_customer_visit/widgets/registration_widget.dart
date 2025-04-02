@@ -19,6 +19,7 @@ import 'package:mohan_impex/features/home_module/custom_visit/new_customer_visit
 import 'package:mohan_impex/res/app_colors.dart';
 import 'package:mohan_impex/res/app_google_map.dart';
 import 'package:mohan_impex/res/app_router.dart';
+import 'package:mohan_impex/res/empty_widget.dart';
 import 'package:mohan_impex/utils/app_validation.dart';
 import 'package:mohan_impex/utils/message_helper.dart';
 
@@ -41,6 +42,15 @@ class _RegistrationWidgetState extends State<RegistrationWidget>
   final districtSearchController = TextEditingController();
   final unvCustomerSearchController = TextEditingController();
   
+  @override
+  void initState() {
+    LocationService().startLocationUpdates().then((val) {
+     widget.refNotifer.visitStartLat  = val.latitude.toString();
+     widget.refNotifer.visitStartLng = val.longitude.toString();
+     print("sdfg...${widget.refNotifer.visitStartLat}");
+    });
+    super.initState();
+  }
   
   @override
   Widget build(BuildContext context) {
@@ -347,7 +357,7 @@ class _RegistrationWidgetState extends State<RegistrationWidget>
           textInputAction: TextInputAction.done,
           validator: pincodeValidation,
         ),
-
+        widget.refState.selectedCustomerType == 0 ? EmptyWidget():
                  Padding(
                    padding: const EdgeInsets.only(top: 20),
                    child: Row(
@@ -439,7 +449,7 @@ class _RegistrationWidgetState extends State<RegistrationWidget>
                         if(response!=null&& response['data'] != null){
                     CustomerAddressModel addressModel =
                         CustomerAddressModel.fromJson(response);
-                       widget.refNotifer.verifiedCustomerLocation = (addressModel.data?.name??'');
+                       widget.refNotifer.locationName = (addressModel.data?.name??'');
                     widget.refNotifer.address1Controller.text =
                         addressModel.data?.addressLine1 ?? '';
                     widget.refNotifer.address2Controller.text =

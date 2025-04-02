@@ -90,7 +90,14 @@ class StatusWidget extends StatelessWidget {
     children: [
       Row(
         children: [
-        SvgPicture.asset(AppAssetPaths.selectedTimeIcon,
+
+        SvgPicture.asset(
+          (model?.status??'').isEmpty|| (model?.status??'').toString().toLowerCase().contains('pending')?
+          AppAssetPaths.pendingStatusIcon :
+          (model?.status??'').toString().toLowerCase().contains('rejected')?
+          AppAssetPaths.rejectedStatusIcon:
+          AppAssetPaths.selectedTimeIcon,
+          
         colorFilter: ColorFilter.mode(
          (model?.status??'').isEmpty|| (model?.status??'').toString().toLowerCase().contains('pending')?
          AppColors.light92Color:

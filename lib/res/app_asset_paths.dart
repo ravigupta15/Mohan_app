@@ -60,4 +60,7 @@ static const settingIcon = 'assets/icons/setting_ic.svg';
 static const securityIcon = 'assets/icons/security_ic.svg';
 static const heartIcon = 'assets/icons/heart_ic.svg';
 static const starIcon = 'assets/icons/star_ic.svg';
+
+static const pendingStatusIcon = 'assets/icons/pending_status_ic.png';
+static const rejectedStatusIcon = 'assets/icons/rejected_status_ic.png';
 }

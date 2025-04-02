@@ -37,14 +37,9 @@ CustomerInfoModel? customerInfoModel;
  StateModel?stateModel;
   DistrictModel? districtModel;
   UNVCustomerModel? unvCustomerModel;
-  String visitStartLatitude;
- String visitStartLetitude;
- String visitEndLatitude;
- String visitEndLetitude;
   NewCustomerVisitState({required this.isLoading,required this.tabBarIndex, required this.currentTimer, required this.selectedCustomerType,required this.selectedVisitType, required this.customerName, required this.shopName, required this.addQuantity,required this.uploadedImageList, this.productTrial=0,
   required this.channelList,this.competitorModel, this.itemModel, required this.selectedProductList,this.customerInfoModel,required this.contactNumberList,  this.channelParterName = '',this.dealTypeValue=1, this.visitStartDate = '', this.hasProductTrial=0, this.productModel,this.productItemModel,
   this.stateModel,this.districtModel, this.unvCustomerModel,
-  this.visitEndLatitude ='',this.visitEndLetitude = '',this.visitStartLatitude='',this.visitStartLetitude=''
   });
 
   NewCustomerVisitState copyWith({  bool? isLoading, int? tabBarIndex, int? currentTimer, int?selectedCustomerType,
@@ -52,7 +47,6 @@ CustomerInfoModel? customerInfoModel;
   List<ProductSendModel>?selectedProductList, CustomerInfoModel?customerInfoModel,List?contactNumberList, String?channelParterName,int?dealTypeValue, String?visitStartDate,int?hasProductTrial,
   ProductModel? productModel,ProductItemModel? productItemModel,StateModel?stateModel,
   DistrictModel? districtModel,UNVCustomerModel? unvCustomerModel,
-  String? visitStartLatitude, String? visitStartLetitude, String? visitEndLatitude, String? visitEndLetitude,
  
   }) {
     return NewCustomerVisitState(
@@ -82,10 +76,6 @@ CustomerInfoModel? customerInfoModel;
       stateModel: stateModel??this.stateModel,
       // customerAddressModel: customerAddressModel??this.customerAddressModel,
       unvCustomerModel:unvCustomerModel??this.unvCustomerModel ,
-      visitEndLatitude: visitEndLatitude??this.visitEndLatitude,
-      visitEndLetitude: visitEndLetitude??this.visitEndLetitude,
-      visitStartLatitude: visitStartLatitude??this.visitStartLatitude,
-      visitStartLetitude: visitStartLetitude??this.visitStartLetitude
     );
   }
 }
