@@ -348,7 +348,7 @@ Future<void> downloadFile(String url, String fileType, String fileName) async {
     }
 
     // Directory Path
-    final directory = Directory('/storage/emulated/0/Download/Mohan');
+    final directory = Directory('/storage/emulated/0/Download/Mohan Impex');
     if (!directory.existsSync()) {
       directory.createSync(recursive: true);
     }
